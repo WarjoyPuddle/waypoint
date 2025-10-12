@@ -132,7 +132,7 @@ GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
 @dataclasses.dataclass(frozen=True)
 class ModeConfig:
     clean: bool = False
-    check_copyright: bool = False
+    check_legal: bool = False
     format: bool = False
     static_lib: bool = False
     shared_lib: bool = False
@@ -163,7 +163,7 @@ class Mode(enum.Enum):
         format=True,
     )
     Full = ModeConfig(
-        check_copyright=True,
+        check_legal=True,
         format=True,
         static_lib=True,
         shared_lib=True,
@@ -186,7 +186,7 @@ class Mode(enum.Enum):
     )
     Verify = ModeConfig(
         clean=True,
-        check_copyright=True,
+        check_legal=True,
         format=True,
         static_lib=True,
         shared_lib=True,
@@ -250,8 +250,8 @@ class Mode(enum.Enum):
         return not self.config.clean
 
     @property
-    def check_copyright(self):
-        return self.config.check_copyright
+    def check_legal(self):
+        return self.config.check_legal
 
     @property
     def format(self):
@@ -1592,12 +1592,8 @@ def build_gcc_release_all_tests_shared_fn() -> bool:
     )
 
 
-def is_json_file(f) -> bool:
-    return re.search(r"\.json$", f) is not None
-
-
-def is_python_file(f) -> bool:
-    return re.search(r"\.py$", f) is not None
+def is_bash_file(f) -> bool:
+    return re.search(r"\.bash$", f) is not None
 
 
 def is_cmake_file(f) -> bool:
@@ -1609,6 +1605,106 @@ def is_cmake_file(f) -> bool:
 
 def is_cpp_file(f) -> bool:
     return re.search(r"\.cpp$", f) is not None or re.search(r"\.hpp$", f) is not None
+
+
+def is_docker_file(f) -> bool:
+    return re.search(r"\.dockerfile$", f) is not None
+
+
+def is_json_file(f) -> bool:
+    return re.search(r"\.json$", f) is not None
+
+
+def is_python_file(f) -> bool:
+    return re.search(r"\.py$", f) is not None
+
+
+def is_file_with_licensing_comment(f) -> bool:
+    return (
+        is_bash_file(f)
+        or is_cmake_file(f)
+        or is_cpp_file(f)
+        or is_docker_file(f)
+        or is_python_file(f)
+    )
+
+
+def match_copyright_notice_pattern(text: str):
+    return re.match(r"^(?://|#) (Copyright \(c\) [0-9]{4}[\- ].+)$", text)
+
+
+def check_copyright_comments_in_single_file(
+    file,
+) -> typing.Tuple[bool, str | None, str]:
+    with open(file, "r") as f:
+        lines = f.readlines()
+    lines = lines[0:3]
+    lines = [line.strip() for line in lines]
+    copyright_lines = [
+        line for line in lines if match_copyright_notice_pattern(line) is not None
+    ]
+    if len(copyright_lines) != 1:
+        return (
+            False,
+            f"Error ({file}):\n"
+            "Notice of copyright not found or multiple lines matched in error",
+            file,
+        )
+
+    copyright_notice = match_copyright_notice_pattern(copyright_lines[0]).group(1)
+    success, error_output = validate_notice_of_copyright(file, copyright_notice)
+    if not success:
+        return False, error_output, file
+
+    spdx_license_id_lines = [
+        line
+        for line in lines
+        if re.match(r"^(?://|#) SPDX-License-Identifier: .+$", line) is not None
+    ]
+    if len(spdx_license_id_lines) != 1:
+        return (
+            False,
+            f"Error ({file}):\n"
+            "SPDX-License-Identifier not found or multiple lines matched in error",
+            file,
+        )
+
+    license_file_ref_lines = [
+        line
+        for line in lines
+        if re.match(r"^(?://|#) For license details, see LICENSE file$", line)
+        is not None
+    ]
+    if len(license_file_ref_lines) != 1:
+        return (
+            False,
+            f"Error ({file}):\n"
+            "Reference to LICENSE file not found or multiple lines matched in error",
+            file,
+        )
+
+    return True, None, file
+
+
+def check_copyright_comments_(files) -> bool:
+    with multiprocessing.Pool(JOBS) as pool:
+        results = pool.map(check_copyright_comments_in_single_file, files)
+    errors = [(output, file) for success, output, file in results if not success]
+    if len(errors) > 0:
+        for output, file in errors:
+            print(f"Error: {file}\nIncorrect copyright comment")
+            if output is not None:
+                print(output)
+
+        return False
+
+    return True
+
+
+def check_copyright_comments_fn() -> bool:
+    files = find_files_by_name(PROJECT_ROOT_DIR, is_file_with_licensing_comment)
+
+    return check_copyright_comments_(files)
 
 
 def format_single_file(f) -> typing.Tuple[bool, str]:
@@ -4050,6 +4146,9 @@ def main() -> int:
     )
 
     check_license_file = Task("Check LICENSE file", check_license_file_fn)
+    check_copyright_comments = Task(
+        "Check copyright comments", check_copyright_comments_fn
+    )
     format_sources = Task("Format code", format_sources_fn)
 
     clean = Task("Clean build files", clean_fn)
@@ -5107,8 +5206,9 @@ def main() -> int:
     if mode.clean:
         root_dependencies.append(clean)
 
-    if mode.check_copyright:
+    if mode.check_legal:
         root_dependencies.append(check_license_file)
+        root_dependencies.append(check_copyright_comments)
 
     if mode.format:
         root_dependencies.append(format_sources)

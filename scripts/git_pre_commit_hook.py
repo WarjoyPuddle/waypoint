@@ -275,7 +275,9 @@ def match_copyright_notice_pattern(text: str):
     return re.match(r"^(?://|#) (Copyright \(c\) [0-9]{4}[\- ].+)$", text)
 
 
-def check_license_comments_in_single_file(file) -> typing.Tuple[bool, str | None, str]:
+def check_copyright_comments_in_single_file(
+    file,
+) -> typing.Tuple[bool, str | None, str]:
     with open(file, "r") as f:
         lines = f.readlines()
     lines = lines[0:3]
@@ -411,13 +413,13 @@ def check_formatting_in_single_file(file: str) -> typing.Tuple[bool, str | None,
     return True, None, file
 
 
-def check_license_comments_in_changed_files(files, pool) -> bool:
+def check_copyright_comments(files, pool) -> bool:
     files = [f for f in files if is_file_with_licensing_comment(f)]
-    results = pool.map(check_license_comments_in_single_file, files)
+    results = pool.map(check_copyright_comments_in_single_file, files)
     errors = [(output, file) for success, output, file in results if not success]
     if len(errors) > 0:
         for output, file in errors:
-            print(f"Error: {file}\nIncorrect license comment")
+            print(f"Error: {file}\nIncorrect copyright comment")
             if output is not None:
                 print(output)
 
@@ -449,7 +451,7 @@ def main() -> int:
 
     files = get_changed_files()
     with multiprocessing.Pool(processes=os.cpu_count()) as pool:
-        success = check_license_comments_in_changed_files(files, pool)
+        success = check_copyright_comments(files, pool)
         if not success:
             return 1
 
