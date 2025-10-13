@@ -133,6 +133,7 @@ GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
 class ModeConfig:
     clean: bool = False
     check_legal: bool = False
+    check_formatting: bool = False
     fix_formatting: bool = False
     static_lib: bool = False
     shared_lib: bool = False
@@ -164,7 +165,7 @@ class Mode(enum.Enum):
     )
     Full = ModeConfig(
         check_legal=True,
-        fix_formatting=True,
+        check_formatting=True,
         static_lib=True,
         shared_lib=True,
         clang=True,
@@ -187,7 +188,7 @@ class Mode(enum.Enum):
     Verify = ModeConfig(
         clean=True,
         check_legal=True,
-        fix_formatting=True,
+        check_formatting=True,
         static_lib=True,
         shared_lib=True,
         clang=True,
@@ -252,6 +253,10 @@ class Mode(enum.Enum):
     @property
     def check_legal(self):
         return self.config.check_legal
+
+    @property
+    def check_formatting(self):
+        return self.config.check_formatting
 
     @property
     def fix_formatting(self):
@@ -1707,6 +1712,19 @@ def check_copyright_comments_fn() -> bool:
     return check_copyright_comments_(files)
 
 
+def check_formatting_single_file(f) -> typing.Tuple[bool, str]:
+    if is_cmake_file(f):
+        return check_formatting_cmake(f), f
+    if is_cpp_file(f):
+        return check_formatting_cpp(f), f
+    if is_json_file(f):
+        return check_formatting_json(f), f
+    if is_python_file(f):
+        return check_formatting_python(f), f
+
+    return False, f
+
+
 def format_single_file(f) -> typing.Tuple[bool, str]:
     if is_cmake_file(f):
         return format_cmake(f), f
@@ -1720,12 +1738,29 @@ def format_single_file(f) -> typing.Tuple[bool, str]:
     return False, f
 
 
+def is_file_for_formatting(f) -> bool:
+    return is_cmake_file(f) or is_cpp_file(f) or is_json_file(f) or is_python_file(f)
+
+
+def check_formatting_fn() -> bool:
+    files = find_files_by_name(PROJECT_ROOT_DIR, is_file_for_formatting)
+
+    with multiprocessing.Pool(JOBS) as pool:
+        results = pool.map(check_formatting_single_file, files)
+        errors = [file for success, file in results if not success]
+        if len(errors) > 0:
+            for f in errors:
+                print(
+                    f'Error: {f}\nIncorrect formatting; run the build in "format" mode'
+                )
+
+            return False
+
+    return True
+
+
 def format_sources_fn() -> bool:
-    files = find_files_by_name(PROJECT_ROOT_DIR, is_json_file)
-    files += find_files_by_name(PROJECT_ROOT_DIR, is_cmake_file)
-    files += find_files_by_name(PROJECT_ROOT_DIR, is_python_file)
-    files += find_files_by_name(PROJECT_ROOT_DIR, is_cpp_file)
-    files.sort()
+    files = find_files_by_name(PROJECT_ROOT_DIR, is_file_for_formatting)
 
     with multiprocessing.Pool(JOBS) as pool:
         results = pool.map(format_single_file, files)
@@ -1739,7 +1774,47 @@ def format_sources_fn() -> bool:
     return True
 
 
-def format_json(f) -> bool:
+def check_formatting_cmake(f) -> bool:
+    success, output = run(
+        [
+            "cmake-format",
+            "--enable-markup",
+            "FALSE",
+            "--check",
+            f,
+        ]
+    )
+    if not success:
+        if output is not None:
+            print(output)
+
+        return False
+
+    return True
+
+
+def check_formatting_cpp(file) -> bool:
+    path_to_config = os.path.realpath(f"{INFRASTRUCTURE_DIR}/.clang-format-20")
+
+    success, output = run(
+        [
+            "clang-format-20",
+            f"--style=file:{path_to_config}",
+            "--dry-run",
+            "-Werror",
+            file,
+        ]
+    )
+    if not success:
+        if output is not None:
+            print(output)
+
+        return False
+
+    return True
+
+
+def check_formatting_json(f) -> bool:
     with open(f, "r") as handle:
         original = handle.read()
     with open(f, "r") as handle:
@@ -1747,9 +1822,28 @@ def format_json(f) -> bool:
 
     data_str = json.dumps(data, indent=2, sort_keys=True)
     data_str += "\n"
-    if data_str != original:
-        with open(f, "w") as handle:
-            handle.write(data_str)
+
+    correct_formatting = data_str == original
+
+    return correct_formatting
+
+
+def check_formatting_python(file) -> bool:
+    success, output = run(
+        [PYTHON, "-m", "isort", "--check", "--line-length", "88", file]
+    )
+    if not success:
+        if output is not None:
+            print(output)
+
+        return False
+
+    success, output = run(["black", "--quiet", "--check", "--line-length", "88", file])
+    if not success:
+        if output is not None:
+            print(output)
+
+        return False
 
     return True
 
@@ -1773,24 +1867,6 @@ def format_cmake(f) -> bool:
     return True
 
 
-def format_python(f) -> bool:
-    success, output = run([PYTHON, "-m", "isort", "--quiet", "--line-length", "88", f])
-    if not success:
-        if output is not None:
-            print(output)
-
-        return False
-
-    success, output = run(["black", "--quiet", "--line-length", "88", f])
-    if not success:
-        if output is not None:
-            print(output)
-
-        return False
-
-    return True
-
-
 def format_cpp(f) -> bool:
     path_to_config = os.path.realpath(f"{INFRASTRUCTURE_DIR}/.clang-format-20")
 
@@ -1802,6 +1878,39 @@ def format_cpp(f) -> bool:
             f,
         ]
     )
+    if not success:
+        if output is not None:
+            print(output)
+
+        return False
+
+    return True
+
+
+def format_json(f) -> bool:
+    with open(f, "r") as handle:
+        original = handle.read()
+    with open(f, "r") as handle:
+        data = json.load(handle)
+
+    data_str = json.dumps(data, indent=2, sort_keys=True)
+    data_str += "\n"
+    if data_str != original:
+        with open(f, "w") as handle:
+            handle.write(data_str)
+
+    return True
+
+
+def format_python(f) -> bool:
+    success, output = run([PYTHON, "-m", "isort", "--quiet", "--line-length", "88", f])
+    if not success:
+        if output is not None:
+            print(output)
+
+        return False
+
+    success, output = run(["black", "--quiet", "--line-length", "88", f])
     if not success:
         if output is not None:
             print(output)
@@ -4149,6 +4258,7 @@ def main() -> int:
     check_copyright_comments = Task(
         "Check copyright comments", check_copyright_comments_fn
     )
+    check_formatting = Task("Check code formatting", check_formatting_fn)
     format_sources = Task("Format code", format_sources_fn)
 
     clean = Task("Clean build files", clean_fn)
@@ -5209,6 +5319,9 @@ def main() -> int:
     if mode.check_legal:
         root_dependencies.append(check_license_file)
         root_dependencies.append(check_copyright_comments)
+
+    if mode.check_formatting:
+        root_dependencies.append(check_formatting)
 
     if mode.fix_formatting:
         root_dependencies.append(format_sources)

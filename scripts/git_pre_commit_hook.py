@@ -335,7 +335,6 @@ def check_formatting_cmake(file) -> typing.Tuple[bool, str | None]:
             "--enable-markup",
             "FALSE",
             "--check",
-            "-i",
             file,
         ]
     )
@@ -354,7 +353,6 @@ def check_formatting_cpp(file) -> typing.Tuple[bool, str | None]:
             f"--style=file:{path_to_config}",
             "--dry-run",
             "-Werror",
-            "-i",
             file,
         ]
     )
