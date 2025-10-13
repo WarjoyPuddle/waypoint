@@ -133,7 +133,7 @@ GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
 class ModeConfig:
     clean: bool = False
     check_legal: bool = False
-    format: bool = False
+    fix_formatting: bool = False
     static_lib: bool = False
     shared_lib: bool = False
     clang: bool = False
@@ -160,11 +160,11 @@ class Mode(enum.Enum):
         test=True,
     )
     Format = ModeConfig(
-        format=True,
+        fix_formatting=True,
     )
     Full = ModeConfig(
         check_legal=True,
-        format=True,
+        fix_formatting=True,
         static_lib=True,
         shared_lib=True,
         clang=True,
@@ -187,7 +187,7 @@ class Mode(enum.Enum):
     Verify = ModeConfig(
         clean=True,
         check_legal=True,
-        format=True,
+        fix_formatting=True,
         static_lib=True,
         shared_lib=True,
         clang=True,
@@ -254,8 +254,8 @@ class Mode(enum.Enum):
         return self.config.check_legal
 
     @property
-    def format(self):
-        return self.config.format
+    def fix_formatting(self):
+        return self.config.fix_formatting
 
     @property
     def static_lib(self):
@@ -5210,7 +5210,7 @@ def main() -> int:
         root_dependencies.append(check_license_file)
         root_dependencies.append(check_copyright_comments)
 
-    if mode.format:
+    if mode.fix_formatting:
         root_dependencies.append(format_sources)
 
     if mode.gcc:
