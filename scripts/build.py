@@ -5311,309 +5311,318 @@ def main() -> int:
         ]
     )
 
-    root_dependencies = []
+    prebuild_dependencies = []
+    build_dependencies = []
 
     if mode.clean:
-        root_dependencies.append(clean)
+        prebuild_dependencies.append(clean)
 
     if mode.check_legal:
-        root_dependencies.append(check_license_file)
-        root_dependencies.append(check_copyright_comments)
+        build_dependencies.append(check_license_file)
+        build_dependencies.append(check_copyright_comments)
 
     if mode.check_formatting:
-        root_dependencies.append(check_formatting)
+        build_dependencies.append(check_formatting)
 
     if mode.fix_formatting:
-        root_dependencies.append(format_sources)
+        build_dependencies.append(format_sources)
 
     if mode.gcc:
         if mode.debug:
             if mode.static_lib:
-                root_dependencies.append(build_gcc_debug_all)
+                build_dependencies.append(build_gcc_debug_all)
             if mode.shared_lib:
-                root_dependencies.append(build_gcc_debug_all_shared)
+                build_dependencies.append(build_gcc_debug_all_shared)
             if mode.test:
                 if mode.static_lib:
-                    root_dependencies.append(test_gcc_debug)
+                    build_dependencies.append(test_gcc_debug)
                 if mode.shared_lib:
-                    root_dependencies.append(test_gcc_debug_shared)
+                    build_dependencies.append(test_gcc_debug_shared)
             if mode.test_target:
                 if mode.static_lib:
-                    root_dependencies.append(test_gcc_debug_test_target)
+                    build_dependencies.append(test_gcc_debug_test_target)
                 if mode.shared_lib:
-                    root_dependencies.append(test_gcc_debug_test_target_shared)
+                    build_dependencies.append(test_gcc_debug_test_target_shared)
             if mode.install:
                 if mode.static_lib:
-                    root_dependencies.append(install_gcc_debug)
+                    build_dependencies.append(install_gcc_debug)
                 if mode.shared_lib:
-                    root_dependencies.append(install_gcc_debug_shared)
+                    build_dependencies.append(install_gcc_debug_shared)
 
         if mode.release:
             if mode.static_lib:
-                root_dependencies.append(build_gcc_relwithdebinfo_all)
+                build_dependencies.append(build_gcc_relwithdebinfo_all)
             if mode.shared_lib:
-                root_dependencies.append(build_gcc_relwithdebinfo_all_shared)
+                build_dependencies.append(build_gcc_relwithdebinfo_all_shared)
             if mode.test:
                 if mode.static_lib:
-                    root_dependencies.append(test_gcc_relwithdebinfo)
+                    build_dependencies.append(test_gcc_relwithdebinfo)
                 if mode.shared_lib:
-                    root_dependencies.append(test_gcc_relwithdebinfo_shared)
+                    build_dependencies.append(test_gcc_relwithdebinfo_shared)
             if mode.test_target:
                 if mode.static_lib:
-                    root_dependencies.append(test_gcc_relwithdebinfo_test_target)
+                    build_dependencies.append(test_gcc_relwithdebinfo_test_target)
                 if mode.shared_lib:
-                    root_dependencies.append(test_gcc_relwithdebinfo_test_target_shared)
+                    build_dependencies.append(
+                        test_gcc_relwithdebinfo_test_target_shared
+                    )
             if mode.install:
                 if mode.static_lib:
-                    root_dependencies.append(install_gcc_relwithdebinfo)
+                    build_dependencies.append(install_gcc_relwithdebinfo)
                 if mode.shared_lib:
-                    root_dependencies.append(install_gcc_relwithdebinfo_shared)
+                    build_dependencies.append(install_gcc_relwithdebinfo_shared)
 
             if mode.static_lib:
-                root_dependencies.append(build_gcc_release_all)
+                build_dependencies.append(build_gcc_release_all)
             if mode.shared_lib:
-                root_dependencies.append(build_gcc_release_all_shared)
+                build_dependencies.append(build_gcc_release_all_shared)
             if mode.test:
                 if mode.static_lib:
-                    root_dependencies.append(test_gcc_release)
+                    build_dependencies.append(test_gcc_release)
                 if mode.shared_lib:
-                    root_dependencies.append(test_gcc_release_shared)
+                    build_dependencies.append(test_gcc_release_shared)
             if mode.test_target:
                 if mode.static_lib:
-                    root_dependencies.append(test_gcc_release_test_target)
+                    build_dependencies.append(test_gcc_release_test_target)
                 if mode.shared_lib:
-                    root_dependencies.append(test_gcc_release_test_target_shared)
+                    build_dependencies.append(test_gcc_release_test_target_shared)
             if mode.install:
                 if mode.static_lib:
-                    root_dependencies.append(install_gcc_release)
+                    build_dependencies.append(install_gcc_release)
                 if mode.shared_lib:
-                    root_dependencies.append(install_gcc_release_shared)
+                    build_dependencies.append(install_gcc_release_shared)
 
     if mode.clang:
         if mode.debug:
             if mode.static_lib:
-                root_dependencies.append(build_clang_debug_all)
+                build_dependencies.append(build_clang_debug_all)
             if mode.shared_lib:
-                root_dependencies.append(build_clang_debug_all_shared)
+                build_dependencies.append(build_clang_debug_all_shared)
             if mode.test:
                 if mode.static_lib:
-                    root_dependencies.append(test_clang_debug)
+                    build_dependencies.append(test_clang_debug)
                 if mode.shared_lib:
-                    root_dependencies.append(test_clang_debug_shared)
+                    build_dependencies.append(test_clang_debug_shared)
             if mode.test_target:
                 if mode.static_lib:
-                    root_dependencies.append(test_clang_debug_test_target)
+                    build_dependencies.append(test_clang_debug_test_target)
                 if mode.shared_lib:
-                    root_dependencies.append(test_clang_debug_test_target_shared)
+                    build_dependencies.append(test_clang_debug_test_target_shared)
             if mode.install:
                 if mode.static_lib:
-                    root_dependencies.append(install_clang_debug)
+                    build_dependencies.append(install_clang_debug)
                 if mode.shared_lib:
-                    root_dependencies.append(install_clang_debug_shared)
+                    build_dependencies.append(install_clang_debug_shared)
 
         if mode.release:
             if mode.static_lib:
-                root_dependencies.append(build_clang_relwithdebinfo_all)
+                build_dependencies.append(build_clang_relwithdebinfo_all)
             if mode.shared_lib:
-                root_dependencies.append(build_clang_relwithdebinfo_all_shared)
+                build_dependencies.append(build_clang_relwithdebinfo_all_shared)
             if mode.test:
                 if mode.static_lib:
-                    root_dependencies.append(test_clang_relwithdebinfo)
+                    build_dependencies.append(test_clang_relwithdebinfo)
                 if mode.shared_lib:
-                    root_dependencies.append(test_clang_relwithdebinfo_shared)
+                    build_dependencies.append(test_clang_relwithdebinfo_shared)
             if mode.test_target:
                 if mode.static_lib:
-                    root_dependencies.append(test_clang_relwithdebinfo_test_target)
+                    build_dependencies.append(test_clang_relwithdebinfo_test_target)
                 if mode.shared_lib:
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_clang_relwithdebinfo_test_target_shared
                     )
             if mode.install:
                 if mode.static_lib:
-                    root_dependencies.append(install_clang_relwithdebinfo)
+                    build_dependencies.append(install_clang_relwithdebinfo)
                 if mode.shared_lib:
-                    root_dependencies.append(install_clang_relwithdebinfo_shared)
+                    build_dependencies.append(install_clang_relwithdebinfo_shared)
 
             if mode.static_lib:
-                root_dependencies.append(build_clang_release_all)
+                build_dependencies.append(build_clang_release_all)
             if mode.shared_lib:
-                root_dependencies.append(build_clang_release_all_shared)
+                build_dependencies.append(build_clang_release_all_shared)
             if mode.test:
                 if mode.static_lib:
-                    root_dependencies.append(test_clang_release)
+                    build_dependencies.append(test_clang_release)
                 if mode.shared_lib:
-                    root_dependencies.append(test_clang_release_shared)
+                    build_dependencies.append(test_clang_release_shared)
             if mode.test_target:
                 if mode.static_lib:
-                    root_dependencies.append(test_clang_release_test_target)
+                    build_dependencies.append(test_clang_release_test_target)
                 if mode.shared_lib:
-                    root_dependencies.append(test_clang_release_test_target_shared)
+                    build_dependencies.append(test_clang_release_test_target_shared)
             if mode.install:
                 if mode.static_lib:
-                    root_dependencies.append(install_clang_release)
+                    build_dependencies.append(install_clang_release)
                 if mode.shared_lib:
-                    root_dependencies.append(install_clang_release_shared)
+                    build_dependencies.append(install_clang_release_shared)
 
     if mode.install:
         if mode.static_lib:
-            root_dependencies.append(verify_install_contents_static)
+            build_dependencies.append(verify_install_contents_static)
         if mode.shared_lib:
-            root_dependencies.append(verify_install_contents_shared)
+            build_dependencies.append(verify_install_contents_shared)
 
     if mode.coverage:
         if mode.gcc:
-            root_dependencies.append(analyze_gcc_coverage)
+            build_dependencies.append(analyze_gcc_coverage)
 
     if mode.valgrind:
         if mode.gcc:
-            root_dependencies.append(test_gcc_valgrind)
+            build_dependencies.append(test_gcc_valgrind)
         if mode.clang:
-            root_dependencies.append(test_clang_valgrind)
+            build_dependencies.append(test_clang_valgrind)
 
     if mode.test_install:
         if mode.gcc:
             if mode.static_lib:
                 if mode.debug:
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_gcc_debug_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_gcc_debug_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_gcc_debug_test
                     )
                 if mode.release:
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_gcc_relwithdebinfo_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_gcc_release_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_gcc_relwithdebinfo_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_gcc_release_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_gcc_relwithdebinfo_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_gcc_release_test
                     )
 
             if mode.shared_lib:
                 if mode.debug:
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_gcc_debug_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_gcc_debug_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_gcc_debug_test_shared
                     )
                 if mode.release:
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_gcc_relwithdebinfo_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_gcc_release_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_gcc_relwithdebinfo_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_gcc_release_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_gcc_relwithdebinfo_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_gcc_release_test_shared
                     )
 
         if mode.clang:
             if mode.static_lib:
                 if mode.debug:
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_clang_debug_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_clang_debug_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_clang_debug_test
                     )
                 if mode.release:
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_clang_relwithdebinfo_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_clang_release_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_clang_relwithdebinfo_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_clang_release_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_clang_relwithdebinfo_test
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_clang_release_test
                     )
 
             if mode.shared_lib:
                 if mode.debug:
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_clang_debug_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_clang_debug_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_clang_debug_test_shared
                     )
                 if mode.release:
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_clang_relwithdebinfo_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_no_version_clang_release_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_clang_relwithdebinfo_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_find_package_exact_version_clang_release_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_clang_relwithdebinfo_test_shared
                     )
-                    root_dependencies.append(
+                    build_dependencies.append(
                         test_install_add_subdirectory_clang_release_test_shared
                     )
 
     if mode.misc:
-        root_dependencies.append(misc_checks)
+        build_dependencies.append(misc_checks)
 
     if mode.examples:
-        root_dependencies.append(example_quick_start_build_and_install)
+        build_dependencies.append(example_quick_start_build_and_install)
 
     if mode.static_analysis:
         if mode.clang:
             if mode.incremental:
-                root_dependencies.append(run_clang_static_analysis_changed_files)
+                build_dependencies.append(run_clang_static_analysis_changed_files)
             else:
-                root_dependencies.append(run_clang_static_analysis_all_files)
+                build_dependencies.append(run_clang_static_analysis_all_files)
 
-    root = Task("Build")
-    root.depends_on(root_dependencies)
+    prebuild = Task("Pre-build")
+    prebuild.depends_on(prebuild_dependencies)
+    build = Task("Build")
+    build.depends_on(build_dependencies)
 
-    success = root.run()
+    success = prebuild.run()
+    if not success:
+        return 1
+
+    success = build.run()
     if not success:
         return 1
 
