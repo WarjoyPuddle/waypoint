@@ -2066,16 +2066,15 @@ def preamble() -> tuple[CliConfig | None, bool]:
             f"{Mode.Verify}",
         ],
         metavar="mode",
-        help=f"""Selects build mode.
-                 Mode "{Mode.Clean}" deletes the build trees.
-                 Mode "{Mode.Coverage}" measures coverage.
-                 Mode "{Mode.Format}" formats source files.
-                 Mode "{Mode.Fast}" runs one build and the tests for quick
-                 iterations.
-                 Mode "{Mode.Full}" builds everything and runs all tools.
-                 Mode "{Mode.StaticAnalysis}" performs static analysis.
-                 Mode "{Mode.Valgrind}" runs Valgrind/memcheck.
-                 Mode "{Mode.Verify}" runs "{Mode.Clean}" followed by "{Mode.Full}".""",
+        help=f"""Selects build mode:
+                 "{Mode.Clean}" deletes the build trees;
+                 "{Mode.Coverage}" measures test coverage;
+                 "{Mode.Format}" formats source files;
+                 "{Mode.Fast}" runs one build and tests for quick iterations;
+                 "{Mode.Full}" builds everything and runs all checks;
+                 "{Mode.StaticAnalysis}" performs static analysis;
+                 "{Mode.Valgrind}" runs Valgrind/memcheck;
+                 "{Mode.Verify}" runs "{Mode.Clean}" followed by "{Mode.Full}".""",
     )
 
     parsed = parser.parse_args()
