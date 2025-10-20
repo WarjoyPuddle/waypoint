@@ -124,6 +124,7 @@ EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR = os.path.realpath(
 JOBS = os.process_cpu_count()
 
 COPYRIGHT_HOLDER_NAME = "Wojciech Kałuża"
+EXPECTED_SPDX_LICENSE_ID = "MIT"
 
 CLANG20_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
 GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
@@ -1638,6 +1639,10 @@ def match_copyright_notice_pattern(text: str):
     return re.match(r"^(?://|#) (Copyright \(c\) [0-9]{4}[\- ].+)$", text)
 
 
+def match_spdx_license_id_pattern(line):
+    return re.match(r"^(?://|#) SPDX-License-Identifier: (.+)$", line)
+
+
 def check_copyright_comments_in_single_file(
     file,
 ) -> typing.Tuple[bool, str | None, str]:
@@ -1662,15 +1667,23 @@ def check_copyright_comments_in_single_file(
         return False, error_output, file
 
     spdx_license_id_lines = [
-        line
-        for line in lines
-        if re.match(r"^(?://|#) SPDX-License-Identifier: .+$", line) is not None
+        line for line in lines if match_spdx_license_id_pattern(line) is not None
     ]
     if len(spdx_license_id_lines) != 1:
         return (
             False,
             f"Error ({file}):\n"
             "SPDX-License-Identifier not found or multiple lines matched in error",
+            file,
+        )
+
+    spdx_license_id = match_spdx_license_id_pattern(spdx_license_id_lines[0]).group(1)
+    if spdx_license_id != EXPECTED_SPDX_LICENSE_ID:
+        return (
+            False,
+            f"Error ({file}):\n"
+            "Unexpected SPDX-License-Identifier: "
+            f"expected {EXPECTED_SPDX_LICENSE_ID}, found {spdx_license_id}",
             file,
         )
 
