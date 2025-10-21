@@ -426,7 +426,12 @@ def check_copyright_comments(files, pool) -> bool:
     return True
 
 
-def check_formatting_in_changed_files(files, pool) -> bool:
+def is_file_for_formatting(f) -> bool:
+    return is_cmake_file(f) or is_cpp_file(f) or is_json_file(f) or is_python_file(f)
+
+
+def check_formatting(files, pool) -> bool:
+    files = [f for f in files if is_file_for_formatting(f)]
     results = pool.map(check_formatting_in_single_file, files)
     errors = [(output, file) for success, output, file in results if not success]
     if len(errors) > 0:
@@ -453,7 +458,7 @@ def main() -> int:
         if not success:
             return 1
 
-        success = check_formatting_in_changed_files(files, pool)
+        success = check_formatting(files, pool)
         if not success:
             return 1
 
