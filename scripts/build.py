@@ -466,7 +466,7 @@ def check_headers_contain_pragma_once_() -> bool:
                 if re.match(r"^#pragma once$", line.strip()) is not None
             ]
             if len(lines) != 1:
-                print(f"Error ({f}):\n\"#pragma once\" not found")
+                print(f'Error ({f}):\n"#pragma once" not found')
 
                 return False
 
@@ -1762,17 +1762,25 @@ def check_copyright_comments_fn() -> bool:
     return check_copyright_comments_(files)
 
 
-def check_formatting_single_file(f) -> typing.Tuple[bool, str]:
-    if is_cmake_file(f):
-        return check_formatting_cmake(f), f
-    if is_cpp_file(f):
-        return check_formatting_cpp(f), f
-    if is_json_file(f):
-        return check_formatting_json(f), f
-    if is_python_file(f):
-        return check_formatting_python(f), f
+def check_formatting_in_single_file(file: str) -> typing.Tuple[bool, str | None, str]:
+    if is_cmake_file(file):
+        success, output = check_formatting_cmake(file)
 
-    return False, f
+        return success, output, file
+    if is_cpp_file(file):
+        success, output = check_formatting_cpp(file)
+
+        return success, output, file
+    if is_json_file(file):
+        success, output = check_formatting_json(file)
+
+        return success, output, file
+    if is_python_file(file):
+        success, output = check_formatting_python(file)
+
+        return success, output, file
+
+    return False, "Expected to check formatting in unsupported file type\n", file
 
 
 def format_single_file(f) -> typing.Tuple[bool, str]:
@@ -1796,12 +1804,14 @@ def check_formatting_fn() -> bool:
     files = find_files_by_name(PROJECT_ROOT_DIR, is_file_for_formatting)
 
     with multiprocessing.Pool(JOBS) as pool:
-        results = pool.map(check_formatting_single_file, files)
-        errors = [file for success, file in results if not success]
+        results = pool.map(check_formatting_in_single_file, files)
+        errors = [(output, file) for success, output, file in results if not success]
         if len(errors) > 0:
-            for f in errors:
+            for output, file in errors:
+                if output is not None:
+                    print(output)
                 print(
-                    f'Error: {f}\nIncorrect formatting; run the build in "format" mode'
+                    f'Error: {file}\nIncorrect formatting; run the build in "format" mode'
                 )
 
             return False
@@ -1824,7 +1834,7 @@ def format_sources_fn() -> bool:
     return True
 
 
-def check_formatting_cmake(f) -> bool:
+def check_formatting_cmake(f) -> typing.Tuple[bool, str | None]:
     success, output = run(
         [
             "cmake-format",
@@ -1835,15 +1845,12 @@ def check_formatting_cmake(f) -> bool:
         ]
     )
     if not success:
-        if output is not None:
-            print(output)
+        return False, output
 
-        return False
-
-    return True
+    return True, None
 
 
-def check_formatting_cpp(file) -> bool:
+def check_formatting_cpp(file) -> typing.Tuple[bool, str | None]:
     path_to_config = os.path.realpath(f"{INFRASTRUCTURE_DIR}/.clang-format-20")
 
     success, output = run(
@@ -1856,15 +1863,12 @@ def check_formatting_cpp(file) -> bool:
         ]
     )
     if not success:
-        if output is not None:
-            print(output)
+        return False, output
 
-        return False
-
-    return True
+    return True, None
 
 
-def check_formatting_json(f) -> bool:
+def check_formatting_json(f) -> typing.Tuple[bool, str | None]:
     with open(f, "r") as handle:
         original = handle.read()
     with open(f, "r") as handle:
@@ -1873,29 +1877,25 @@ def check_formatting_json(f) -> bool:
     data_str = json.dumps(data, indent=2, sort_keys=True)
     data_str += "\n"
 
-    correct_formatting = data_str == original
+    success = data_str == original
+    if not success:
+        return False, "Incorrect JSON file formatting\n"
 
-    return correct_formatting
+    return True, None
 
 
-def check_formatting_python(file) -> bool:
+def check_formatting_python(file) -> typing.Tuple[bool, str | None]:
     success, output = run(
         [PYTHON, "-m", "isort", "--check", "--line-length", "88", file]
     )
     if not success:
-        if output is not None:
-            print(output)
+        return False, output
 
-        return False
-
-    success, output = run(["black", "--quiet", "--check", "--line-length", "88", file])
+    success, output = run(["black", "--check", "--line-length", "88", file])
     if not success:
-        if output is not None:
-            print(output)
+        return False, output
 
-        return False
-
-    return True
+    return True, None
 
 
 def format_cmake(f) -> bool:
