@@ -47,20 +47,23 @@ MAIN_HEADER_PATH = f"{PROJECT_ROOT_DIR}/src/waypoint/include/waypoint/waypoint.h
 assert os.path.isfile(MAIN_HEADER_PATH), "waypoint.hpp does not exist"
 
 INSTALL_TESTS_DIR_PATH = os.path.realpath(f"{PROJECT_ROOT_DIR}/test/install_tests")
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR = os.path.realpath(
+    f"{INSTALL_TESTS_DIR_PATH}/find_package_no_version_test"
+)
 TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_no_version_test/waypoint_install_linux_clang_MItqq12bE9VvgzWH___"
+    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/waypoint_install_linux_clang_MItqq12bE9VvgzWH___"
 )
 TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_no_version_test/waypoint_install_linux_gcc_99V4LexZ8aO7qhLC___"
+    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/waypoint_install_linux_gcc_99V4LexZ8aO7qhLC___"
 )
 TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_no_version_test/waypoint_install_linux_clang_shared_CJGWSsRXagJ22vHV___"
+    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/waypoint_install_linux_clang_shared_CJGWSsRXagJ22vHV___"
 )
 TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_SHARED_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_no_version_test/waypoint_install_linux_gcc_shared_JRXQmCKTnzVcAYbS___"
+    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/waypoint_install_linux_gcc_shared_JRXQmCKTnzVcAYbS___"
 )
 TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_no_version_test/infrastructure"
+    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/infrastructure"
 )
 assert os.path.isfile(
     f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR}/CMakeLists.txt"
@@ -68,20 +71,23 @@ assert os.path.isfile(
     f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR}/CMakePresets.json"
 )
 
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR = os.path.realpath(
+    f"{INSTALL_TESTS_DIR_PATH}/find_package_exact_version_test"
+)
 TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_exact_version_test/waypoint_install_linux_clang_2dp6n2H9O8te806G___"
+    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/waypoint_install_linux_clang_2dp6n2H9O8te806G___"
 )
 TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_exact_version_test/waypoint_install_linux_gcc_vo44y7Bxqbn3kKZA___"
+    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/waypoint_install_linux_gcc_vo44y7Bxqbn3kKZA___"
 )
 TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_SHARED_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_exact_version_test/waypoint_install_linux_clang_shared_kd2bzSgxWMh8xpx8___"
+    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/waypoint_install_linux_clang_shared_kd2bzSgxWMh8xpx8___"
 )
 TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_SHARED_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_exact_version_test/waypoint_install_linux_gcc_shared_zogAXLEQwWHTZO9T___"
+    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/waypoint_install_linux_gcc_shared_zogAXLEQwWHTZO9T___"
 )
 TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_exact_version_test/infrastructure"
+    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/infrastructure"
 )
 assert os.path.isfile(
     f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR}/CMakeLists.txt"
@@ -89,23 +95,26 @@ assert os.path.isfile(
     f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR}/CMakePresets.json"
 )
 
+TEST_INSTALL_ADD_SUBDIRECTORY_DIR = os.path.realpath(
+    f"{INSTALL_TESTS_DIR_PATH}/add_subdirectory_test"
+)
 TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/add_subdirectory_test/waypoint_sources_4XF31O1T1ff3B3Tq___"
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_sources_4XF31O1T1ff3B3Tq___"
 )
 TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/add_subdirectory_test/waypoint_build_clang_KGgicppoHf0mkVdJ___"
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_build_clang_KGgicppoHf0mkVdJ___"
 )
 TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/add_subdirectory_test/waypoint_build_gcc_ZcvFQuKcWaEwFis9___"
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_build_gcc_ZcvFQuKcWaEwFis9___"
 )
 TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_SHARED_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/add_subdirectory_test/waypoint_build_clang_shared_ZKPQ5F48VyGbWfTq___"
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_build_clang_shared_ZKPQ5F48VyGbWfTq___"
 )
 TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_SHARED_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/add_subdirectory_test/waypoint_build_gcc_shared_uDavOddLQYiP7PUc___"
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_build_gcc_shared_uDavOddLQYiP7PUc___"
 )
 TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/add_subdirectory_test/infrastructure"
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/infrastructure"
 )
 assert os.path.isfile(
     f"{TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/CMakeLists.txt"
@@ -138,6 +147,7 @@ EXPECTED_SPDX_LICENSE_ID = "MIT"
 
 CLANG20_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
 GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
+EXPORT_COMPILE_COMMANDS_ENV_PATCH = {"CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -976,34 +986,106 @@ def clang_tidy_process_single_file(data) -> typing.Tuple[bool, str, float, str |
     )
 
 
-def filter_files_for_static_analysis(files: typing.List[str]) -> typing.List[str]:
-    files = [f for f in files if not f.startswith(INSTALL_TESTS_DIR_PATH)]
-    files = [f for f in files if not f.startswith(EXAMPLES_DIR_PATH)]
+def run_clang_static_analysis_(files) -> bool:
+    files_main = [
+        f
+        for f in files
+        if not f.startswith(INSTALL_TESTS_DIR_PATH)
+        and not f.startswith(EXAMPLES_DIR_PATH)
+    ]
 
-    return files
+    success = run_clang_tidy(CMakePresets.LinuxClang, files_main, CMAKE_SOURCE_DIR)
+    if not success:
+        return False
+
+    # Test installs
+
+    files_test_install_find_package_no_version = [
+        f for f in files if f.startswith(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR)
+    ]
+
+    success = run_clang_tidy(
+        CMakePresets.LinuxClang,
+        files_test_install_find_package_no_version,
+        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
+    )
+    if not success:
+        return False
+
+    files_test_install_find_package_exact_version = [
+        f for f in files if f.startswith(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR)
+    ]
+
+    success = run_clang_tidy(
+        CMakePresets.LinuxClang,
+        files_test_install_find_package_exact_version,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
+    )
+    if not success:
+        return False
+
+    files_test_install_add_subdirectory = [
+        f for f in files if f.startswith(TEST_INSTALL_ADD_SUBDIRECTORY_DIR)
+    ]
+
+    success = run_clang_tidy(
+        CMakePresets.LinuxClang,
+        files_test_install_add_subdirectory,
+        TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+    )
+    if not success:
+        return False
+
+    # Examples
+
+    files_example_quick_start_build_and_install = [
+        f
+        for f in files
+        if f.startswith(EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR)
+    ]
+
+    success = run_clang_tidy(
+        CMakePresets.Example,
+        files_example_quick_start_build_and_install,
+        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+    )
+    if not success:
+        return False
+
+    files_example_quick_start_add_subdirectory = [
+        f
+        for f in files
+        if f.startswith(EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)
+    ]
+
+    success = run_clang_tidy(
+        CMakePresets.Example,
+        files_example_quick_start_add_subdirectory,
+        EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+    )
+    if not success:
+        return False
+
+    return True
 
 
 def run_clang_static_analysis_all_files_fn() -> bool:
     files = find_files_by_name(PROJECT_ROOT_DIR, is_cpp_file)
 
-    files = filter_files_for_static_analysis(files)
-
-    return run_clang_tidy(CMakePresets.LinuxClang, files)
+    return run_clang_static_analysis_(files)
 
 
 def run_clang_static_analysis_changed_files_fn() -> bool:
     files = changed_cpp_files_and_dependents(CMakePresets.LinuxClang)
 
-    files = filter_files_for_static_analysis(files)
-
-    return run_clang_tidy(CMakePresets.LinuxClang, files)
+    return run_clang_static_analysis_(files)
 
 
-def run_clang_tidy(preset, files) -> bool:
+def run_clang_tidy(preset, files, cmake_source_dir) -> bool:
     if len(files) == 0:
         return True
 
-    build_dir = build_dir_from_preset(preset, CMAKE_SOURCE_DIR)
+    build_dir = build_dir_from_preset(preset, cmake_source_dir)
 
     inputs = [(f, build_dir) for f in files]
     with multiprocessing.Pool(JOBS) as pool:
@@ -3717,7 +3799,6 @@ def test_gcc_release_test_target_shared_fn() -> bool:
 
 
 def example_quick_start_build_and_install_fn() -> bool:
-    config = CMakeBuildConfig.Release
     example_cmake_source_dir = EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
     env_patch = CLANG20_ENV_PATCH
     build_dir = build_dir_from_preset(CMakePresets.Example, example_cmake_source_dir)
@@ -3731,32 +3812,115 @@ def example_quick_start_build_and_install_fn() -> bool:
         install_dir, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR
     )
 
-    success = configure_cmake(CMakePresets.Example, env_patch, example_cmake_source_dir)
-    if not success:
-        return False
-
-    success = build_cmake(
-        config, CMakePresets.Example, env_patch, example_cmake_source_dir, "all"
-    )
-    if not success:
-        return False
-
-    success = build_cmake(
-        config, CMakePresets.Example, env_patch, example_cmake_source_dir, "test"
-    )
-    if not success:
-        return False
-
-    success = run_ctest(
-        CMakePresets.Example, config, JOBS, None, example_cmake_source_dir
-    )
-    if not success:
-        return False
-
-    with contextlib.chdir(example_cmake_source_dir):
-        success, output = run([f"{build_dir}/{config}/test_program"])
+    env = os.environ.copy()
+    env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
+    with NewEnv(env):
+        success = configure_cmake(
+            CMakePresets.Example, env_patch, example_cmake_source_dir
+        )
         if not success:
             return False
+
+        success = build_cmake(
+            CMakeBuildConfig.Debug,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "all",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.RelWithDebInfo,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "all",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.Release,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "all",
+        )
+        if not success:
+            return False
+
+        success = build_cmake(
+            CMakeBuildConfig.Debug,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "test",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.RelWithDebInfo,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "test",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.Release,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "test",
+        )
+        if not success:
+            return False
+
+        success = run_ctest(
+            CMakePresets.Example,
+            CMakeBuildConfig.Debug,
+            JOBS,
+            None,
+            example_cmake_source_dir,
+        )
+        if not success:
+            return False
+        success = run_ctest(
+            CMakePresets.Example,
+            CMakeBuildConfig.RelWithDebInfo,
+            JOBS,
+            None,
+            example_cmake_source_dir,
+        )
+        if not success:
+            return False
+        success = run_ctest(
+            CMakePresets.Example,
+            CMakeBuildConfig.Release,
+            JOBS,
+            None,
+            example_cmake_source_dir,
+        )
+        if not success:
+            return False
+
+        with contextlib.chdir(example_cmake_source_dir):
+            success, output = run(
+                [f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"]
+            )
+            if not success:
+                return False
+            success, output = run(
+                [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+            )
+            if not success:
+                return False
+            success, output = run(
+                [f"{build_dir}/{CMakeBuildConfig.Release}/test_program"]
+            )
+            if not success:
+                return False
 
     # use Waypoint as a dynamic library
     remove_dir(build_dir)
@@ -3767,32 +3931,115 @@ def example_quick_start_build_and_install_fn() -> bool:
         install_dir, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR
     )
 
-    success = configure_cmake(CMakePresets.Example, env_patch, example_cmake_source_dir)
-    if not success:
-        return False
-
-    success = build_cmake(
-        config, CMakePresets.Example, env_patch, example_cmake_source_dir, "all"
-    )
-    if not success:
-        return False
-
-    success = build_cmake(
-        config, CMakePresets.Example, env_patch, example_cmake_source_dir, "test"
-    )
-    if not success:
-        return False
-
-    success = run_ctest(
-        CMakePresets.Example, config, JOBS, None, example_cmake_source_dir
-    )
-    if not success:
-        return False
-
-    with contextlib.chdir(example_cmake_source_dir):
-        success, output = run([f"{build_dir}/{config}/test_program"])
+    env = os.environ.copy()
+    env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
+    with NewEnv(env):
+        success = configure_cmake(
+            CMakePresets.Example, env_patch, example_cmake_source_dir
+        )
         if not success:
             return False
+
+        success = build_cmake(
+            CMakeBuildConfig.Debug,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "all",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.RelWithDebInfo,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "all",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.Release,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "all",
+        )
+        if not success:
+            return False
+
+        success = build_cmake(
+            CMakeBuildConfig.Debug,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "test",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.RelWithDebInfo,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "test",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.Release,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "test",
+        )
+        if not success:
+            return False
+
+        success = run_ctest(
+            CMakePresets.Example,
+            CMakeBuildConfig.Debug,
+            JOBS,
+            None,
+            example_cmake_source_dir,
+        )
+        if not success:
+            return False
+        success = run_ctest(
+            CMakePresets.Example,
+            CMakeBuildConfig.RelWithDebInfo,
+            JOBS,
+            None,
+            example_cmake_source_dir,
+        )
+        if not success:
+            return False
+        success = run_ctest(
+            CMakePresets.Example,
+            CMakeBuildConfig.Release,
+            JOBS,
+            None,
+            example_cmake_source_dir,
+        )
+        if not success:
+            return False
+
+        with contextlib.chdir(example_cmake_source_dir):
+            success, output = run(
+                [f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"]
+            )
+            if not success:
+                return False
+            success, output = run(
+                [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+            )
+            if not success:
+                return False
+            success, output = run(
+                [f"{build_dir}/{CMakeBuildConfig.Release}/test_program"]
+            )
+            if not success:
+                return False
 
     return True
 
@@ -3808,37 +4055,119 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR}/src",
     )
 
-    config = CMakeBuildConfig.Release
     example_cmake_source_dir = EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     env_patch = CLANG20_ENV_PATCH
     build_dir = build_dir_from_preset(CMakePresets.Example, example_cmake_source_dir)
 
-    success = configure_cmake(CMakePresets.Example, env_patch, example_cmake_source_dir)
-    if not success:
-        return False
-
-    success = build_cmake(
-        config, CMakePresets.Example, env_patch, example_cmake_source_dir, "all"
-    )
-    if not success:
-        return False
-
-    success = build_cmake(
-        config, CMakePresets.Example, env_patch, example_cmake_source_dir, "test"
-    )
-    if not success:
-        return False
-
-    success = run_ctest(
-        CMakePresets.Example, config, JOBS, None, example_cmake_source_dir
-    )
-    if not success:
-        return False
-
-    with contextlib.chdir(example_cmake_source_dir):
-        success, output = run([f"{build_dir}/{config}/test_program"])
+    env = os.environ.copy()
+    env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
+    with NewEnv(env):
+        success = configure_cmake(
+            CMakePresets.Example, env_patch, example_cmake_source_dir
+        )
         if not success:
             return False
+
+        success = build_cmake(
+            CMakeBuildConfig.Debug,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "all",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.RelWithDebInfo,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "all",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.Release,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "all",
+        )
+        if not success:
+            return False
+
+        success = build_cmake(
+            CMakeBuildConfig.Debug,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "test",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.RelWithDebInfo,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "test",
+        )
+        if not success:
+            return False
+        success = build_cmake(
+            CMakeBuildConfig.Release,
+            CMakePresets.Example,
+            env_patch,
+            example_cmake_source_dir,
+            "test",
+        )
+        if not success:
+            return False
+
+        success = run_ctest(
+            CMakePresets.Example,
+            CMakeBuildConfig.Debug,
+            JOBS,
+            None,
+            example_cmake_source_dir,
+        )
+        if not success:
+            return False
+        success = run_ctest(
+            CMakePresets.Example,
+            CMakeBuildConfig.RelWithDebInfo,
+            JOBS,
+            None,
+            example_cmake_source_dir,
+        )
+        if not success:
+            return False
+        success = run_ctest(
+            CMakePresets.Example,
+            CMakeBuildConfig.Release,
+            JOBS,
+            None,
+            example_cmake_source_dir,
+        )
+        if not success:
+            return False
+
+        with contextlib.chdir(example_cmake_source_dir):
+            success, output = run(
+                [f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"]
+            )
+            if not success:
+                return False
+            success, output = run(
+                [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+            )
+            if not success:
+                return False
+            success, output = run(
+                [f"{build_dir}/{CMakeBuildConfig.Release}/test_program"]
+            )
+            if not success:
+                return False
 
     return True
 
@@ -4327,12 +4656,9 @@ def main() -> int:
     run_clang_static_analysis_all_files = Task(
         "Run clang-tidy", run_clang_static_analysis_all_files_fn
     )
-    run_clang_static_analysis_all_files.depends_on([build_clang_static_analysis])
-
     run_clang_static_analysis_changed_files = Task(
         "Run clang-tidy (incremental)", run_clang_static_analysis_changed_files_fn
     )
-    run_clang_static_analysis_changed_files.depends_on([build_clang_static_analysis])
 
     misc_checks = Task("Miscellaneous checks", misc_checks_fn)
     verify_install_contents_static = Task(
@@ -5422,6 +5748,57 @@ def main() -> int:
     example_quick_start_add_subdirectory = Task(
         "Test examples/quick_start_add_subdirectory",
         example_quick_start_add_subdirectory_fn,
+    )
+
+    run_clang_static_analysis_all_files.depends_on(
+        [
+            build_clang_static_analysis,
+            test_install_find_package_no_version_clang_debug_build_all,
+            test_install_find_package_no_version_clang_debug_build_all_tests,
+            test_install_find_package_no_version_clang_relwithdebinfo_build_all,
+            test_install_find_package_no_version_clang_relwithdebinfo_build_all_tests,
+            test_install_find_package_no_version_clang_release_build_all,
+            test_install_find_package_no_version_clang_release_build_all_tests,
+            test_install_find_package_exact_version_clang_debug_build_all,
+            test_install_find_package_exact_version_clang_debug_build_all_tests,
+            test_install_find_package_exact_version_clang_relwithdebinfo_build_all,
+            test_install_find_package_exact_version_clang_relwithdebinfo_build_all_tests,
+            test_install_find_package_exact_version_clang_release_build_all,
+            test_install_find_package_exact_version_clang_release_build_all_tests,
+            test_install_add_subdirectory_clang_debug_build_all,
+            test_install_add_subdirectory_clang_debug_build_all_tests,
+            test_install_add_subdirectory_clang_relwithdebinfo_build_all,
+            test_install_add_subdirectory_clang_relwithdebinfo_build_all_tests,
+            test_install_add_subdirectory_clang_release_build_all,
+            test_install_add_subdirectory_clang_release_build_all_tests,
+            example_quick_start_build_and_install,
+            example_quick_start_add_subdirectory,
+        ]
+    )
+    run_clang_static_analysis_changed_files.depends_on(
+        [
+            build_clang_static_analysis,
+            test_install_find_package_no_version_clang_debug_build_all,
+            test_install_find_package_no_version_clang_debug_build_all_tests,
+            test_install_find_package_no_version_clang_relwithdebinfo_build_all,
+            test_install_find_package_no_version_clang_relwithdebinfo_build_all_tests,
+            test_install_find_package_no_version_clang_release_build_all,
+            test_install_find_package_no_version_clang_release_build_all_tests,
+            test_install_find_package_exact_version_clang_debug_build_all,
+            test_install_find_package_exact_version_clang_debug_build_all_tests,
+            test_install_find_package_exact_version_clang_relwithdebinfo_build_all,
+            test_install_find_package_exact_version_clang_relwithdebinfo_build_all_tests,
+            test_install_find_package_exact_version_clang_release_build_all,
+            test_install_find_package_exact_version_clang_release_build_all_tests,
+            test_install_add_subdirectory_clang_debug_build_all,
+            test_install_add_subdirectory_clang_debug_build_all_tests,
+            test_install_add_subdirectory_clang_relwithdebinfo_build_all,
+            test_install_add_subdirectory_clang_relwithdebinfo_build_all_tests,
+            test_install_add_subdirectory_clang_release_build_all,
+            test_install_add_subdirectory_clang_release_build_all_tests,
+            example_quick_start_build_and_install,
+            example_quick_start_add_subdirectory,
+        ]
     )
 
     prebuild_dependencies = []
