@@ -121,7 +121,7 @@ EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR = os.path.realpath(
     f"{EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR}/waypoint_install___"
 )
 
-JOBS = os.process_cpu_count()
+JOBS = os.process_cpu_count() if "process_cpu_count" in dir(os) else os.cpu_count()
 
 COPYRIGHT_HOLDER_NAME = "Wojciech Kałuża"
 EXPECTED_SPDX_LICENSE_ID = "MIT"

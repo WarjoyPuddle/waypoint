@@ -24,7 +24,7 @@ PYTHON = (
     "python3" if (sys.executable is None or sys.executable == "") else sys.executable
 )
 
-JOBS = os.cpu_count()
+JOBS = os.process_cpu_count() if "process_cpu_count" in dir(os) else os.cpu_count()
 
 
 def run(cmd) -> typing.Tuple[bool, str | None]:
