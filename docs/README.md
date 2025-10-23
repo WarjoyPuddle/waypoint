@@ -100,7 +100,7 @@ cd examples/quick_start_build_and_install
 cp --recursive ../../waypoint_install___ ./
 
 # Configure step
-cmake --preset example_configure
+CC=clang-20 CXX=clang++-20 cmake --preset example_configure
 
 # Build step
 cmake --build --preset example_build --config Debug
@@ -143,7 +143,7 @@ cp --recursive ../../../../src ./
 cd ../../
 
 # Configure step
-cmake --preset example_configure
+CC=clang-20 CXX=clang++-20 cmake --preset example_configure
 
 # Build step
 cmake --build --preset example_build --config Debug
