@@ -455,6 +455,24 @@ def is_linux():
     return platform.system() == "Linux"
 
 
+def check_headers_contain_pragma_once_() -> bool:
+    files = find_files_by_name(PROJECT_ROOT_DIR, is_cpp_header_file)
+    for f in files:
+        with open(f, "r") as file:
+            lines = file.readlines()
+            lines = [
+                line.strip()
+                for line in lines
+                if re.match(r"^#pragma once$", line.strip()) is not None
+            ]
+            if len(lines) != 1:
+                print(f"Error ({f}):\n\"#pragma once\" not found")
+
+                return False
+
+    return True
+
+
 def check_no_spaces_in_paths_() -> bool:
     files = find_files_by_name(PROJECT_ROOT_DIR, lambda x: True)
 
@@ -464,6 +482,8 @@ def check_no_spaces_in_paths_() -> bool:
 
     for f in files:
         if " " in f:
+            print(f"Error ({f}):\nNo spaces allowed in file paths")
+
             return False
 
     return True
@@ -553,6 +573,12 @@ def misc_checks_fn() -> bool:
     success = check_no_spaces_in_paths_()
     if not success:
         print("Error: file paths must not contain spaces")
+
+        return False
+
+    success = check_headers_contain_pragma_once_()
+    if not success:
+        print('Error: not all headers contain a "#pragma once" include guard')
 
         return False
 
@@ -1609,8 +1635,16 @@ def is_cmake_file(f) -> bool:
     )
 
 
+def is_cpp_header_file(f) -> bool:
+    return re.search(r"\.hpp$", f) is not None
+
+
+def is_cpp_source_file(f) -> bool:
+    return re.search(r"\.cpp$", f) is not None
+
+
 def is_cpp_file(f) -> bool:
-    return re.search(r"\.cpp$", f) is not None or re.search(r"\.hpp$", f) is not None
+    return is_cpp_source_file(f) or is_cpp_header_file(f)
 
 
 def is_docker_file(f) -> bool:
@@ -5342,6 +5376,9 @@ def main() -> int:
     if mode.fix_formatting:
         build_dependencies.append(format_sources)
 
+    if mode.misc:
+        build_dependencies.append(misc_checks)
+
     if mode.gcc:
         if mode.debug:
             if mode.static_lib:
@@ -5614,9 +5651,6 @@ def main() -> int:
                     build_dependencies.append(
                         test_install_add_subdirectory_clang_release_test_shared
                     )
-
-    if mode.misc:
-        build_dependencies.append(misc_checks)
 
     if mode.examples:
         build_dependencies.append(example_quick_start_build_and_install)
