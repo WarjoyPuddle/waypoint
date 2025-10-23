@@ -987,81 +987,48 @@ def clang_tidy_process_single_file(data) -> typing.Tuple[bool, str, float, str |
 
 
 def run_clang_static_analysis_(files) -> bool:
-    files_main = [
-        f
-        for f in files
-        if not f.startswith(INSTALL_TESTS_DIR_PATH)
-        and not f.startswith(EXAMPLES_DIR_PATH)
-    ]
-
-    success = run_clang_tidy(CMakePresets.LinuxClang, files_main, CMAKE_SOURCE_DIR)
+    success = run_clang_tidy(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR, files)
     if not success:
         return False
 
     # Test installs
 
-    files_test_install_find_package_no_version = [
-        f for f in files if f.startswith(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR)
-    ]
-
     success = run_clang_tidy(
         CMakePresets.LinuxClang,
-        files_test_install_find_package_no_version,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
+        files,
     )
     if not success:
         return False
 
-    files_test_install_find_package_exact_version = [
-        f for f in files if f.startswith(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR)
-    ]
-
     success = run_clang_tidy(
         CMakePresets.LinuxClang,
-        files_test_install_find_package_exact_version,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
+        files,
     )
     if not success:
         return False
 
-    files_test_install_add_subdirectory = [
-        f for f in files if f.startswith(TEST_INSTALL_ADD_SUBDIRECTORY_DIR)
-    ]
-
     success = run_clang_tidy(
-        CMakePresets.LinuxClang,
-        files_test_install_add_subdirectory,
-        TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+        CMakePresets.LinuxClang, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR, files
     )
     if not success:
         return False
 
     # Examples
 
-    files_example_quick_start_build_and_install = [
-        f
-        for f in files
-        if f.startswith(EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR)
-    ]
-
     success = run_clang_tidy(
         CMakePresets.Example,
-        files_example_quick_start_build_and_install,
         EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+        files,
     )
     if not success:
         return False
 
-    files_example_quick_start_add_subdirectory = [
-        f
-        for f in files
-        if f.startswith(EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)
-    ]
-
     success = run_clang_tidy(
         CMakePresets.Example,
-        files_example_quick_start_add_subdirectory,
         EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+        files,
     )
     if not success:
         return False
@@ -1070,24 +1037,26 @@ def run_clang_static_analysis_(files) -> bool:
 
 
 def run_clang_static_analysis_all_files_fn() -> bool:
-    files = find_files_by_name(PROJECT_ROOT_DIR, is_cpp_file)
+    files = set(find_files_by_name(PROJECT_ROOT_DIR, is_cpp_source_file))
 
     return run_clang_static_analysis_(files)
 
 
 def run_clang_static_analysis_changed_files_fn() -> bool:
-    files = changed_cpp_files_and_dependents(CMakePresets.LinuxClang)
+    files = set(changed_cpp_source_files_and_dependents(CMakePresets.LinuxClang))
 
     return run_clang_static_analysis_(files)
 
 
-def run_clang_tidy(preset, files, cmake_source_dir) -> bool:
-    if len(files) == 0:
+def run_clang_tidy(preset, cmake_source_dir, all_files) -> bool:
+    files_from_db = get_files_from_compilation_database(preset, cmake_source_dir)
+    files_from_db = [f for f in files_from_db if f in all_files]
+    if len(files_from_db) == 0:
         return True
 
     build_dir = build_dir_from_preset(preset, cmake_source_dir)
 
-    inputs = [(f, build_dir) for f in files]
+    inputs = [(f, build_dir) for f in files_from_db]
     with multiprocessing.Pool(JOBS) as pool:
         results = pool.map(clang_tidy_process_single_file, inputs)
 
@@ -2141,7 +2110,7 @@ def collect_depfiles(preset):
     return depfiles
 
 
-def changed_cpp_files_and_dependents(preset) -> typing.List[str]:
+def changed_cpp_source_files_and_dependents(preset) -> typing.List[str]:
     changed_cpp_files = get_changed_files(is_cpp_file)
     if len(changed_cpp_files) == 0:
         return []
@@ -2158,6 +2127,8 @@ def changed_cpp_files_and_dependents(preset) -> typing.List[str]:
 
     output = list(files_for_analysis)
     output.sort()
+
+    output = [f for f in output if is_cpp_source_file(f)]
 
     return output
 
@@ -2307,6 +2278,29 @@ def clean_fn() -> bool:
     remove_dir(EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR)
 
     return True
+
+
+def get_files_from_compilation_database(preset, cmake_source_dir) -> typing.List[str]:
+    build_dir = build_dir_from_preset(preset, cmake_source_dir)
+    compilation_db = os.path.realpath(f"{build_dir}/compile_commands.json")
+
+    with open(compilation_db, "r") as f:
+        data = json.load(f)
+
+    files = set()
+
+    for d in data:
+        files.add(d["file"])
+
+    files = list(files)
+    files.sort()
+
+    files = [os.path.realpath(f) for f in files]
+    files = [f for f in files if "___" not in f]
+    for f in files:
+        assert os.path.isfile(f), f"File not found: {f}"
+
+    return files
 
 
 class Task:
