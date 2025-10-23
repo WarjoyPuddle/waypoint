@@ -41,10 +41,6 @@ from python_imports import verify_installation_contents_static
 THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/..")
 
-COVERAGE_DIR_LCOV = os.path.realpath(
-    f"{PROJECT_ROOT_DIR}/coverage_lcov_3XxYQrYbuY5AnPYH___"
-)
-COVERAGE_FILE_LCOV = os.path.realpath(f"{COVERAGE_DIR_LCOV}/coverage.info")
 COVERAGE_DIR_GCOVR = os.path.realpath(
     f"{PROJECT_ROOT_DIR}/coverage_gcovr_kMkR9SM1S69oCLJ5___"
 )
@@ -863,8 +859,6 @@ def process_coverage_fn() -> bool:
     return process_coverage(
         CMakePresets.LinuxGccCoverage,
         CMAKE_SOURCE_DIR,
-        COVERAGE_DIR_LCOV,
-        COVERAGE_FILE_LCOV,
         PROJECT_ROOT_DIR,
         COVERAGE_DIR_GCOVR,
         COVERAGE_FILE_HTML_GCOVR,
@@ -1309,7 +1303,6 @@ def clean_fn() -> bool:
     clean_install_dir(CMakePresets.LinuxGccShared, CMAKE_SOURCE_DIR)
     clean_install_dir(CMakePresets.LinuxGccCoverage, CMAKE_SOURCE_DIR)
     remove_dir(COVERAGE_DIR_GCOVR)
-    remove_dir(COVERAGE_DIR_LCOV)
     remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR)
     remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR)
     remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR)
