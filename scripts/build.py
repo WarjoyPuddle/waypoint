@@ -1614,7 +1614,10 @@ def is_cpp_file(f) -> bool:
 
 
 def is_docker_file(f) -> bool:
-    return re.search(r"\.dockerfile$", f) is not None
+    return (
+        re.search(r"\.dockerfile$", f) is not None
+        or re.search(r"^Dockerfile$", os.path.basename(f)) is not None
+    )
 
 
 def is_json_file(f) -> bool:
