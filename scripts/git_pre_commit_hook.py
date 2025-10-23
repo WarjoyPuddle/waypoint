@@ -24,6 +24,8 @@ PYTHON = (
     "python3" if (sys.executable is None or sys.executable == "") else sys.executable
 )
 
+JOBS = os.cpu_count()
+
 
 def run(cmd) -> typing.Tuple[bool, str | None]:
     with tempfile.TemporaryFile("r+") as f:
@@ -469,7 +471,7 @@ def main() -> int:
         return 1
 
     files = get_changed_files()
-    with multiprocessing.Pool(processes=os.cpu_count()) as pool:
+    with multiprocessing.Pool(JOBS) as pool:
         success = check_copyright_comments(files, pool)
         if not success:
             return 1
