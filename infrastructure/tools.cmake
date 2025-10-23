@@ -89,30 +89,36 @@ macro(conditionally_enable_pic)
 endmacro()
 
 macro(standard_presets)
-  if(DEFINED PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj)
+  if(DEFINED PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj
+     AND PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj)
     target_compile_options(${arg_TARGET} PRIVATE -Wall -Wextra -Wpedantic)
   endif()
 
-  if(DEFINED PRESET_PROP_ENABLE_COMPILE_WARNING_AS_ERROR_LRbhTBxJt59icONv)
+  if(DEFINED PRESET_PROP_ENABLE_COMPILE_WARNING_AS_ERROR_LRbhTBxJt59icONv
+     AND PRESET_PROP_ENABLE_COMPILE_WARNING_AS_ERROR_LRbhTBxJt59icONv)
     set_target_properties(${arg_TARGET} PROPERTIES COMPILE_WARNING_AS_ERROR
                                                    TRUE)
   endif()
 
-  if(DEFINED PRESET_PROP_ENABLE_LINK_WARNING_AS_ERROR_1IYXH9m8xu3HrL8n)
+  if(DEFINED PRESET_PROP_ENABLE_LINK_WARNING_AS_ERROR_1IYXH9m8xu3HrL8n
+     AND PRESET_PROP_ENABLE_LINK_WARNING_AS_ERROR_1IYXH9m8xu3HrL8n)
     set_target_properties(${arg_TARGET} PROPERTIES LINK_WARNING_AS_ERROR TRUE)
   endif()
 
-  if(DEFINED PRESET_PROP_DISABLE_CXX_EXTENSIONS_94168jxR3E9X4QuG)
+  if(DEFINED PRESET_PROP_DISABLE_CXX_EXTENSIONS_94168jxR3E9X4QuG
+     AND PRESET_PROP_DISABLE_CXX_EXTENSIONS_94168jxR3E9X4QuG)
     set_target_properties(${arg_TARGET} PROPERTIES CXX_EXTENSIONS FALSE)
   endif()
 
-  if(DEFINED PRESET_PROP_ENABLE_EXPORT_COMPILE_COMMANDS_HSF0eeNIYALhtTPe)
+  if(DEFINED PRESET_PROP_ENABLE_EXPORT_COMPILE_COMMANDS_HSF0eeNIYALhtTPe
+     AND PRESET_PROP_ENABLE_EXPORT_COMPILE_COMMANDS_HSF0eeNIYALhtTPe)
     set_target_properties(${arg_TARGET} PROPERTIES EXPORT_COMPILE_COMMANDS TRUE)
   endif()
 endmacro()
 
 macro(conditionally_enable_coverage)
-  if(DEFINED PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW)
+  if(DEFINED PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW
+     AND PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW)
     target_compile_options(${arg_TARGET} PRIVATE --coverage)
     target_link_options(${arg_TARGET} PRIVATE --coverage)
 
@@ -122,13 +128,15 @@ macro(conditionally_enable_coverage)
 endmacro()
 
 macro(disable_exceptions_in_coverage_mode)
-  if(DEFINED PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW)
+  if(DEFINED PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW
+     AND PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW)
     target_compile_options(${arg_TARGET} PRIVATE -fno-exceptions)
   endif()
 endmacro()
 
 macro(conditionally_enable_address_sanitizer)
-  if(DEFINED PRESET_USE_ADDRESS_SANITIZER_Yc27ZqrRDoMnuQXw)
+  if(DEFINED PRESET_USE_ADDRESS_SANITIZER_Yc27ZqrRDoMnuQXw
+     AND PRESET_USE_ADDRESS_SANITIZER_Yc27ZqrRDoMnuQXw)
     target_compile_options(
       ${arg_TARGET} PRIVATE -fsanitize=address -g -fno-omit-frame-pointer
                             -fno-inline-functions -fno-optimize-sibling-calls)
@@ -137,7 +145,8 @@ macro(conditionally_enable_address_sanitizer)
 endmacro()
 
 macro(conditionally_enable_undefined_behaviour_sanitizer)
-  if(DEFINED PRESET_USE_UNDEFINED_BEHAVIOUR_SANITIZER_Sg9fNtkF8wHdPaeP)
+  if(DEFINED PRESET_USE_UNDEFINED_BEHAVIOUR_SANITIZER_Sg9fNtkF8wHdPaeP
+     AND PRESET_USE_UNDEFINED_BEHAVIOUR_SANITIZER_Sg9fNtkF8wHdPaeP)
     target_compile_options(
       ${arg_TARGET}
       PRIVATE -g
