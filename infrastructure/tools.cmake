@@ -89,40 +89,38 @@ macro(conditionally_enable_pic)
 endmacro()
 
 macro(standard_presets)
-  if(DEFINED PRESET_ELEVATED_COMPILER_WARNINGS)
-    separate_arguments(PRESET_ELEVATED_COMPILER_WARNINGS)
-    target_compile_options(${arg_TARGET}
-                           PRIVATE ${PRESET_ELEVATED_COMPILER_WARNINGS})
+  if(DEFINED PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj)
+    separate_arguments(
+      PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj)
+    target_compile_options(
+      ${arg_TARGET}
+      PRIVATE ${PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj})
   endif()
 
-  if(DEFINED PRESET_PROP_COMPILE_WARNING_AS_ERROR)
-    set_target_properties(
-      ${arg_TARGET} PROPERTIES COMPILE_WARNING_AS_ERROR
-                               ${PRESET_PROP_COMPILE_WARNING_AS_ERROR})
+  if(DEFINED PRESET_PROP_ENABLE_COMPILE_WARNING_AS_ERROR_LRbhTBxJt59icONv)
+    set_target_properties(${arg_TARGET} PROPERTIES COMPILE_WARNING_AS_ERROR
+                                                   TRUE)
   endif()
 
-  if(DEFINED PRESET_PROP_LINK_WARNING_AS_ERROR)
-    set_target_properties(
-      ${arg_TARGET} PROPERTIES LINK_WARNING_AS_ERROR
-                               ${PRESET_PROP_LINK_WARNING_AS_ERROR})
+  if(DEFINED PRESET_PROP_ENABLE_LINK_WARNING_AS_ERROR_1IYXH9m8xu3HrL8n)
+    set_target_properties(${arg_TARGET} PROPERTIES LINK_WARNING_AS_ERROR TRUE)
   endif()
 
-  if(DEFINED PRESET_PROP_CXX_EXTENSIONS)
-    set_target_properties(
-      ${arg_TARGET} PROPERTIES CXX_EXTENSIONS ${PRESET_PROP_CXX_EXTENSIONS})
+  if(DEFINED PRESET_PROP_DISABLE_CXX_EXTENSIONS_94168jxR3E9X4QuG)
+    set_target_properties(${arg_TARGET} PROPERTIES CXX_EXTENSIONS FALSE)
   endif()
 
-  if(DEFINED PRESET_PROP_EXPORT_COMPILE_COMMANDS)
-    set_target_properties(
-      ${arg_TARGET} PROPERTIES EXPORT_COMPILE_COMMANDS
-                               ${PRESET_PROP_EXPORT_COMPILE_COMMANDS})
+  if(DEFINED PRESET_PROP_ENABLE_EXPORT_COMPILE_COMMANDS_HSF0eeNIYALhtTPe)
+    set_target_properties(${arg_TARGET} PROPERTIES EXPORT_COMPILE_COMMANDS TRUE)
   endif()
 endmacro()
 
 macro(conditionally_enable_coverage)
-  if(DEFINED PRESET_ENABLE_COVERAGE)
-    target_compile_options(${arg_TARGET} PRIVATE ${PRESET_ENABLE_COVERAGE})
-    target_link_options(${arg_TARGET} PRIVATE ${PRESET_ENABLE_COVERAGE})
+  if(DEFINED PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW)
+    target_compile_options(${arg_TARGET}
+                           PRIVATE ${PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW})
+    target_link_options(${arg_TARGET} PRIVATE
+                        ${PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW})
 
     target_compile_definitions(
       ${arg_TARGET} PRIVATE WAYPOINT_INTERNAL_COVERAGE_IOm5lSCCB6p0j19)
@@ -130,7 +128,7 @@ macro(conditionally_enable_coverage)
 endmacro()
 
 macro(disable_exceptions_in_coverage_mode)
-  if(DEFINED PRESET_ENABLE_COVERAGE)
+  if(DEFINED PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW)
     target_compile_options(${arg_TARGET} PRIVATE -fno-exceptions)
   endif()
 endmacro()
