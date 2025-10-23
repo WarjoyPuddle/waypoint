@@ -1783,17 +1783,25 @@ def check_formatting_in_single_file(file: str) -> typing.Tuple[bool, str | None,
     return False, "Expected to check formatting in unsupported file type\n", file
 
 
-def format_single_file(f) -> typing.Tuple[bool, str]:
+def format_single_file(f) -> typing.Tuple[bool, str | None, str]:
     if is_cmake_file(f):
-        return format_cmake(f), f
-    if is_cpp_file(f):
-        return format_cpp(f), f
-    if is_json_file(f):
-        return format_json(f), f
-    if is_python_file(f):
-        return format_python(f), f
+        success, output = format_cmake(f)
 
-    return False, f
+        return success, output, f
+    if is_cpp_file(f):
+        success, output = format_cpp(f)
+
+        return success, output, f
+    if is_json_file(f):
+        success, output = format_json(f)
+
+        return success, output, f
+    if is_python_file(f):
+        success, output = format_python(f)
+
+        return success, output, f
+
+    return False, "Expected to format unsupported file type\n", f
 
 
 def is_file_for_formatting(f) -> bool:
@@ -1824,10 +1832,12 @@ def format_sources_fn() -> bool:
 
     with multiprocessing.Pool(JOBS) as pool:
         results = pool.map(format_single_file, files)
-        errors = [file for success, file in results if not success]
+        errors = [(output, file) for success, output, file in results if not success]
         if len(errors) > 0:
-            for f in errors:
-                print(f"Error formatting file {f}")
+            for output, file in errors:
+                if output is not None:
+                    print(output)
+                print(f"Error formatting file {file}")
 
             return False
 
@@ -1898,7 +1908,7 @@ def check_formatting_python(file) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
-def format_cmake(f) -> bool:
+def format_cmake(f) -> typing.Tuple[bool, str | None]:
     success, output = run(
         [
             "cmake-format",
@@ -1909,15 +1919,12 @@ def format_cmake(f) -> bool:
         ]
     )
     if not success:
-        if output is not None:
-            print(output)
+        return False, output
 
-        return False
-
-    return True
+    return True, None
 
 
-def format_cpp(f) -> bool:
+def format_cpp(f) -> typing.Tuple[bool, str | None]:
     path_to_config = os.path.realpath(f"{INFRASTRUCTURE_DIR}/.clang-format-20")
 
     success, output = run(
@@ -1929,15 +1936,12 @@ def format_cpp(f) -> bool:
         ]
     )
     if not success:
-        if output is not None:
-            print(output)
+        return False, output
 
-        return False
-
-    return True
+    return True, None
 
 
-def format_json(f) -> bool:
+def format_json(f) -> typing.Tuple[bool, str | None]:
     with open(f, "r") as handle:
         original = handle.read()
     with open(f, "r") as handle:
@@ -1949,25 +1953,19 @@ def format_json(f) -> bool:
         with open(f, "w") as handle:
             handle.write(data_str)
 
-    return True
+    return True, None
 
 
-def format_python(f) -> bool:
-    success, output = run([PYTHON, "-m", "isort", "--quiet", "--line-length", "88", f])
+def format_python(f) -> typing.Tuple[bool, str | None]:
+    success, output = run([PYTHON, "-m", "isort", "--line-length", "88", f])
     if not success:
-        if output is not None:
-            print(output)
-
-        return False
+        return False, output
 
     success, output = run(["black", "--quiet", "--line-length", "88", f])
     if not success:
-        if output is not None:
-            print(output)
+        return False, output
 
-        return False
-
-    return True
+    return True, None
 
 
 def invert_index(index) -> typing.Dict[str, typing.Set[str]]:
