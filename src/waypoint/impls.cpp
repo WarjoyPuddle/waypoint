@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <format>
 #include <functional>
+#include <iterator>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -634,11 +635,12 @@ auto get_test_record_ptrs(TestRun const &t) noexcept
   -> std::vector<TestRecord *>
 {
   auto &test_records = get_impl(t).test_records();
-  std::vector<TestRecord *> ptrs(test_records.size());
+  std::vector<TestRecord *> ptrs;
+  ptrs.reserve(test_records.size());
 
   std::ranges::transform(
     test_records,
-    ptrs.begin(),
+    std::back_inserter(ptrs),
     [](auto &test_record)
     {
       return &test_record;
