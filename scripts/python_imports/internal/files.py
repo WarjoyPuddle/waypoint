@@ -8,45 +8,9 @@ import re
 import typing
 
 from .cmake import build_dir_from_preset
+from .file_types import is_cpp_file
+from .file_types import is_cpp_source_file
 from .process import run
-
-
-def is_bash_file(f) -> bool:
-    return re.search(r"\.bash$", f) is not None
-
-
-def is_cmake_file(f) -> bool:
-    return (
-        re.search(r"CMakeLists\.txt$", f) is not None
-        or re.search(r"\.cmake$", f) is not None
-    )
-
-
-def is_cpp_header_file(f) -> bool:
-    return re.search(r"\.hpp$", f) is not None
-
-
-def is_cpp_source_file(f) -> bool:
-    return re.search(r"\.cpp$", f) is not None
-
-
-def is_cpp_file(f) -> bool:
-    return is_cpp_source_file(f) or is_cpp_header_file(f)
-
-
-def is_docker_file(f) -> bool:
-    return (
-        re.search(r"\.dockerfile$", f) is not None
-        or re.search(r"^Dockerfile$", os.path.basename(f)) is not None
-    )
-
-
-def is_json_file(f) -> bool:
-    return re.search(r"\.json$", f) is not None
-
-
-def is_python_file(f) -> bool:
-    return re.search(r"\.py$", f) is not None
 
 
 def find_files_by_name(dir_path, pred) -> typing.List[str]:
@@ -95,6 +59,10 @@ def find_files_by_name(dir_path, pred) -> typing.List[str]:
     return output
 
 
+def find_all_files(root_dir) -> typing.List[str]:
+    return find_files_by_name(root_dir, lambda x: True)
+
+
 def invert_index(index) -> typing.Dict[str, typing.Set[str]]:
     output = {}
     for file in index.keys():
@@ -134,6 +102,26 @@ def process_depfiles(depfile_paths, root_dir) -> typing.Dict[str, typing.Set[str
         index[cpp_file].update(paths)
 
     return index
+
+
+def get_files_staged_for_commit(root_dir) -> typing.List[str]:
+    # TODO: update to contextlib.chdir after upgrade
+    assert os.getcwd() == root_dir
+
+    success, output = run(["git", "diff", "--cached", "--name-only"])
+    if not success:
+        return find_all_files(root_dir)
+
+    files = output.strip().split("\n")
+    out = []
+    for f in files:
+        path = os.path.realpath(f"{root_dir}/{f.strip()}")
+        if os.path.isfile(path):
+            out.append(path)
+
+    out.sort()
+
+    return out
 
 
 def get_changed_files(root_dir, predicate) -> typing.List[str]:
