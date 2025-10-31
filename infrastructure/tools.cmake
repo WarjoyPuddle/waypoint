@@ -144,6 +144,35 @@ macro(conditionally_enable_address_sanitizer)
   endif()
 endmacro()
 
+macro(conditionally_enable_undefined_baheviour_sanitizer)
+  if(DEFINED PRESET_USE_UNDEFINED_BEHAVIOUR_SANITIZER_Sg9fNtkF8wHdPaeP)
+    target_compile_options(
+      ${arg_TARGET}
+      PRIVATE -g
+              -fsanitize=undefined
+              -fsanitize=bounds
+              -fsanitize=float-divide-by-zero
+              -fsanitize=implicit-conversion
+              -fsanitize=integer
+              -fsanitize=nullability
+              -fsanitize=vptr
+              -fno-sanitize=unsigned-integer-overflow
+              -fno-sanitize-recover=all)
+    target_link_options(
+      ${arg_TARGET}
+      PRIVATE
+      -g
+      -fsanitize=undefined
+      -fsanitize=bounds
+      -fsanitize=float-divide-by-zero
+      -fsanitize=implicit-conversion
+      -fsanitize=integer
+      -fsanitize=nullability
+      -fsanitize=vptr
+      -fno-sanitize-recover=all)
+  endif()
+endmacro()
+
 macro(header_file_sets_and_libraries)
   if(NOT DEFINED arg_TARGET OR NOT DEFINED arg_DIRECTORY)
     message(FATAL_ERROR "header_file_sets_and_libraries error")
@@ -241,6 +270,7 @@ macro(common_macros)
   links_and_sources()
   conditionally_enable_coverage()
   conditionally_enable_address_sanitizer()
+  conditionally_enable_undefined_baheviour_sanitizer()
   standard_presets()
 endmacro()
 

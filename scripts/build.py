@@ -166,6 +166,7 @@ class ModeConfig:
     release: bool = False
     static_analysis: bool = False
     address_sanitizer: bool = False
+    undefined_behaviour_sanitizer: bool = False
     test: bool = False
     test_target: bool = False
     valgrind: bool = False
@@ -198,6 +199,7 @@ class Mode(enum.Enum):
         release=True,
         static_analysis=True,
         address_sanitizer=True,
+        undefined_behaviour_sanitizer=True,
         test=True,
         test_target=True,
         valgrind=True,
@@ -222,6 +224,7 @@ class Mode(enum.Enum):
         release=True,
         static_analysis=True,
         address_sanitizer=True,
+        undefined_behaviour_sanitizer=True,
         test=True,
         test_target=True,
         valgrind=True,
@@ -321,6 +324,10 @@ class Mode(enum.Enum):
         return self.config.address_sanitizer
 
     @property
+    def undefined_behaviour_sanitizer(self):
+        return self.config.undefined_behaviour_sanitizer
+
+    @property
     def test(self):
         return self.config.test
 
@@ -386,6 +393,11 @@ class CMakePresets(enum.Enum):
         "configure_linux_clang_address_sanitizer",
         "build_linux_clang_address_sanitizer",
         "test_linux_clang_address_sanitizer",
+    )
+    UndefinedBehaviourSanitizerClang = (
+        "configure_linux_clang_undefined_behaviour_sanitizer",
+        "build_linux_clang_undefined_behaviour_sanitizer",
+        "test_linux_clang_undefined_behaviour_sanitizer",
     )
 
     def __init__(self, configure_preset, build_preset, test_preset):
@@ -2292,6 +2304,7 @@ def clean_fn() -> bool:
     remove_dir(EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR)
 
     clean_build_dir(CMakePresets.AddressSanitizerClang, CMAKE_SOURCE_DIR)
+    clean_build_dir(CMakePresets.UndefinedBehaviourSanitizerClang, CMAKE_SOURCE_DIR)
 
     return True
 
@@ -4416,6 +4429,104 @@ def test_clang_address_sanitizer_release_fn() -> bool:
     )
 
 
+def configure_clang_undefined_behaviour_sanitizer_fn() -> bool:
+    return configure_cmake(
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CLANG20_ENV_PATCH,
+        CMAKE_SOURCE_DIR,
+    )
+
+
+def build_clang_undefined_behaviour_sanitizer_debug_all_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CLANG20_ENV_PATCH,
+        CMAKE_SOURCE_DIR,
+        "all",
+    )
+
+
+def build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CLANG20_ENV_PATCH,
+        CMAKE_SOURCE_DIR,
+        "all",
+    )
+
+
+def build_clang_undefined_behaviour_sanitizer_release_all_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CLANG20_ENV_PATCH,
+        CMAKE_SOURCE_DIR,
+        "all",
+    )
+
+
+def build_clang_undefined_behaviour_sanitizer_debug_all_tests_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CLANG20_ENV_PATCH,
+        CMAKE_SOURCE_DIR,
+        "all_tests",
+    )
+
+
+def build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all_tests_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CLANG20_ENV_PATCH,
+        CMAKE_SOURCE_DIR,
+        "all_tests",
+    )
+
+
+def build_clang_undefined_behaviour_sanitizer_release_all_tests_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CLANG20_ENV_PATCH,
+        CMAKE_SOURCE_DIR,
+        "all_tests",
+    )
+
+
+def test_clang_undefined_behaviour_sanitizer_debug_fn() -> bool:
+    return run_ctest(
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CMakeBuildConfig.Debug,
+        JOBS,
+        r"^test$",
+        CMAKE_SOURCE_DIR,
+    )
+
+
+def test_clang_undefined_behaviour_sanitizer_relwithdebinfo_fn() -> bool:
+    return run_ctest(
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CMakeBuildConfig.RelWithDebInfo,
+        JOBS,
+        r"^test$",
+        CMAKE_SOURCE_DIR,
+    )
+
+
+def test_clang_undefined_behaviour_sanitizer_release_fn() -> bool:
+    return run_ctest(
+        CMakePresets.UndefinedBehaviourSanitizerClang,
+        CMakeBuildConfig.Release,
+        JOBS,
+        r"^test$",
+        CMAKE_SOURCE_DIR,
+    )
+
+
 def main() -> int:
     config, success = preamble()
     if not success:
@@ -5908,19 +6019,19 @@ def main() -> int:
     )
 
     configure_clang_address_sanitizer = Task(
-        "Configure CMake Clang AddressSanitizer", configure_clang_address_sanitizer_fn
+        "Configure CMake Clang Address Sanitizer", configure_clang_address_sanitizer_fn
     )
 
     build_clang_address_sanitizer_debug_all = Task(
-        "Build Clang AddressSanitizer Debug all",
+        "Build Clang Address Sanitizer Debug all",
         build_clang_address_sanitizer_debug_all_fn,
     )
     build_clang_address_sanitizer_relwithdebinfo_all = Task(
-        "Build Clang AddressSanitizer RelWithDebInfo all",
+        "Build Clang Address Sanitizer RelWithDebInfo all",
         build_clang_address_sanitizer_relwithdebinfo_all_fn,
     )
     build_clang_address_sanitizer_release_all = Task(
-        "Build Clang AddressSanitizer Release all",
+        "Build Clang Address Sanitizer Release all",
         build_clang_address_sanitizer_release_all_fn,
     )
 
@@ -5935,15 +6046,15 @@ def main() -> int:
     )
 
     build_clang_address_sanitizer_debug_all_tests = Task(
-        "Build Clang AddressSanitizer Debug all_tests",
+        "Build Clang Address Sanitizer Debug all_tests",
         build_clang_address_sanitizer_debug_all_tests_fn,
     )
     build_clang_address_sanitizer_relwithdebinfo_all_tests = Task(
-        "Build Clang AddressSanitizer RelWithDebInfo all_tests",
+        "Build Clang Address Sanitizer RelWithDebInfo all_tests",
         build_clang_address_sanitizer_relwithdebinfo_all_tests_fn,
     )
     build_clang_address_sanitizer_release_all_tests = Task(
-        "Build Clang AddressSanitizer Release all_tests",
+        "Build Clang Address Sanitizer Release all_tests",
         build_clang_address_sanitizer_release_all_tests_fn,
     )
 
@@ -5958,14 +6069,14 @@ def main() -> int:
     )
 
     test_clang_address_sanitizer_debug = Task(
-        "Test Clang AddressSanitizer Debug", test_clang_address_sanitizer_debug_fn
+        "Test Clang Address Sanitizer Debug", test_clang_address_sanitizer_debug_fn
     )
     test_clang_address_sanitizer_relwithdebinfo = Task(
-        "Test Clang AddressSanitizer RelWithDebInfo",
+        "Test Clang Address Sanitizer RelWithDebInfo",
         test_clang_address_sanitizer_relwithdebinfo_fn,
     )
     test_clang_address_sanitizer_release = Task(
-        "Test Clang AddressSanitizer Release", test_clang_address_sanitizer_release_fn
+        "Test Clang Address Sanitizer Release", test_clang_address_sanitizer_release_fn
     )
 
     test_clang_address_sanitizer_debug.depends_on(
@@ -5976,6 +6087,80 @@ def main() -> int:
     )
     test_clang_address_sanitizer_release.depends_on(
         [build_clang_address_sanitizer_release_all_tests]
+    )
+
+    configure_clang_undefined_behaviour_sanitizer = Task(
+        "Configure CMake Clang Undefined Behaviour Sanitizer",
+        configure_clang_undefined_behaviour_sanitizer_fn,
+    )
+
+    build_clang_undefined_behaviour_sanitizer_debug_all = Task(
+        "Build Clang Undefined Behaviour Sanitizer Debug all",
+        build_clang_undefined_behaviour_sanitizer_debug_all_fn,
+    )
+    build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all = Task(
+        "Build Clang Undefined Behaviour Sanitizer RelWithDebInfo all",
+        build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all_fn,
+    )
+    build_clang_undefined_behaviour_sanitizer_release_all = Task(
+        "Build Clang Undefined Behaviour Sanitizer Release all",
+        build_clang_undefined_behaviour_sanitizer_release_all_fn,
+    )
+
+    build_clang_undefined_behaviour_sanitizer_debug_all.depends_on(
+        [configure_clang_undefined_behaviour_sanitizer]
+    )
+    build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all.depends_on(
+        [configure_clang_undefined_behaviour_sanitizer]
+    )
+    build_clang_undefined_behaviour_sanitizer_release_all.depends_on(
+        [configure_clang_undefined_behaviour_sanitizer]
+    )
+
+    build_clang_undefined_behaviour_sanitizer_debug_all_tests = Task(
+        "Build Clang Undefined Behaviour Sanitizer Debug all_tests",
+        build_clang_undefined_behaviour_sanitizer_debug_all_tests_fn,
+    )
+    build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all_tests = Task(
+        "Build Clang Undefined Behaviour Sanitizer RelWithDebInfo all_tests",
+        build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all_tests_fn,
+    )
+    build_clang_undefined_behaviour_sanitizer_release_all_tests = Task(
+        "Build Clang Undefined Behaviour Sanitizer Release all_tests",
+        build_clang_undefined_behaviour_sanitizer_release_all_tests_fn,
+    )
+
+    build_clang_undefined_behaviour_sanitizer_debug_all_tests.depends_on(
+        [build_clang_undefined_behaviour_sanitizer_debug_all]
+    )
+    build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all_tests.depends_on(
+        [build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all]
+    )
+    build_clang_undefined_behaviour_sanitizer_release_all_tests.depends_on(
+        [build_clang_undefined_behaviour_sanitizer_release_all]
+    )
+
+    test_clang_undefined_behaviour_sanitizer_debug = Task(
+        "Test Clang Undefined Behaviour Sanitizer Debug",
+        test_clang_undefined_behaviour_sanitizer_debug_fn,
+    )
+    test_clang_undefined_behaviour_sanitizer_relwithdebinfo = Task(
+        "Test Clang Undefined Behaviour Sanitizer RelWithDebInfo",
+        test_clang_undefined_behaviour_sanitizer_relwithdebinfo_fn,
+    )
+    test_clang_undefined_behaviour_sanitizer_release = Task(
+        "Test Clang Undefined Behaviour Sanitizer Release",
+        test_clang_undefined_behaviour_sanitizer_release_fn,
+    )
+
+    test_clang_undefined_behaviour_sanitizer_debug.depends_on(
+        [build_clang_undefined_behaviour_sanitizer_debug_all_tests]
+    )
+    test_clang_undefined_behaviour_sanitizer_relwithdebinfo.depends_on(
+        [build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all_tests]
+    )
+    test_clang_undefined_behaviour_sanitizer_release.depends_on(
+        [build_clang_undefined_behaviour_sanitizer_release_all_tests]
     )
 
     prebuild_dependencies = []
@@ -6001,6 +6186,13 @@ def main() -> int:
         build_dependencies.append(test_clang_address_sanitizer_debug)
         build_dependencies.append(test_clang_address_sanitizer_relwithdebinfo)
         build_dependencies.append(test_clang_address_sanitizer_release)
+
+    if mode.undefined_behaviour_sanitizer:
+        build_dependencies.append(test_clang_undefined_behaviour_sanitizer_debug)
+        build_dependencies.append(
+            test_clang_undefined_behaviour_sanitizer_relwithdebinfo
+        )
+        build_dependencies.append(test_clang_undefined_behaviour_sanitizer_release)
 
     if mode.gcc:
         if mode.debug:
