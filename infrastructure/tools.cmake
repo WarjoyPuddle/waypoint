@@ -135,6 +135,15 @@ macro(disable_exceptions_in_coverage_mode)
   endif()
 endmacro()
 
+macro(conditionally_enable_address_sanitizer)
+  if(DEFINED PRESET_USE_ADDRESS_SANITIZER_Yc27ZqrRDoMnuQXw)
+    target_compile_options(
+      ${arg_TARGET} PRIVATE -fsanitize=address -g -fno-omit-frame-pointer
+                            -fno-inline-functions -fno-optimize-sibling-calls)
+    target_link_options(${arg_TARGET} PRIVATE -fsanitize=address -g)
+  endif()
+endmacro()
+
 macro(header_file_sets_and_libraries)
   if(NOT DEFINED arg_TARGET OR NOT DEFINED arg_DIRECTORY)
     message(FATAL_ERROR "header_file_sets_and_libraries error")
@@ -231,6 +240,7 @@ endmacro()
 macro(common_macros)
   links_and_sources()
   conditionally_enable_coverage()
+  conditionally_enable_address_sanitizer()
   standard_presets()
 endmacro()
 

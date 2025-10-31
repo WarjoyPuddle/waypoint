@@ -91,6 +91,16 @@
         "base_verbose"
       ],
       "name": "build_linux_gcc_coverage"
+    },
+    {
+      "configurePreset": "configure_linux_clang_address_sanitizer",
+      "hidden": false,
+      "inherits": [
+        "base_build_ninja",
+        "base_system_linux",
+        "base_verbose"
+      ],
+      "name": "build_linux_clang_address_sanitizer"
     }
   ],
   "configurePresets": [
@@ -110,6 +120,13 @@
       },
       "hidden": true,
       "name": "base_enable_tests_build"
+    },
+    {
+      "cacheVariables": {
+        "PRESET_USE_ADDRESS_SANITIZER_Yc27ZqrRDoMnuQXw": true
+      },
+      "hidden": true,
+      "name": "base_enable_address_sanitizer"
     },
     {
       "generator": "Ninja Multi-Config",
@@ -250,6 +267,20 @@
       ],
       "installDir": "${sourceDir}/../install_linux_gcc_coverage_pWwKXO5qB2hv86KC___",
       "name": "configure_linux_gcc_coverage"
+    },
+    {
+      "binaryDir": "${sourceDir}/../build_linux_clang_address_sanitizer_kf8LQtrh4vkzadj4___",
+      "hidden": false,
+      "inherits": [
+        "base_compiler_clang",
+        "base_generator_ninja",
+        "base_system_linux",
+        "base_enable_tests_build",
+        "base_target_properties",
+        "base_enable_address_sanitizer"
+      ],
+      "installDir": "${sourceDir}/../install_linux_clang_address_sanitizer_ZGxuOm7AJWrRoVKm___",
+      "name": "configure_linux_clang_address_sanitizer"
     }
   ],
   "testPresets": [
@@ -320,6 +351,15 @@
         "base_test_linux"
       ],
       "name": "test_linux_gcc_coverage"
+    },
+    {
+      "configurePreset": "configure_linux_clang_address_sanitizer",
+      "hidden": false,
+      "inherits": [
+        "base_test_config",
+        "base_test_linux"
+      ],
+      "name": "test_linux_clang_address_sanitizer"
     }
   ],
   "version": 10
