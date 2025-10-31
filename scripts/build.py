@@ -1901,7 +1901,7 @@ def check_formatting_python(file) -> typing.Tuple[bool, str | None]:
     if not success:
         return False, output
 
-    success, output = run(["black", "--check", "--line-length", "88", file])
+    success, output = run(["black", "--quiet", "--check", "--line-length", "88", file])
     if not success:
         return False, output
 
