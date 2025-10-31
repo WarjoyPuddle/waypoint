@@ -39,7 +39,9 @@ def get_files_from_compilation_database(preset, cmake_source_dir) -> typing.List
 
 
 def clang_tidy_process_single_file(data) -> typing.Tuple[bool, str, float, str | None]:
-    file, build_dir, project_root_dir, config_path = data
+    file, preset, cmake_source_dir, project_root_dir, config_path = data
+
+    build_dir = build_dir_from_preset(preset, cmake_source_dir)
 
     with contextlib.chdir(project_root_dir):
         start_time = time.time_ns()
