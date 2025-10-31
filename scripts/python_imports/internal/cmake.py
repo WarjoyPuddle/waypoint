@@ -7,7 +7,9 @@ import json
 import os
 
 from .process import run
-from .system import NewEnv, get_cpu_count, remove_dir
+from .system import NewEnv
+from .system import get_cpu_count
+from .system import remove_dir
 
 
 def configure_cmake(preset, env_patch, cmake_source_dir) -> bool:

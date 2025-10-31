@@ -10,21 +10,18 @@ import re
 import sys
 import typing
 
-from .files import (
-    find_files_by_name,
-    is_bash_file,
-    is_cmake_file,
-    is_cpp_file,
-    is_docker_file,
-    is_python_file,
-)
+from .file_types import is_bash_file
+from .file_types import is_cmake_file
+from .file_types import is_cpp_file
+from .file_types import is_docker_file
+from .file_types import is_python_file
 from .system import get_cpu_count
 
 COPYRIGHT_HOLDER_NAME = "Wojciech Kałuża"
 EXPECTED_SPDX_LICENSE_ID = "MIT"
 
 
-def is_file_with_licensing_comment(f) -> bool:
+def is_file_in_need_of_licensing_comment(f) -> bool:
     return (
         is_bash_file(f)
         or is_cmake_file(f)
@@ -188,9 +185,10 @@ def check_copyright_comments_in_single_file(
     return True, None, file
 
 
-def check_copyright_comments_(files) -> bool:
+def check_copyright_comments(files) -> bool:
+    inputs = [f for f in files if is_file_in_need_of_licensing_comment(f)]
     with multiprocessing.Pool(get_cpu_count()) as pool:
-        results = pool.map(check_copyright_comments_in_single_file, files)
+        results = pool.map(check_copyright_comments_in_single_file, inputs)
     errors = [(output, file) for success, output, file in results if not success]
     if len(errors) > 0:
         for output, file in errors:
@@ -201,12 +199,6 @@ def check_copyright_comments_(files) -> bool:
         return False
 
     return True
-
-
-def check_copyright_comments(root_dir) -> bool:
-    files = find_files_by_name(root_dir, is_file_with_licensing_comment)
-
-    return check_copyright_comments_(files)
 
 
 def check_license_file(license_file_path) -> bool:
