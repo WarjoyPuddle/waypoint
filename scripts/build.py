@@ -121,6 +121,16 @@ EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR = os.path.realpath(
     f"{EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR}/waypoint_install___"
 )
 
+EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR = os.path.realpath(
+    f"{EXAMPLES_DIR_PATH}/quick_start_add_subdirectory"
+)
+EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR = os.path.realpath(
+    f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/third_party___"
+)
+EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR = os.path.realpath(
+    f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR}/waypoint"
+)
+
 JOBS = os.process_cpu_count() if "process_cpu_count" in dir(os) else os.cpu_count()
 
 COPYRIGHT_HOLDER_NAME = "Wojciech Kałuża"
@@ -2209,6 +2219,11 @@ def clean_fn() -> bool:
     )
     remove_dir(EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR)
 
+    clean_build_dir(
+        CMakePresets.Example, EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
+    )
+    remove_dir(EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR)
+
     return True
 
 
@@ -3751,6 +3766,52 @@ def example_quick_start_build_and_install_fn() -> bool:
     recursively_copy_dir(
         install_dir, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR
     )
+
+    success = configure_cmake(CMakePresets.Example, env_patch, example_cmake_source_dir)
+    if not success:
+        return False
+
+    success = build_cmake(
+        config, CMakePresets.Example, env_patch, example_cmake_source_dir, "all"
+    )
+    if not success:
+        return False
+
+    success = build_cmake(
+        config, CMakePresets.Example, env_patch, example_cmake_source_dir, "test"
+    )
+    if not success:
+        return False
+
+    success = run_ctest(
+        CMakePresets.Example, config, JOBS, None, example_cmake_source_dir
+    )
+    if not success:
+        return False
+
+    with contextlib.chdir(example_cmake_source_dir):
+        success, output = run([f"{build_dir}/{config}/test_program"])
+        if not success:
+            return False
+
+    return True
+
+
+def example_quick_start_add_subdirectory_fn() -> bool:
+    remove_dir(EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR)
+    recursively_copy_dir(
+        f"{PROJECT_ROOT_DIR}/infrastructure",
+        f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR}/infrastructure",
+    )
+    recursively_copy_dir(
+        f"{PROJECT_ROOT_DIR}/src",
+        f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR}/src",
+    )
+
+    config = CMakeBuildConfig.Release
+    example_cmake_source_dir = EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
+    env_patch = CLANG20_ENV_PATCH
+    build_dir = build_dir_from_preset(CMakePresets.Example, example_cmake_source_dir)
 
     success = configure_cmake(CMakePresets.Example, env_patch, example_cmake_source_dir)
     if not success:
@@ -5358,6 +5419,11 @@ def main() -> int:
         ]
     )
 
+    example_quick_start_add_subdirectory = Task(
+        "Test examples/quick_start_add_subdirectory",
+        example_quick_start_add_subdirectory_fn,
+    )
+
     prebuild_dependencies = []
     build_dependencies = []
 
@@ -5652,6 +5718,7 @@ def main() -> int:
 
     if mode.examples:
         build_dependencies.append(example_quick_start_build_and_install)
+        build_dependencies.append(example_quick_start_add_subdirectory)
 
     if mode.static_analysis:
         if mode.clang:

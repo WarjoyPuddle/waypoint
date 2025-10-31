@@ -86,7 +86,7 @@ If all went well, the directory `waypoint_install___` now exists.
 You are free to rename it if you wish, but for the purposes of this
 example, let us keep the name as it is.
 
-In the `examples/quick_start_build_and_install` directory of this
+In the directory `examples/quick_start_build_and_install` of this
 repository, there is a minimal C++ CMake test project which makes use
 of the artifacts in `waypoint_install___`.
 
@@ -117,7 +117,45 @@ ctest --preset example_test --build-config Debug
 
 ### The add_subdirectory method
 
-TODO
+This method uses an approach known as dependency vendoring, where the
+client project makes a copy of the dependency's sources and
+incorporates them into its own build process.
+
+The directory `examples/quick_start_add_subdirectory` of this
+repository contains a minimal C++ CMake test project set up for
+vendoring Waypoint.
+
+To build and run the test project, start by copying the
+`infrastructure` and `src` directories into
+`examples/quick_start_add_subdirectory/third_party___/waypoint`.
+In a production scenario, you would probably also track the files
+within using your version control system.
+Some approaches would just clone waypoint into the `third_party___`
+directory or use a Git submodule, but this is not strictly necessary.
+
+```shell
+cd examples/quick_start_add_subdirectory
+mkdir --parents third_party___/waypoint
+pushd third_party___/waypoint
+cp --recursive ../../../../infrastructure ./
+cp --recursive ../../../../src ./
+popd
+
+# Configure step
+cmake --preset example_configure
+
+# Build step
+cmake --build --preset example_build --config Debug
+
+# Run the tests with CMake
+cmake --build --preset example_build --target test --config Debug
+
+# Alternatively, run the tests with CTest (a more flexible approach)
+ctest --preset example_test --build-config Debug
+
+# You may also run the test executable directly
+./build___/Debug/test_program
+```
 
 ### Providing your own entry point
 
