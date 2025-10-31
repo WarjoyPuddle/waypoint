@@ -57,6 +57,9 @@ def find_files_by_name(dir_path, pred) -> typing.List[str]:
             if d.startswith("."):
                 indices_to_remove.append(i)
                 continue
+            if d.startswith("_"):
+                indices_to_remove.append(i)
+                continue
             if "___" in d:
                 indices_to_remove.append(i)
                 continue
@@ -70,6 +73,10 @@ def find_files_by_name(dir_path, pred) -> typing.List[str]:
             if f.startswith("."):
                 indices_to_remove.append(i)
                 continue
+            if f.startswith("_"):
+                if f != "__init__.py":
+                    indices_to_remove.append(i)
+                    continue
             if "___" in f:
                 indices_to_remove.append(i)
                 continue
