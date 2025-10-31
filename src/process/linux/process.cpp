@@ -58,6 +58,10 @@ void unset_env(std::string const &var_name)
 
 auto int2str(int num, unsigned char const base) -> std::string
 {
+  waypoint::internal::assert(
+    2 <= base && base <= 16,
+    "Base must be between 2 and 16, inclusive.");
+
   constexpr static std::string_view ALPHABET = "0123456789abcdef";
 
   std::ostringstream ss;
@@ -77,6 +81,10 @@ auto int2str(int num, unsigned char const base) -> std::string
 
 auto str2int(std::string_view const str, unsigned char const base) -> int
 {
+  waypoint::internal::assert(
+    2 <= base && base <= 16,
+    "Base must be between 2 and 16, inclusive.");
+
   constexpr static std::string_view ALPHABET = "0123456789abcdef";
 
   int result = 0;
