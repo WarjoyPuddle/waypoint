@@ -17,6 +17,7 @@ from .system import get_cpu_count
 def get_files_from_compilation_database(preset, cmake_source_dir) -> typing.List[str]:
     build_dir = build_dir_from_preset(preset, cmake_source_dir)
     compilation_db = os.path.realpath(f"{build_dir}/compile_commands.json")
+    assert os.path.isfile(compilation_db)
 
     with open(compilation_db, "r") as f:
         data = json.load(f)
