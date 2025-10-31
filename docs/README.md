@@ -130,16 +130,17 @@ To build and run the test project, start by copying the
 `examples/quick_start_add_subdirectory/third_party___/waypoint`.
 In a production scenario, you would probably also track the files
 within using your version control system.
-Some approaches would just clone waypoint into the `third_party___`
-directory or use a Git submodule, but this is not strictly necessary.
+Another approach would be to just clone Waypoint into the
+`third_party___` directory or use a Git submodule, but this is not
+strictly necessary.
 
 ```shell
 cd examples/quick_start_add_subdirectory
 mkdir --parents third_party___/waypoint
-pushd third_party___/waypoint
+cd third_party___/waypoint
 cp --recursive ../../../../infrastructure ./
 cp --recursive ../../../../src ./
-popd
+cd ../../
 
 # Configure step
 cmake --preset example_configure
