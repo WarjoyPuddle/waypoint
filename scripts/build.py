@@ -133,6 +133,8 @@ CLANG20_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
 GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
 EXPORT_COMPILE_COMMANDS_ENV_PATCH = {"CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"}
 
+LICENSE_FILE_PATH = f"{PROJECT_ROOT_DIR}/LICENSE"
+
 
 @dataclasses.dataclass(frozen=True)
 class ModeConfig:
@@ -3076,7 +3078,7 @@ def example_quick_start_add_subdirectory_fn() -> bool:
 
 
 def check_license_file_fn() -> bool:
-    license_file_path = os.path.realpath(f"{PROJECT_ROOT_DIR}/LICENSE")
+    license_file_path = os.path.realpath(LICENSE_FILE_PATH)
 
     return check_license_file(license_file_path)
 
