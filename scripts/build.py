@@ -992,17 +992,18 @@ def run_ctest(
 def clang_tidy_process_single_file(data) -> typing.Tuple[bool, str, float, str | None]:
     file, build_dir = data
 
-    start_time = time.time_ns()
-    success, output = run(
-        [
-            "clang-tidy-20",
-            f"--config-file={CLANG_TIDY_CONFIG}",
-            "-p",
-            build_dir,
-            file,
-        ]
-    )
-    duration = time.time_ns() - start_time
+    with contextlib.chdir(PROJECT_ROOT_DIR):
+        start_time = time.time_ns()
+        success, output = run(
+            [
+                "clang-tidy-20",
+                f"--config-file={CLANG_TIDY_CONFIG}",
+                "-p",
+                build_dir,
+                file,
+            ]
+        )
+        duration = time.time_ns() - start_time
 
     return (
         success,
@@ -1012,50 +1013,64 @@ def clang_tidy_process_single_file(data) -> typing.Tuple[bool, str, float, str |
     )
 
 
-def run_clang_static_analysis_(files) -> bool:
-    success = run_clang_tidy(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR, files)
-    if not success:
-        return False
+def run_clang_static_analysis_(all_files) -> bool:
+    inputs = []
 
-    # Test installs
-
-    success = run_clang_tidy(
-        CMakePresets.LinuxClang,
-        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
-        files,
+    files_from_db = get_files_from_compilation_database(
+        CMakePresets.LinuxClang, CMAKE_SOURCE_DIR
     )
-    if not success:
-        return False
+    build_dir = build_dir_from_preset(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR)
+    inputs += [(f, build_dir) for f in files_from_db if f in all_files]
 
-    success = run_clang_tidy(
+    files_from_db = get_files_from_compilation_database(
+        CMakePresets.LinuxClang, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR
+    )
+    build_dir = build_dir_from_preset(
+        CMakePresets.LinuxClang, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR
+    )
+    inputs += [(f, build_dir) for f in files_from_db if f in all_files]
+
+    files_from_db = get_files_from_compilation_database(
         CMakePresets.LinuxClang,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
-        files,
     )
-    if not success:
-        return False
-
-    success = run_clang_tidy(
-        CMakePresets.LinuxClang, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR, files
+    build_dir = build_dir_from_preset(
+        CMakePresets.LinuxClang,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
     )
-    if not success:
-        return False
+    inputs += [(f, build_dir) for f in files_from_db if f in all_files]
 
-    # Examples
-
-    success = run_clang_tidy(
-        CMakePresets.Example,
-        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
-        files,
+    files_from_db = get_files_from_compilation_database(
+        CMakePresets.LinuxClang, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     )
-    if not success:
-        return False
-
-    success = run_clang_tidy(
-        CMakePresets.Example,
-        EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
-        files,
+    build_dir = build_dir_from_preset(
+        CMakePresets.LinuxClang, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     )
+    inputs += [(f, build_dir) for f in files_from_db if f in all_files]
+
+    files_from_db = get_files_from_compilation_database(
+        CMakePresets.Example, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
+    )
+    build_dir = build_dir_from_preset(
+        CMakePresets.Example, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
+    )
+    inputs += [(f, build_dir) for f in files_from_db if f in all_files]
+
+    files_from_db = get_files_from_compilation_database(
+        CMakePresets.Example, EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
+    )
+    build_dir = build_dir_from_preset(
+        CMakePresets.Example, EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
+    )
+    inputs += [(f, build_dir) for f in files_from_db if f in all_files]
+
+    if len(inputs) == 0:
+        return True
+
+    inputs = list(set(inputs))
+    inputs.sort()
+
+    success = run_clang_tidy(inputs)
     if not success:
         return False
 
@@ -1074,15 +1089,7 @@ def run_clang_static_analysis_changed_files_fn() -> bool:
     return run_clang_static_analysis_(files)
 
 
-def run_clang_tidy(preset, cmake_source_dir, all_files) -> bool:
-    files_from_db = get_files_from_compilation_database(preset, cmake_source_dir)
-    files_from_db = [f for f in files_from_db if f in all_files]
-    if len(files_from_db) == 0:
-        return True
-
-    build_dir = build_dir_from_preset(preset, cmake_source_dir)
-
-    inputs = [(f, build_dir) for f in files_from_db]
+def run_clang_tidy(inputs) -> bool:
     with multiprocessing.Pool(JOBS) as pool:
         results = pool.map(clang_tidy_process_single_file, inputs)
 
