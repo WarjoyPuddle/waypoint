@@ -64,7 +64,7 @@ auto int2str(int num, unsigned char const base) -> std::string
 
   constexpr static std::string_view ALPHABET = "0123456789abcdef";
 
-  std::ostringstream ss;
+  std::ostringstream ss{};
 
   while(num > 0)
   {
@@ -73,10 +73,9 @@ auto int2str(int num, unsigned char const base) -> std::string
     num /= base;
   }
 
-  auto output = ss.str();
-  std::ranges::reverse(output);
-
-  return output;
+  return ss.str() |
+    std::ranges::views::reverse |
+    std::ranges::to<std::string>();
 }
 
 auto str2int(std::string_view const str, unsigned char const base) -> int
