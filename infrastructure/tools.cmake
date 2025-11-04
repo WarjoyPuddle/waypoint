@@ -144,7 +144,7 @@ macro(conditionally_enable_address_sanitizer)
   endif()
 endmacro()
 
-macro(conditionally_enable_undefined_baheviour_sanitizer)
+macro(conditionally_enable_undefined_behaviour_sanitizer)
   if(DEFINED PRESET_USE_UNDEFINED_BEHAVIOUR_SANITIZER_Sg9fNtkF8wHdPaeP)
     target_compile_options(
       ${arg_TARGET}
@@ -270,7 +270,7 @@ macro(common_macros)
   links_and_sources()
   conditionally_enable_coverage()
   conditionally_enable_address_sanitizer()
-  conditionally_enable_undefined_baheviour_sanitizer()
+  conditionally_enable_undefined_behaviour_sanitizer()
   standard_presets()
 endmacro()
 
