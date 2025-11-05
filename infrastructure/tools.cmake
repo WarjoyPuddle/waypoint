@@ -158,18 +158,7 @@ macro(conditionally_enable_undefined_behaviour_sanitizer)
               -fsanitize=vptr
               -fno-sanitize=unsigned-integer-overflow
               -fno-sanitize-recover=all)
-    target_link_options(
-      ${arg_TARGET}
-      PRIVATE
-      -g
-      -fsanitize=undefined
-      -fsanitize=bounds
-      -fsanitize=float-divide-by-zero
-      -fsanitize=implicit-conversion
-      -fsanitize=integer
-      -fsanitize=nullability
-      -fsanitize=vptr
-      -fno-sanitize-recover=all)
+    target_link_options(${arg_TARGET} PRIVATE -g -fsanitize=undefined)
   endif()
 endmacro()
 
