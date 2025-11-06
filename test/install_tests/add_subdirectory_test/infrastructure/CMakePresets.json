@@ -65,26 +65,9 @@
   ],
   "configurePresets": [
     {
-      "cacheVariables": {
-        "PRESET_PROP_COMPILE_WARNING_AS_ERROR": true,
-        "PRESET_PROP_CXX_EXTENSIONS": false,
-        "PRESET_PROP_EXPORT_COMPILE_COMMANDS": true,
-        "PRESET_PROP_LINK_WARNING_AS_ERROR": true
-      },
-      "hidden": true,
-      "name": "base_target_properties"
-    },
-    {
       "generator": "Ninja Multi-Config",
       "hidden": true,
       "name": "base_generator_ninja"
-    },
-    {
-      "cacheVariables": {
-        "PRESET_ELEVATED_COMPILER_WARNINGS": "-Wall -Wextra -Wpedantic"
-      },
-      "hidden": true,
-      "name": "base_compiler_clang"
     },
     {
       "cacheVariables": {
@@ -92,13 +75,6 @@
       },
       "hidden": true,
       "name": "base_build_shared_libs"
-    },
-    {
-      "cacheVariables": {
-        "PRESET_ELEVATED_COMPILER_WARNINGS": "-Wall -Wextra -Wpedantic"
-      },
-      "hidden": true,
-      "name": "base_compiler_gcc"
     },
     {
       "condition": {
@@ -116,10 +92,8 @@
       },
       "hidden": false,
       "inherits": [
-        "base_compiler_clang",
         "base_generator_ninja",
-        "base_system_linux",
-        "base_target_properties"
+        "base_system_linux"
       ],
       "name": "configure_linux_clang"
     },
@@ -130,11 +104,9 @@
       },
       "hidden": false,
       "inherits": [
-        "base_compiler_clang",
         "base_generator_ninja",
         "base_system_linux",
-        "base_build_shared_libs",
-        "base_target_properties"
+        "base_build_shared_libs"
       ],
       "name": "configure_linux_clang_shared"
     },
@@ -145,10 +117,8 @@
       },
       "hidden": false,
       "inherits": [
-        "base_compiler_gcc",
         "base_generator_ninja",
-        "base_system_linux",
-        "base_target_properties"
+        "base_system_linux"
       ],
       "name": "configure_linux_gcc"
     },
@@ -159,11 +129,9 @@
       },
       "hidden": false,
       "inherits": [
-        "base_compiler_gcc",
         "base_generator_ninja",
         "base_system_linux",
-        "base_build_shared_libs",
-        "base_target_properties"
+        "base_build_shared_libs"
       ],
       "name": "configure_linux_gcc_shared"
     }
