@@ -116,10 +116,10 @@
   "configurePresets": [
     {
       "cacheVariables": {
-        "PRESET_PROP_COMPILE_WARNING_AS_ERROR": true,
-        "PRESET_PROP_CXX_EXTENSIONS": false,
-        "PRESET_PROP_EXPORT_COMPILE_COMMANDS": true,
-        "PRESET_PROP_LINK_WARNING_AS_ERROR": true
+        "PRESET_PROP_DISABLE_CXX_EXTENSIONS_94168jxR3E9X4QuG": true,
+        "PRESET_PROP_ENABLE_COMPILE_WARNING_AS_ERROR_LRbhTBxJt59icONv": true,
+        "PRESET_PROP_ENABLE_EXPORT_COMPILE_COMMANDS_HSF0eeNIYALhtTPe": true,
+        "PRESET_PROP_ENABLE_LINK_WARNING_AS_ERROR_1IYXH9m8xu3HrL8n": true
       },
       "hidden": true,
       "name": "base_target_properties"
@@ -152,21 +152,14 @@
     },
     {
       "cacheVariables": {
-        "PRESET_ELEVATED_COMPILER_WARNINGS": "-Wall -Wextra -Wpedantic"
+        "PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj": "-Wall -Wextra -Wpedantic"
       },
       "hidden": true,
-      "name": "base_compiler_clang"
+      "name": "base_elevated_compiler_warnings"
     },
     {
       "cacheVariables": {
-        "PRESET_ELEVATED_COMPILER_WARNINGS": "-Wall -Wextra -Wpedantic"
-      },
-      "hidden": true,
-      "name": "base_compiler_gcc"
-    },
-    {
-      "cacheVariables": {
-        "PRESET_ENABLE_COVERAGE": "--coverage"
+        "PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW": "--coverage"
       },
       "hidden": true,
       "name": "base_enable_coverage"
@@ -196,11 +189,11 @@
     },
     {
       "binaryDir": "${sourceDir}/../waypoint_build_shared___",
-      "cacheVariables": {
-        "BUILD_SHARED_LIBS": true
-      },
       "generator": "Ninja Multi-Config",
       "hidden": false,
+      "inherits": [
+        "base_build_shared_libs"
+      ],
       "installDir": "${sourceDir}/../waypoint_install_shared___",
       "name": "example_configure_shared"
     },
@@ -208,7 +201,7 @@
       "binaryDir": "${sourceDir}/../build_linux_clang_xgozuT4W2AeFQhlh___",
       "hidden": false,
       "inherits": [
-        "base_compiler_clang",
+        "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
         "base_enable_tests_build",
@@ -221,7 +214,7 @@
       "binaryDir": "${sourceDir}/../build_linux_clang_shared_8JxVsxxvHc6JeAN1___",
       "hidden": false,
       "inherits": [
-        "base_compiler_clang",
+        "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
         "base_enable_tests_build",
@@ -235,7 +228,7 @@
       "binaryDir": "${sourceDir}/../build_linux_gcc_o3AbIaWOHcdcUq2t___",
       "hidden": false,
       "inherits": [
-        "base_compiler_gcc",
+        "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
         "base_enable_tests_build",
@@ -248,7 +241,7 @@
       "binaryDir": "${sourceDir}/../build_linux_gcc_shared_RReTabh9E2qAc4d8___",
       "hidden": false,
       "inherits": [
-        "base_compiler_gcc",
+        "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
         "base_enable_tests_build",
@@ -262,7 +255,7 @@
       "binaryDir": "${sourceDir}/../ide_build_linux_clang_axkXHTfUdKUVQyvv___",
       "hidden": false,
       "inherits": [
-        "base_compiler_clang",
+        "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
         "base_enable_tests_build",
@@ -275,7 +268,7 @@
       "binaryDir": "${sourceDir}/../build_linux_gcc_coverage_TIJMCfKGrO9yjx4W___",
       "hidden": false,
       "inherits": [
-        "base_compiler_gcc",
+        "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
         "base_enable_tests_build",
@@ -289,7 +282,7 @@
       "binaryDir": "${sourceDir}/../build_linux_clang_address_sanitizer_kf8LQtrh4vkzadj4___",
       "hidden": false,
       "inherits": [
-        "base_compiler_clang",
+        "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
         "base_enable_tests_build",
@@ -303,7 +296,7 @@
       "binaryDir": "${sourceDir}/../build_linux_clang_undefined_behaviour_sanitizer_CM8Xduak4HNVKodc___",
       "hidden": false,
       "inherits": [
-        "base_compiler_clang",
+        "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
         "base_enable_tests_build",
