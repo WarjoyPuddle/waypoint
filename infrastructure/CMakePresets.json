@@ -152,14 +152,14 @@
     },
     {
       "cacheVariables": {
-        "PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj": "-Wall -Wextra -Wpedantic"
+        "PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj": true
       },
       "hidden": true,
       "name": "base_elevated_compiler_warnings"
     },
     {
       "cacheVariables": {
-        "PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW": "--coverage"
+        "PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW": true
       },
       "hidden": true,
       "name": "base_enable_coverage"

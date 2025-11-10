@@ -90,11 +90,7 @@ endmacro()
 
 macro(standard_presets)
   if(DEFINED PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj)
-    separate_arguments(
-      PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj)
-    target_compile_options(
-      ${arg_TARGET}
-      PRIVATE ${PRESET_ENABLE_ELEVATED_COMPILER_WARNINGS_L5RuymBgFeYxcUqj})
+    target_compile_options(${arg_TARGET} PRIVATE -Wall -Wextra -Wpedantic)
   endif()
 
   if(DEFINED PRESET_PROP_ENABLE_COMPILE_WARNING_AS_ERROR_LRbhTBxJt59icONv)
@@ -117,10 +113,8 @@ endmacro()
 
 macro(conditionally_enable_coverage)
   if(DEFINED PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW)
-    target_compile_options(${arg_TARGET}
-                           PRIVATE ${PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW})
-    target_link_options(${arg_TARGET} PRIVATE
-                        ${PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW})
+    target_compile_options(${arg_TARGET} PRIVATE --coverage)
+    target_link_options(${arg_TARGET} PRIVATE --coverage)
 
     target_compile_definitions(
       ${arg_TARGET} PRIVATE WAYPOINT_INTERNAL_COVERAGE_IOm5lSCCB6p0j19)
