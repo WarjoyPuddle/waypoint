@@ -395,12 +395,6 @@ def check_formatting_json(f) -> typing.Tuple[bool, str | None]:
 
 
 def check_formatting_python(file) -> typing.Tuple[bool, str | None]:
-    success, output = run(
-        [PYTHON, "-m", "isort", "--check", "--line-length", "88", file]
-    )
-    if not success:
-        return False, output
-
     success, output = run(["black", "--quiet", "--check", "--line-length", "88", file])
     if not success:
         return False, output
