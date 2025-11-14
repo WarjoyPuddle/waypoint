@@ -1,0 +1,35 @@
+{
+  "buildPresets": [
+    {
+      "configurePreset": "example_configure",
+      "hidden": false,
+      "name": "example_build"
+    }
+  ],
+  "configurePresets": [
+    {
+      "binaryDir": "${sourceDir}/build___",
+      "generator": "Ninja Multi-Config",
+      "hidden": false,
+      "name": "example_configure"
+    }
+  ],
+  "testPresets": [
+    {
+      "configurePreset": "example_configure",
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "stopOnFailure": false,
+        "timeout": 3600
+      },
+      "hidden": false,
+      "name": "example_test",
+      "output": {
+        "outputOnFailure": true,
+        "verbosity": "default"
+      }
+    }
+  ],
+  "version": 10
+}
