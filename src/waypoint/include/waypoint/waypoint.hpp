@@ -19,7 +19,7 @@ class TestOutcome;
 namespace waypoint::internal
 {
 
-constexpr unsigned long long DEFAULT_TIMEOUT_MS = 100;
+constexpr unsigned long long DEFAULT_TIMEOUT_MS = 3'600'000;
 
 class AssertionOutcome_impl;
 class AutorunFunctionPtrVector_impl;
