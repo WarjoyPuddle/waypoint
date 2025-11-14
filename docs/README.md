@@ -82,7 +82,8 @@ cmake --build --preset example_build --target install --config RelWithDebInfo
 cmake --build --preset example_build --target install --config Release
 ```
 
-If all went well, the directory `waypoint_install___` now exists.
+If all went well, the directory `build___/waypoint_install___` now
+exists.
 You are free to rename it if you wish, but for the purposes of this
 example, let us keep the name as it is.
 
@@ -97,7 +98,7 @@ In a production scenario, you would probably also add it to your
 
 ```shell
 cd examples/quick_start_build_and_install
-cp --recursive ../../waypoint_install___ ./
+cp --recursive ../../build___/waypoint_install___ ./
 
 # Configure step
 CC=clang-20 CXX=clang++-20 cmake --preset example_configure
@@ -179,7 +180,7 @@ The `main` function is in the file `main.cpp`.
 
 ```shell
 cd examples/quick_start_custom_main
-cp --recursive ../../waypoint_install___ ./
+cp --recursive ../../build___/waypoint_install___ ./
 
 # Configure step
 CC=clang-20 CXX=clang++-20 cmake --preset example_configure

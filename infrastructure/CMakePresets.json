@@ -215,17 +215,17 @@
       "name": "example_configure"
     },
     {
-      "binaryDir": "${sourceDir}/../waypoint_build_shared___",
+      "binaryDir": "${sourceDir}/../build___/waypoint_build_shared___",
       "generator": "Ninja Multi-Config",
       "hidden": false,
       "inherits": [
         "base_build_shared_libs"
       ],
-      "installDir": "${sourceDir}/../waypoint_install_shared___",
+      "installDir": "${sourceDir}/../build___/waypoint_install_shared___",
       "name": "example_configure_shared"
     },
     {
-      "binaryDir": "${sourceDir}/../build_linux_valgrind_clang_ZP56y3Vf3Yfw20bT___",
+      "binaryDir": "${sourceDir}/../build___/build_linux_valgrind_clang_ZP56y3Vf3Yfw20bT___",
       "hidden": false,
       "inherits": [
         "base_valgrind",
@@ -235,11 +235,11 @@
         "base_enable_tests_build",
         "base_target_properties"
       ],
-      "installDir": "${sourceDir}/../install_linux_valgrind_clang_myL2IyCTjs3vJiT5___",
+      "installDir": "${sourceDir}/../build___/install_linux_valgrind_clang_myL2IyCTjs3vJiT5___",
       "name": "configure_linux_valgrind_clang"
     },
     {
-      "binaryDir": "${sourceDir}/../build_linux_valgrind_gcc_4XWXlqw1R4YRjvcF___",
+      "binaryDir": "${sourceDir}/../build___/build_linux_valgrind_gcc_4XWXlqw1R4YRjvcF___",
       "hidden": false,
       "inherits": [
         "base_valgrind",
@@ -249,11 +249,11 @@
         "base_enable_tests_build",
         "base_target_properties"
       ],
-      "installDir": "${sourceDir}/../install_linux_valgrind_gcc_l3EyP2DaHiLvNBwX___",
+      "installDir": "${sourceDir}/../build___/install_linux_valgrind_gcc_l3EyP2DaHiLvNBwX___",
       "name": "configure_linux_valgrind_gcc"
     },
     {
-      "binaryDir": "${sourceDir}/../build_linux_clang_xgozuT4W2AeFQhlh___",
+      "binaryDir": "${sourceDir}/../build___/build_linux_clang_xgozuT4W2AeFQhlh___",
       "hidden": false,
       "inherits": [
         "base_elevated_compiler_warnings",
@@ -262,11 +262,11 @@
         "base_enable_tests_build",
         "base_target_properties"
       ],
-      "installDir": "${sourceDir}/../install_linux_clang_4o4HuRhFppELvkG2___",
+      "installDir": "${sourceDir}/../build___/install_linux_clang_4o4HuRhFppELvkG2___",
       "name": "configure_linux_clang"
     },
     {
-      "binaryDir": "${sourceDir}/../build_linux_clang_shared_8JxVsxxvHc6JeAN1___",
+      "binaryDir": "${sourceDir}/../build___/build_linux_clang_shared_8JxVsxxvHc6JeAN1___",
       "hidden": false,
       "inherits": [
         "base_elevated_compiler_warnings",
@@ -276,11 +276,11 @@
         "base_build_shared_libs",
         "base_target_properties"
       ],
-      "installDir": "${sourceDir}/../install_linux_clang_shared_gs79Zn0T0bh10Xy0___",
+      "installDir": "${sourceDir}/../build___/install_linux_clang_shared_gs79Zn0T0bh10Xy0___",
       "name": "configure_linux_clang_shared"
     },
     {
-      "binaryDir": "${sourceDir}/../build_linux_gcc_o3AbIaWOHcdcUq2t___",
+      "binaryDir": "${sourceDir}/../build___/build_linux_gcc_o3AbIaWOHcdcUq2t___",
       "hidden": false,
       "inherits": [
         "base_elevated_compiler_warnings",
@@ -289,11 +289,11 @@
         "base_enable_tests_build",
         "base_target_properties"
       ],
-      "installDir": "${sourceDir}/../install_linux_gcc_2KvSTJCdAYuzZYYv___",
+      "installDir": "${sourceDir}/../build___/install_linux_gcc_2KvSTJCdAYuzZYYv___",
       "name": "configure_linux_gcc"
     },
     {
-      "binaryDir": "${sourceDir}/../build_linux_gcc_shared_RReTabh9E2qAc4d8___",
+      "binaryDir": "${sourceDir}/../build___/build_linux_gcc_shared_RReTabh9E2qAc4d8___",
       "hidden": false,
       "inherits": [
         "base_elevated_compiler_warnings",
@@ -303,7 +303,7 @@
         "base_build_shared_libs",
         "base_target_properties"
       ],
-      "installDir": "${sourceDir}/../install_linux_gcc_shared_2sNDkgWWrDedNFLw___",
+      "installDir": "${sourceDir}/../build___/install_linux_gcc_shared_2sNDkgWWrDedNFLw___",
       "name": "configure_linux_gcc_shared"
     },
     {
@@ -320,7 +320,7 @@
       "name": "ide_clion_configure_linux_clang"
     },
     {
-      "binaryDir": "${sourceDir}/../build_linux_gcc_coverage_TIJMCfKGrO9yjx4W___",
+      "binaryDir": "${sourceDir}/../build___/build_linux_gcc_coverage_TIJMCfKGrO9yjx4W___",
       "hidden": false,
       "inherits": [
         "base_elevated_compiler_warnings",
@@ -330,11 +330,11 @@
         "base_target_properties",
         "base_enable_coverage"
       ],
-      "installDir": "${sourceDir}/../install_linux_gcc_coverage_pWwKXO5qB2hv86KC___",
+      "installDir": "${sourceDir}/../build___/install_linux_gcc_coverage_pWwKXO5qB2hv86KC___",
       "name": "configure_linux_gcc_coverage"
     },
     {
-      "binaryDir": "${sourceDir}/../build_linux_clang_address_sanitizer_kf8LQtrh4vkzadj4___",
+      "binaryDir": "${sourceDir}/../build___/build_linux_clang_address_sanitizer_kf8LQtrh4vkzadj4___",
       "hidden": false,
       "inherits": [
         "base_elevated_compiler_warnings",
@@ -344,11 +344,11 @@
         "base_target_properties",
         "base_enable_address_sanitizer"
       ],
-      "installDir": "${sourceDir}/../install_linux_clang_address_sanitizer_ZGxuOm7AJWrRoVKm___",
+      "installDir": "${sourceDir}/../build___/install_linux_clang_address_sanitizer_ZGxuOm7AJWrRoVKm___",
       "name": "configure_linux_clang_address_sanitizer"
     },
     {
-      "binaryDir": "${sourceDir}/../build_linux_clang_undefined_behaviour_sanitizer_CM8Xduak4HNVKodc___",
+      "binaryDir": "${sourceDir}/../build___/build_linux_clang_undefined_behaviour_sanitizer_CM8Xduak4HNVKodc___",
       "hidden": false,
       "inherits": [
         "base_elevated_compiler_warnings",
@@ -358,7 +358,7 @@
         "base_target_properties",
         "base_enable_undefined_behaviour_sanitizer"
       ],
-      "installDir": "${sourceDir}/../install_linux_clang_undefined_behaviour_sanitizer_uJSHAs7c7tjtJiPZ___",
+      "installDir": "${sourceDir}/../build___/install_linux_clang_undefined_behaviour_sanitizer_uJSHAs7c7tjtJiPZ___",
       "name": "configure_linux_clang_undefined_behaviour_sanitizer"
     }
   ],
