@@ -797,7 +797,8 @@ auto TestRun::group(char const *name) const noexcept -> Group
   return this->impl_->make_group(group_id);
 }
 
-auto TestRun::test(Group const &group, char const *name) const noexcept -> Test
+auto TestRun::test(Group const &group, char const *const name) const noexcept
+  -> Test
 {
   auto const test_id =
     this->impl_->register_test(this->impl_->get_group_id(group), name);
