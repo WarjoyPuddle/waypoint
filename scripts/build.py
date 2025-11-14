@@ -642,9 +642,14 @@ def collect_inputs_for_static_analysis(all_files_set):
     files_from_db = get_files_from_compilation_database(
         CMakePresets.LinuxClang, CMAKE_SOURCE_DIR
     )
-    build_dir = build_dir_from_preset(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR)
     inputs += [
-        (f, build_dir, PROJECT_ROOT_DIR, CLANG_TIDY_CONFIG)
+        (
+            f,
+            CMakePresets.LinuxClang,
+            CMAKE_SOURCE_DIR,
+            PROJECT_ROOT_DIR,
+            CLANG_TIDY_CONFIG,
+        )
         for f in files_from_db
         if f in all_files_set
     ]
@@ -652,11 +657,14 @@ def collect_inputs_for_static_analysis(all_files_set):
     files_from_db = get_files_from_compilation_database(
         CMakePresets.LinuxClang, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR
     )
-    build_dir = build_dir_from_preset(
-        CMakePresets.LinuxClang, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR
-    )
     inputs += [
-        (f, build_dir, PROJECT_ROOT_DIR, CLANG_TIDY_CONFIG)
+        (
+            f,
+            CMakePresets.LinuxClang,
+            TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
+            PROJECT_ROOT_DIR,
+            CLANG_TIDY_CONFIG,
+        )
         for f in files_from_db
         if f in all_files_set
     ]
@@ -665,12 +673,14 @@ def collect_inputs_for_static_analysis(all_files_set):
         CMakePresets.LinuxClang,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
     )
-    build_dir = build_dir_from_preset(
-        CMakePresets.LinuxClang,
-        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
-    )
     inputs += [
-        (f, build_dir, PROJECT_ROOT_DIR, CLANG_TIDY_CONFIG)
+        (
+            f,
+            CMakePresets.LinuxClang,
+            TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
+            PROJECT_ROOT_DIR,
+            CLANG_TIDY_CONFIG,
+        )
         for f in files_from_db
         if f in all_files_set
     ]
@@ -678,11 +688,14 @@ def collect_inputs_for_static_analysis(all_files_set):
     files_from_db = get_files_from_compilation_database(
         CMakePresets.LinuxClang, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     )
-    build_dir = build_dir_from_preset(
-        CMakePresets.LinuxClang, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
-    )
     inputs += [
-        (f, build_dir, PROJECT_ROOT_DIR, CLANG_TIDY_CONFIG)
+        (
+            f,
+            CMakePresets.LinuxClang,
+            TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+            PROJECT_ROOT_DIR,
+            CLANG_TIDY_CONFIG,
+        )
         for f in files_from_db
         if f in all_files_set
     ]
@@ -690,11 +703,14 @@ def collect_inputs_for_static_analysis(all_files_set):
     files_from_db = get_files_from_compilation_database(
         CMakePresets.Example, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
     )
-    build_dir = build_dir_from_preset(
-        CMakePresets.Example, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
-    )
     inputs += [
-        (f, build_dir, PROJECT_ROOT_DIR, CLANG_TIDY_CONFIG)
+        (
+            f,
+            CMakePresets.Example,
+            EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+            PROJECT_ROOT_DIR,
+            CLANG_TIDY_CONFIG,
+        )
         for f in files_from_db
         if f in all_files_set
     ]
@@ -702,11 +718,14 @@ def collect_inputs_for_static_analysis(all_files_set):
     files_from_db = get_files_from_compilation_database(
         CMakePresets.Example, EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     )
-    build_dir = build_dir_from_preset(
-        CMakePresets.Example, EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
-    )
     inputs += [
-        (f, build_dir, PROJECT_ROOT_DIR, CLANG_TIDY_CONFIG)
+        (
+            f,
+            CMakePresets.Example,
+            EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+            PROJECT_ROOT_DIR,
+            CLANG_TIDY_CONFIG,
+        )
         for f in files_from_db
         if f in all_files_set
     ]
