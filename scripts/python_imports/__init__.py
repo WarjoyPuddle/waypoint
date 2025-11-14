@@ -13,6 +13,7 @@ from .internal.cmake import configure_cmake
 from .internal.cmake import install_cmake
 from .internal.cmake import install_dir_from_preset
 from .internal.cmake import run_ctest
+from .internal.compiler import Compiler
 from .internal.coverage import analyze_gcc_coverage
 from .internal.coverage import process_coverage
 from .internal.files import changed_cpp_source_files_and_dependents
