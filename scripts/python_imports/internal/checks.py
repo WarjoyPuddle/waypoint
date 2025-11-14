@@ -6,11 +6,13 @@ import os
 import re
 
 from .cmake import install_dir_from_preset
-from .files import find_files_by_name, is_cpp_header_file
+from .file_types import is_cpp_header_file
+from .files import find_all_files
+from .files import find_files_by_name
 
 
 def check_no_spaces_in_paths_(root_dir) -> bool:
-    files = find_files_by_name(root_dir, lambda x: True)
+    files = find_all_files(root_dir)
 
     for f in files:
         assert f.startswith(root_dir)
@@ -99,7 +101,7 @@ def verify_installation_contents_static(preset, cmake_source_dir) -> bool:
         "lib/Release/libwaypoint_main_impl.a",
     ]
 
-    files = find_files_by_name(install_dir, lambda x: True)
+    files = find_all_files(install_dir)
     for expected in expected_files:
         assert (
             os.path.realpath(f"{install_dir}/{expected}") in files
@@ -128,7 +130,7 @@ def verify_installation_contents_shared(preset, cmake_source_dir) -> bool:
         "lib/Release/libwaypoint_main_impl.so",
     ]
 
-    files = find_files_by_name(install_dir, lambda x: True)
+    files = find_all_files(install_dir)
     for expected in expected_files:
         assert (
             os.path.realpath(f"{install_dir}/{expected}") in files
