@@ -157,8 +157,6 @@ EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR = os.path.realpath(
     f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR}/waypoint"
 )
 
-EXPORT_COMPILE_COMMANDS_ENV_PATCH = {"CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"}
-
 LICENSE_FILE_PATH = f"{PROJECT_ROOT_DIR}/LICENSE"
 
 
@@ -2649,104 +2647,97 @@ def example_quick_start_build_and_install_fn() -> bool:
         install_dir, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR
     )
 
-    env = os.environ.copy()
-    env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
-    with NewEnv(env):
-        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-        if not success:
-            return False
+    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+    if not success:
+        return False
 
-        success = build_cmake(
-            CMakeBuildConfig.Debug,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "all",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.RelWithDebInfo,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "all",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.Release,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "all",
-        )
-        if not success:
-            return False
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
 
-        success = build_cmake(
-            CMakeBuildConfig.Debug,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "test",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.RelWithDebInfo,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "test",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.Release,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "test",
-        )
-        if not success:
-            return False
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
 
-        success = run_ctest(
-            CMakePresets.Example,
-            CMakeBuildConfig.Debug,
-            None,
-            example_cmake_source_dir,
-        )
-        if not success:
-            return False
-        success = run_ctest(
-            CMakePresets.Example,
-            CMakeBuildConfig.RelWithDebInfo,
-            None,
-            example_cmake_source_dir,
-        )
-        if not success:
-            return False
-        success = run_ctest(
-            CMakePresets.Example,
-            CMakeBuildConfig.Release,
-            None,
-            example_cmake_source_dir,
-        )
-        if not success:
-            return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Debug,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.RelWithDebInfo,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Release,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
 
-        with contextlib.chdir(example_cmake_source_dir):
-            success, output = run(
-                [f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"]
-            )
-            if not success:
-                return False
-            success, output = run(
-                [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
-            )
-            if not success:
-                return False
-            success, output = run(
-                [f"{build_dir}/{CMakeBuildConfig.Release}/test_program"]
-            )
-            if not success:
-                return False
+    with contextlib.chdir(example_cmake_source_dir):
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        if not success:
+            return False
+        success, output = run(
+            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+        )
+        if not success:
+            return False
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        if not success:
+            return False
 
     # use Waypoint as a dynamic library
     remove_dir(build_dir)
@@ -2757,104 +2748,97 @@ def example_quick_start_build_and_install_fn() -> bool:
         install_dir, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR
     )
 
-    env = os.environ.copy()
-    env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
-    with NewEnv(env):
-        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-        if not success:
-            return False
+    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+    if not success:
+        return False
 
-        success = build_cmake(
-            CMakeBuildConfig.Debug,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "all",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.RelWithDebInfo,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "all",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.Release,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "all",
-        )
-        if not success:
-            return False
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
 
-        success = build_cmake(
-            CMakeBuildConfig.Debug,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "test",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.RelWithDebInfo,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "test",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.Release,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "test",
-        )
-        if not success:
-            return False
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
 
-        success = run_ctest(
-            CMakePresets.Example,
-            CMakeBuildConfig.Debug,
-            None,
-            example_cmake_source_dir,
-        )
-        if not success:
-            return False
-        success = run_ctest(
-            CMakePresets.Example,
-            CMakeBuildConfig.RelWithDebInfo,
-            None,
-            example_cmake_source_dir,
-        )
-        if not success:
-            return False
-        success = run_ctest(
-            CMakePresets.Example,
-            CMakeBuildConfig.Release,
-            None,
-            example_cmake_source_dir,
-        )
-        if not success:
-            return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Debug,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.RelWithDebInfo,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Release,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
 
-        with contextlib.chdir(example_cmake_source_dir):
-            success, output = run(
-                [f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"]
-            )
-            if not success:
-                return False
-            success, output = run(
-                [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
-            )
-            if not success:
-                return False
-            success, output = run(
-                [f"{build_dir}/{CMakeBuildConfig.Release}/test_program"]
-            )
-            if not success:
-                return False
+    with contextlib.chdir(example_cmake_source_dir):
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        if not success:
+            return False
+        success, output = run(
+            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+        )
+        if not success:
+            return False
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        if not success:
+            return False
 
     return True
 
@@ -2873,104 +2857,97 @@ def example_quick_start_add_subdirectory_fn() -> bool:
     example_cmake_source_dir = EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     build_dir = build_dir_from_preset(CMakePresets.Example, example_cmake_source_dir)
 
-    env = os.environ.copy()
-    env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
-    with NewEnv(env):
-        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-        if not success:
-            return False
+    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+    if not success:
+        return False
 
-        success = build_cmake(
-            CMakeBuildConfig.Debug,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "all",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.RelWithDebInfo,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "all",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.Release,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "all",
-        )
-        if not success:
-            return False
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
 
-        success = build_cmake(
-            CMakeBuildConfig.Debug,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "test",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.RelWithDebInfo,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "test",
-        )
-        if not success:
-            return False
-        success = build_cmake(
-            CMakeBuildConfig.Release,
-            CMakePresets.Example,
-            example_cmake_source_dir,
-            "test",
-        )
-        if not success:
-            return False
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
 
-        success = run_ctest(
-            CMakePresets.Example,
-            CMakeBuildConfig.Debug,
-            None,
-            example_cmake_source_dir,
-        )
-        if not success:
-            return False
-        success = run_ctest(
-            CMakePresets.Example,
-            CMakeBuildConfig.RelWithDebInfo,
-            None,
-            example_cmake_source_dir,
-        )
-        if not success:
-            return False
-        success = run_ctest(
-            CMakePresets.Example,
-            CMakeBuildConfig.Release,
-            None,
-            example_cmake_source_dir,
-        )
-        if not success:
-            return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Debug,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.RelWithDebInfo,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Release,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
 
-        with contextlib.chdir(example_cmake_source_dir):
-            success, output = run(
-                [f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"]
-            )
-            if not success:
-                return False
-            success, output = run(
-                [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
-            )
-            if not success:
-                return False
-            success, output = run(
-                [f"{build_dir}/{CMakeBuildConfig.Release}/test_program"]
-            )
-            if not success:
-                return False
+    with contextlib.chdir(example_cmake_source_dir):
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        if not success:
+            return False
+        success, output = run(
+            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+        )
+        if not success:
+            return False
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        if not success:
+            return False
 
     return True
 
