@@ -119,9 +119,14 @@ see the files in `infrastructure/docker` for details of the
 environment.
 To start using the container, make sure you have docker installed and
 enabled for `sudo`-less execution.
-Run `scripts/enter_docker.bash` in a terminal.
-This script will build a Docker image with all the necessary
-tooling and start a terminal session inside the container.
+
+Run the following command in a terminal.
+The `enter_docker.bash` script will build a Docker image with all the
+necessary tooling and start a terminal session inside a container.
+
+```shell
+bash scripts/enter_docker.bash
+```
 
 While inside the Docker container (or another suitable context), you
 can build Waypoint by running `scripts/build.py` with a single
