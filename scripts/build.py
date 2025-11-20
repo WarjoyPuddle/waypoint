@@ -10,7 +10,6 @@ import os
 import sys
 
 from python_imports import Compiler
-from python_imports import NewEnv
 from python_imports import Task
 from python_imports import analyze_gcc_coverage
 from python_imports import build_cmake
