@@ -6,25 +6,23 @@ import json
 import multiprocessing
 import typing
 
-from .files import (
-    find_files_by_name,
-    is_cmake_file,
-    is_cpp_file,
-    is_json_file,
-    is_python_file,
-)
+from .file_types import is_cmake_file
+from .file_types import is_cpp_file
+from .file_types import is_json_file
+from .file_types import is_python_file
 from .process import run
-from .system import get_cpu_count, get_python
+from .system import get_cpu_count
+from .system import get_python
 
 
-def check_formatting_cmake(f) -> typing.Tuple[bool, str | None]:
+def check_formatting_cmake(file) -> typing.Tuple[bool, str | None]:
     success, output = run(
         [
             "cmake-format",
             "--enable-markup",
             "FALSE",
             "--check",
-            f,
+            file,
         ]
     )
     if not success:
@@ -49,23 +47,43 @@ def check_formatting_cpp(file, path_to_config) -> typing.Tuple[bool, str | None]
     return True, None
 
 
-def check_formatting_json(f) -> typing.Tuple[bool, str | None]:
-    with open(f, "r") as handle:
-        original = handle.read()
-    with open(f, "r") as handle:
-        data = json.load(handle)
+def check_formatting_json(file) -> typing.Tuple[bool, str | None]:
+    with open(file, "r") as f:
+        original = f.read()
+    with open(file, "r") as f:
+        data = json.load(f)
 
     data_str = json.dumps(data, indent=2, sort_keys=True)
     data_str += "\n"
 
     success = data_str == original
     if not success:
-        return False, "Incorrect JSON file formatting\n"
+        return False, f"Incorrect JSON file formatting ({file})\n"
 
     return True, None
 
 
 def check_formatting_python(file) -> typing.Tuple[bool, str | None]:
+    success, output = run(
+        [
+            get_python(),
+            "-m",
+            "isort",
+            "--check",
+            "--combine-star",
+            "--float-to-top",
+            "--force-single-line-imports",
+            "--ignore-whitespace",
+            "--sort-reexports",
+            "--star-first",
+            "--line-length",
+            "88",
+            file,
+        ]
+    )
+    if not success:
+        return False, output
+
     success, output = run(["black", "--quiet", "--check", "--line-length", "88", file])
     if not success:
         return False, output
@@ -73,14 +91,14 @@ def check_formatting_python(file) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
-def format_cmake(f) -> typing.Tuple[bool, str | None]:
+def format_cmake(file) -> typing.Tuple[bool, str | None]:
     success, output = run(
         [
             "cmake-format",
             "--enable-markup",
             "FALSE",
             "-i",
-            f,
+            file,
         ]
     )
     if not success:
@@ -104,26 +122,42 @@ def format_cpp(f, path_to_config) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
-def format_json(f) -> typing.Tuple[bool, str | None]:
-    with open(f, "r") as handle:
-        original = handle.read()
-    with open(f, "r") as handle:
-        data = json.load(handle)
+def format_json(file) -> typing.Tuple[bool, str | None]:
+    with open(file, "r") as f:
+        original = f.read()
+    with open(file, "r") as f:
+        data = json.load(f)
 
     data_str = json.dumps(data, indent=2, sort_keys=True)
     data_str += "\n"
     if data_str != original:
-        with open(f, "w") as handle:
-            handle.write(data_str)
+        with open(file, "w") as f:
+            f.write(data_str)
 
     return True, None
 
 
-def format_python(f) -> typing.Tuple[bool, str | None]:
-    success, output = run([get_python(), "-m", "isort", "--line-length", "88", f])
-    assert success
+def format_python(file) -> typing.Tuple[bool, str | None]:
+    success, output = run(
+        [
+            get_python(),
+            "-m",
+            "isort",
+            "--combine-star",
+            "--float-to-top",
+            "--force-single-line-imports",
+            "--ignore-whitespace",
+            "--sort-reexports",
+            "--star-first",
+            "--line-length",
+            "88",
+            file,
+        ]
+    )
+    if not success:
+        return False, output
 
-    success, output = run(["black", "--quiet", "--line-length", "88", f])
+    success, output = run(["black", "--quiet", "--line-length", "88", file])
     if not success:
         return False, output
 
@@ -150,7 +184,11 @@ def check_formatting_in_single_file(data) -> typing.Tuple[bool, str | None, str]
 
         return success, output, file
 
-    return False, "Expected to check formatting in unsupported file type\n", file
+    return (
+        False,
+        f"Expected to check formatting in unsupported file type ({file})\n",
+        file,
+    )
 
 
 def format_single_file(data) -> typing.Tuple[bool, str | None, str]:
@@ -176,14 +214,19 @@ def format_single_file(data) -> typing.Tuple[bool, str | None, str]:
     return False, "Expected to format unsupported file type\n", file
 
 
-def is_file_for_formatting(f) -> bool:
-    return is_cmake_file(f) or is_cpp_file(f) or is_json_file(f) or is_python_file(f)
+def is_file_in_need_of_formatting(file) -> bool:
+    return (
+        is_cmake_file(file)
+        or is_cpp_file(file)
+        or is_json_file(file)
+        or is_python_file(file)
+    )
 
 
-def format_files(root_dir, clang_format_config) -> bool:
-    files = find_files_by_name(root_dir, is_file_for_formatting)
+def format_files(files, clang_format_config) -> bool:
+    inputs = [f for f in files if is_file_in_need_of_formatting(f)]
     inputs = [
-        (file, clang_format_config if is_cpp_file(file) else None) for file in files
+        (file, clang_format_config if is_cpp_file(file) else None) for file in inputs
     ]
 
     with multiprocessing.Pool(get_cpu_count()) as pool:
@@ -200,10 +243,10 @@ def format_files(root_dir, clang_format_config) -> bool:
     return True
 
 
-def check_formatting(root_dir, clang_format_config) -> bool:
-    files = find_files_by_name(root_dir, is_file_for_formatting)
+def check_formatting(files, clang_format_config) -> bool:
+    inputs = [f for f in files if is_file_in_need_of_formatting(f)]
     inputs = [
-        (file, clang_format_config if is_cpp_file(file) else None) for file in files
+        (file, clang_format_config if is_cpp_file(file) else None) for file in inputs
     ]
 
     with multiprocessing.Pool(get_cpu_count()) as pool:

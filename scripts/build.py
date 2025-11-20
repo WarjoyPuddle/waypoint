@@ -9,7 +9,34 @@ import enum
 import os
 import sys
 
-from python_imports import *
+from python_imports import NewEnv
+from python_imports import Task
+from python_imports import analyze_gcc_coverage
+from python_imports import build_cmake
+from python_imports import build_dir_from_preset
+from python_imports import changed_cpp_source_files_and_dependents
+from python_imports import check_copyright_comments
+from python_imports import check_formatting
+from python_imports import check_license_file
+from python_imports import clean_build_dir
+from python_imports import clean_install_dir
+from python_imports import configure_cmake
+from python_imports import find_all_cpp_source_files
+from python_imports import find_all_files
+from python_imports import format_files
+from python_imports import get_files_from_compilation_database
+from python_imports import install_cmake
+from python_imports import install_dir_from_preset
+from python_imports import is_supported_os
+from python_imports import misc_checks
+from python_imports import process_coverage
+from python_imports import recursively_copy_dir
+from python_imports import remove_dir
+from python_imports import run
+from python_imports import run_clang_static_analysis
+from python_imports import run_ctest
+from python_imports import verify_installation_contents_shared
+from python_imports import verify_installation_contents_static
 
 THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/..")
@@ -1167,15 +1194,21 @@ def build_gcc_release_all_tests_shared_fn() -> bool:
 
 
 def check_copyright_comments_fn() -> bool:
-    return check_copyright_comments(PROJECT_ROOT_DIR)
+    files = find_all_files(PROJECT_ROOT_DIR)
+
+    return check_copyright_comments(files)
 
 
 def check_formatting_fn() -> bool:
-    return check_formatting(PROJECT_ROOT_DIR, CLANG_FORMAT_CONFIG)
+    files = find_all_files(PROJECT_ROOT_DIR)
+
+    return check_formatting(files, CLANG_FORMAT_CONFIG)
 
 
 def format_sources_fn() -> bool:
-    return format_files(PROJECT_ROOT_DIR, CLANG_FORMAT_CONFIG)
+    files = find_all_files(PROJECT_ROOT_DIR)
+
+    return format_files(files, CLANG_FORMAT_CONFIG)
 
 
 class CliConfig:
