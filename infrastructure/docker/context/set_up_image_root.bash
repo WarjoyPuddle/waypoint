@@ -69,7 +69,6 @@ function install_apps
     gcovr \
     gdb \
     git \
-    lcov \
     make \
     ninja-build \
     python3.13 \
