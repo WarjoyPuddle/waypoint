@@ -65,7 +65,25 @@ Run `scripts/enter_docker.bash` in a terminal.
 This script will build a Docker image with all the necessary
 tooling and start a terminal session inside the container.
 
-TODO describe using the build script
+While inside the Docker container (or another suitable context), you
+can build Waypoint by running `scripts/build.py` with a single
+argument called a mode.
+Four modes that deserve attention are
+`fast` (builds Waypoint and functional tests in Debug mode, runs
+tests),
+`clean` (removes all traces of build artifacts),
+`format` (formats source files), and
+`verify` (runs in `clean` mode, followed by builds using all
+toolchains, as well as all checks and tests, including coverage,
+sanitizers, Valgrind, and static analysis).
+
+We recommend working with `fast` mode during feature development to
+ensure short iterations and quick feedback.
+Once the feature is finished, ensure that the `verify` build still
+succeeds and fix any problems.
+
+To discover the build script's other modes, run it with the `--help`
+option.
 
 ### The pre-commit hook
 
