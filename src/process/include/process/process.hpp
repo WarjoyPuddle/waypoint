@@ -90,6 +90,10 @@ public:
   auto operator=(OutputPipeEnd const &other) -> OutputPipeEnd & = delete;
   auto operator=(OutputPipeEnd &&other) noexcept -> OutputPipeEnd & = delete;
 
+  //???delete later
+  [[nodiscard]]
+  auto raw() const -> int;
+
   [[nodiscard]]
   auto read(unsigned char *buffer, unsigned long long count) const
     -> ReadResult;

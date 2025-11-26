@@ -205,6 +205,12 @@ OutputPipeEnd::OutputPipeEnd(OutputPipeEnd_impl *const impl)
 {
 }
 
+//???delete later
+auto OutputPipeEnd::raw() const -> int
+{
+  return this->impl_->raw_pipe();
+}
+
 auto OutputPipeEnd::read(
   unsigned char *const buffer,
   unsigned long long const count) const -> OutputPipeEnd::ReadResult

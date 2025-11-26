@@ -26,6 +26,11 @@
 #include <utility>
 #include <vector>
 
+//???
+#include "../assert/include/assert/assert.hpp"
+
+#include <sys/epoll.h>
+
 namespace waypoint::internal
 {
 
@@ -432,9 +437,42 @@ enum class StdPipe : unsigned char
   Error
 };
 
-auto poll_std_pipes() -> std::optional<std::vector<StdPipe>>
+auto poll_std_pipes(
+  waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_err_read_pipe)
+  -> std::optional<std::vector<StdPipe>>
 {
-  ::epoll(); //???encapsulate behind API
+  //???encapsulate epoll calls behind API
+
+  //???call once and save as RAII, ::close when done
+  auto const epoll_descriptor = ::epoll_create1(0);
+  waypoint::internal::assert(
+    epoll_descriptor > 0,
+    "call to ::epoll_create1 returned an error");
+
+  std::array<::epoll_event, 2> events{};
+  events.data()->events = EPOLLERR | EPOLLHUP | EPOLLIN | EPOLLRDHUP;
+  (events.data() + 1)->events = EPOLLERR | EPOLLHUP | EPOLLIN | EPOLLRDHUP;
+  auto ret = ::epoll_ctl(
+    epoll_descriptor,
+    EPOLL_CTL_ADD,
+    std_out_read_pipe.raw(),
+    events.data());
+  waypoint::internal::assert(ret == 0, "call to ::epoll_ctl returned an error");
+  ret = ::epoll_ctl(
+    epoll_descriptor,
+    EPOLL_CTL_ADD,
+    std_err_read_pipe.raw(),
+    events.data() + 1);
+  waypoint::internal::assert(ret == 0, "call to ::epoll_ctl returned an error");
+
+  ret = ::epoll_wait(epoll_descriptor, events.data(), events.size(), 0);
+  waypoint::internal::assert(
+    ret >= 0,
+    "call to ::epoll_wait returned an error");
+
+  //???call in RAII dtor
+  ::close(epoll_descriptor);
 
   return std::nullopt;
 }
@@ -446,7 +484,8 @@ auto read_std_pipes(
   waypoint::internal::OutputPipeEnd const &std_err_read_pipe)
   -> std::vector<StdPipeOutputLine>
 {
-  auto const maybe_poll_results = poll_std_pipes();
+  auto const maybe_poll_results =
+    poll_std_pipes(std_out_read_pipe, std_err_read_pipe);
 
   if(!maybe_poll_results.has_value())
   {
@@ -459,13 +498,21 @@ auto read_std_pipes(
 
   for(auto const pipe : poll_results)
   {
+    unsigned char *buffer = 0; //???
+    //???zero buffer here
+    unsigned long long count = 0; //???
+    [[maybe_unused]]
+    //???
+    auto read_result = waypoint::internal::OutputPipeEnd::ReadResult::Success;
     switch(pipe)
     {
     case StdPipe::Output:
-      output.emplace_back(pipe, std_out_read_pipe);
+      read_result = std_out_read_pipe.read(buffer, count);
+      output.emplace_back(pipe, std::string{}); //???include buffer here
       break;
     case StdPipe::Error:
-      output.emplace_back(pipe, std_err_read_pipe);
+      read_result = std_err_read_pipe.read(buffer, count);
+      output.emplace_back(pipe, std::string{}); //???include buffer here
       break;
     }
   }
