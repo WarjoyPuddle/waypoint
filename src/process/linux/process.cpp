@@ -318,9 +318,12 @@ auto get_path_to_current_executable() noexcept -> std::string
 
 auto create_child_process(
   std::array<int, 2> const &pipe_command,
-  std::array<int, 2> const &pipe_response) noexcept -> std::tuple<int, int, int>
+  std::array<int, 2> const &pipe_response,
+  std::array<int, 2> const &pipe_std_out,
+  std::array<int, 2> const &pipe_std_err) noexcept
+  -> std::tuple<int, int, int, int, int>
 {
-  auto const fork_ret = ::fork();
+  auto const fork_ret = ::fork(); //???assert forkret >=0
   if(fork_ret > 0)
   {
     auto const child_pid = fork_ret;
@@ -328,11 +331,30 @@ auto create_child_process(
     ::close(pipe_command[0]);
     ::close(pipe_response[1]);
 
-    return {child_pid, pipe_command[1], pipe_response[0]};
+    ::close(pipe_std_out[1]);
+    ::close(pipe_std_err[1]);
+
+    return {
+      child_pid,
+      pipe_command[1],
+      pipe_response[0],
+      pipe_std_out[0],
+      pipe_std_err[0]};
   }
 
   ::close(pipe_command[1]);
   ::close(pipe_response[0]);
+
+  // ::close(STDOUT_FILENO);//???needed
+  // ::close(STDERR_FILENO);//???needed
+
+  ::dup2(pipe_std_out[1], STDOUT_FILENO);
+  ::dup2(pipe_std_err[1], STDERR_FILENO);
+
+  ::close(pipe_std_out[0]);
+  ::close(pipe_std_out[1]);
+  ::close(pipe_std_err[0]);
+  ::close(pipe_std_err[1]);
 
   auto const path_to_exe = get_path_to_current_executable();
 
@@ -378,17 +400,28 @@ auto create_child_process(
   std::unreachable();
 }
 
-auto create_child_process_with_pipes() noexcept -> std::tuple<int, int, int>
+auto create_child_process_with_pipes() noexcept
+  -> std::tuple<int, int, int, int, int>
 {
   std::array<int, 2> pipe_command{};
   std::array<int, 2> pipe_response{};
+  std::array<int, 2> pipe_std_out{};
+  std::array<int, 2> pipe_std_err{};
 
   [[maybe_unused]]
   auto const ret1 = ::pipe(pipe_command.data());
   [[maybe_unused]]
   auto const ret2 = ::pipe(pipe_response.data());
-
-  return create_child_process(pipe_command, pipe_response);
+  [[maybe_unused]]
+  auto const ret3 = ::pipe(pipe_std_out.data());
+  [[maybe_unused]]
+  auto const ret4 = ::pipe(pipe_std_err.data());
+  //???consolidate create_child_process and create_child_process_with_pipes
+  return create_child_process(
+    pipe_command,
+    pipe_response,
+    pipe_std_out,
+    pipe_std_err);
 }
 
 auto wait_for_child_process_end(int const child_pid) -> unsigned long long
@@ -423,14 +456,22 @@ public:
 
   ChildProcess_impl()
   {
-    auto const [child_pid, raw_command_write_pipe, raw_response_read_pipe] =
-      create_child_process_with_pipes();
+    auto const
+      [child_pid,
+       raw_command_write_pipe,
+       raw_response_read_pipe,
+       raw_std_out_read_pipe,
+       raw_std_err_read_pipe] = create_child_process_with_pipes();
 
     this->child_pid_ = child_pid;
     this->command_write_pipe_ = std::make_unique<InputPipeEnd>(
       new InputPipeEnd_impl{raw_command_write_pipe});
     this->response_read_pipe_ = std::make_unique<OutputPipeEnd>(
       new OutputPipeEnd_impl{raw_response_read_pipe});
+    this->std_out_read_pipe_ = std::make_unique<OutputPipeEnd>(
+      new OutputPipeEnd_impl{raw_std_out_read_pipe});
+    this->std_err_read_pipe_ = std::make_unique<OutputPipeEnd>(
+      new OutputPipeEnd_impl{raw_std_err_read_pipe});
   }
 
   ChildProcess_impl(ChildProcess_impl const &other) = delete;
@@ -453,6 +494,18 @@ public:
   }
 
   [[nodiscard]]
+  auto std_out_read_pipe() const -> OutputPipeEnd const &
+  {
+    return *this->std_out_read_pipe_;
+  }
+
+  [[nodiscard]]
+  auto std_err_read_pipe() const -> OutputPipeEnd const &
+  {
+    return *this->std_err_read_pipe_;
+  }
+
+  [[nodiscard]]
   auto wait() const -> unsigned long long
   {
     return wait_for_child_process_end(this->child_pid_);
@@ -462,6 +515,8 @@ private:
   int child_pid_;
   std::unique_ptr<InputPipeEnd> command_write_pipe_;
   std::unique_ptr<OutputPipeEnd> response_read_pipe_;
+  std::unique_ptr<OutputPipeEnd> std_out_read_pipe_;
+  std::unique_ptr<OutputPipeEnd> std_err_read_pipe_;
 };
 
 ChildProcess::ChildProcess()
@@ -479,6 +534,16 @@ auto ChildProcess::command_write_pipe() const -> InputPipeEnd const &
 auto ChildProcess::response_read_pipe() const -> OutputPipeEnd const &
 {
   return this->impl_->response_read_pipe();
+}
+
+auto ChildProcess::std_out_read_pipe() const -> OutputPipeEnd const &
+{
+  return this->impl_->std_out_read_pipe();
+}
+
+auto ChildProcess::std_err_read_pipe() const -> OutputPipeEnd const &
+{
+  return this->impl_->std_err_read_pipe();
 }
 
 auto ChildProcess::wait() const -> unsigned long long

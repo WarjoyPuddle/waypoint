@@ -426,10 +426,59 @@ void shut_down_sequence(
   auto const maybe_response = receive_response(response_read_pipe);
 }
 
+enum class StdPipe : unsigned char
+{
+  Output,
+  Error
+};
+
+auto poll_std_pipes() -> std::optional<std::vector<StdPipe>>
+{
+  ::epoll(); //???encapsulate behind API
+
+  return std::nullopt;
+}
+
+using StdPipeOutputLine = std::pair<StdPipe, std::string>;
+
+auto read_std_pipes(
+  waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_err_read_pipe)
+  -> std::vector<StdPipeOutputLine>
+{
+  auto const maybe_poll_results = poll_std_pipes();
+
+  if(!maybe_poll_results.has_value())
+  {
+    return {};
+  }
+
+  auto const &poll_results = maybe_poll_results.value();
+
+  std::vector<StdPipeOutputLine> output;
+
+  for(auto const pipe : poll_results)
+  {
+    switch(pipe)
+    {
+    case StdPipe::Output:
+      output.emplace_back(pipe, std_out_read_pipe);
+      break;
+    case StdPipe::Error:
+      output.emplace_back(pipe, std_err_read_pipe);
+      break;
+    }
+  }
+
+  return output;
+}
+
 auto parent_main(
   waypoint::TestRun const &t,
   waypoint::internal::InputPipeEnd const &command_write_pipe,
   waypoint::internal::OutputPipeEnd const &response_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_err_read_pipe,
   unsigned long long const initial_test_index) noexcept
   -> std::tuple<waypoint::TestRunResult, bool, unsigned long long>
 {
@@ -456,10 +505,14 @@ auto parent_main(
       waypoint::internal::Command::Code::RunTest,
       test_index};
     send_command(command_write_pipe, command);
-    record->mark_as_run();
 
+    //???create raii wrapper here to drain stdout/stderr in dtor
     while(true)
     {
+      //???read one buffer's worth of stdout and/or stderr based on epoll output
+      auto interleaved_outputs =
+        read_std_pipes(std_out_read_pipe, std_err_read_pipe);
+
       auto const maybe_response = receive_response(response_read_pipe);
       if(!maybe_response.has_value())
       {
@@ -493,6 +546,7 @@ auto parent_main(
 
       if(response.code == waypoint::internal::Response::Code::TestComplete)
       {
+        record->mark_as_run();
         break;
       }
     }
@@ -618,6 +672,8 @@ auto run_all_tests(TestRun const &t) noexcept -> TestRunResult
       t,
       child.command_write_pipe(),
       child.response_read_pipe(),
+      child.std_out_read_pipe(),
+      child.std_err_read_pipe(),
       initial_test_index);
     auto run_result = std::move(std::get<0>(results));
     auto const crash_or_timeout = std::get<1>(results);

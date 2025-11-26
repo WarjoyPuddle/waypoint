@@ -114,6 +114,10 @@ public:
   auto command_write_pipe() const -> InputPipeEnd const &;
   [[nodiscard]]
   auto response_read_pipe() const -> OutputPipeEnd const &;
+  [[nodiscard]]
+  auto std_out_read_pipe() const -> OutputPipeEnd const &;
+  [[nodiscard]]
+  auto std_err_read_pipe() const -> OutputPipeEnd const &;
 
   [[nodiscard]]
   auto wait() const -> unsigned long long;
