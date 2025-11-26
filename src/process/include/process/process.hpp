@@ -95,7 +95,10 @@ public:
   auto raw() const -> int;
 
   [[nodiscard]]
-  auto read(unsigned char *buffer, unsigned long long count) const
+  auto read_exactly(unsigned char *buffer, unsigned long long count) const
+    -> ReadResult;
+  [[nodiscard]]
+  auto read_at_most(unsigned char *buffer, unsigned long long count) const
     -> ReadResult;
 
 private:

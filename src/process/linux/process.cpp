@@ -211,7 +211,7 @@ auto OutputPipeEnd::raw() const -> int
   return this->impl_->raw_pipe();
 }
 
-auto OutputPipeEnd::read(
+auto OutputPipeEnd::read_exactly(
   unsigned char *const buffer,
   unsigned long long const count) const -> OutputPipeEnd::ReadResult
 {
@@ -220,6 +220,7 @@ auto OutputPipeEnd::read(
 
   while(left_to_transfer > 0)
   {
+    //???assert nonnegative return?
     auto const transferred_this_time =
       ::read(this->impl_->raw_pipe(), buffer + transferred, left_to_transfer);
 
@@ -231,6 +232,23 @@ auto OutputPipeEnd::read(
 
     transferred += transferred_this_time;
     left_to_transfer -= transferred_this_time;
+  }
+
+  return OutputPipeEnd::ReadResult::Success;
+}
+
+auto OutputPipeEnd::read_at_most(
+  unsigned char *const buffer,
+  unsigned long long const count) const -> OutputPipeEnd::ReadResult
+{
+  //???assert nonnegative return?
+  auto const transferred_this_time =
+    ::read(this->impl_->raw_pipe(), buffer, count);
+
+  if(transferred_this_time == 0)
+  {
+    // The other end of the pipe is closed - peer crashed or exited
+    return OutputPipeEnd::ReadResult::PipeClosed;
   }
 
   return OutputPipeEnd::ReadResult::Success;

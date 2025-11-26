@@ -29,6 +29,9 @@
 //???
 #include "../assert/include/assert/assert.hpp"
 
+#include <cstring>
+#include <iostream>
+
 #include <sys/epoll.h>
 
 namespace waypoint::internal
@@ -256,7 +259,7 @@ void await_handshake_start(
 
   unsigned char data = 0;
   [[maybe_unused]]
-  auto const read_result = pipe.read(&data, sizeof data);
+  auto const read_result = pipe.read_exactly(&data, sizeof data);
 }
 
 void complete_handshake(
@@ -275,7 +278,7 @@ void await_handshake_end(waypoint::internal::OutputPipeEnd const &pipe)
 {
   unsigned char data = 0;
   [[maybe_unused]]
-  auto const read_result = pipe.read(&data, sizeof data);
+  auto const read_result = pipe.read_exactly(&data, sizeof data);
 }
 
 auto receive_command(
@@ -286,14 +289,14 @@ auto receive_command(
 
   auto code_ = std::to_underlying(waypoint::internal::Command::Code::Invalid);
   [[maybe_unused]]
-  auto read_result = command_read_pipe.read(&code_, sizeof code_);
+  auto read_result = command_read_pipe.read_exactly(&code_, sizeof code_);
 
   auto const code = static_cast<waypoint::internal::Command::Code>(code_);
 
   if(code == waypoint::internal::Command::Code::RunTest)
   {
     unsigned long long test_index = 0;
-    read_result = command_read_pipe.read(
+    read_result = command_read_pipe.read_exactly(
       reinterpret_cast<unsigned char *>(&test_index),
       sizeof test_index);
 
@@ -309,7 +312,7 @@ auto receive_response(
 {
   auto code_ = std::to_underlying(waypoint::internal::Response::Code::Invalid);
   [[maybe_unused]]
-  auto read_result = response_read_pipe.read(&code_, sizeof code_);
+  auto read_result = response_read_pipe.read_exactly(&code_, sizeof code_);
   if(read_result == waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
   {
     return std::nullopt;
@@ -326,7 +329,7 @@ auto receive_response(
   }
 
   unsigned long long test_id = 0;
-  read_result = response_read_pipe.read(
+  read_result = response_read_pipe.read_exactly(
     reinterpret_cast<unsigned char *>(&test_id),
     sizeof test_id);
 
@@ -338,15 +341,16 @@ auto receive_response(
   }
 
   unsigned char passed = 0;
-  read_result = response_read_pipe.read(&passed, sizeof passed);
+  read_result = response_read_pipe.read_exactly(&passed, sizeof passed);
 
   unsigned long long assertion_index = 0;
-  read_result = response_read_pipe.read(
+  read_result = response_read_pipe.read_exactly(
     reinterpret_cast<unsigned char *>(&assertion_index),
     sizeof assertion_index);
 
   unsigned char has_message = 0;
-  read_result = response_read_pipe.read(&has_message, sizeof has_message);
+  read_result =
+    response_read_pipe.read_exactly(&has_message, sizeof has_message);
   if(has_message == 0)
   {
     return {waypoint::internal::Response{
@@ -358,12 +362,12 @@ auto receive_response(
   }
 
   unsigned long long message_size = 0;
-  read_result = response_read_pipe.read(
+  read_result = response_read_pipe.read_exactly(
     reinterpret_cast<unsigned char *>(&message_size),
     sizeof message_size);
 
   std::string message(message_size, 'X');
-  read_result = response_read_pipe.read(
+  read_result = response_read_pipe.read_exactly(
     reinterpret_cast<unsigned char *>(message.data()),
     message_size);
 
@@ -444,7 +448,7 @@ auto poll_std_pipes(
 {
   //???encapsulate epoll calls behind API
 
-  //???call once and save as RAII, ::close when done
+  //???call once and reuse descriptor, save as RAII, ::close when done
   auto const epoll_descriptor = ::epoll_create1(0);
   waypoint::internal::assert(
     epoll_descriptor > 0,
@@ -466,15 +470,25 @@ auto poll_std_pipes(
     events.data() + 1);
   waypoint::internal::assert(ret == 0, "call to ::epoll_ctl returned an error");
 
+  std::memset(
+    events.data(),
+    0,
+    events.size() * sizeof(decltype(events)::value_type));
   ret = ::epoll_wait(epoll_descriptor, events.data(), events.size(), 0);
   waypoint::internal::assert(
     ret >= 0,
     "call to ::epoll_wait returned an error");
 
+  std::vector<StdPipe> output;
+  if((events[0].events & EPOLLIN) > 0)
+  {
+    output.push_back(StdPipe::Output);
+  }
+
   //???call in RAII dtor
   ::close(epoll_descriptor);
 
-  return std::nullopt;
+  return output;
 }
 
 using StdPipeOutputLine = std::pair<StdPipe, std::string>;
@@ -487,7 +501,8 @@ auto read_std_pipes(
   auto const maybe_poll_results =
     poll_std_pipes(std_out_read_pipe, std_err_read_pipe);
 
-  if(!maybe_poll_results.has_value())
+  //???what does empty optional mean
+  if(!maybe_poll_results.has_value() || maybe_poll_results.value().empty())
   {
     return {};
   }
@@ -496,23 +511,27 @@ auto read_std_pipes(
 
   std::vector<StdPipeOutputLine> output;
 
+  constexpr auto buffer_size = PIPE_BUF;
+  auto const buffer = std::make_unique<unsigned char[]>(buffer_size); //???
+  //???zero buffer here
+  constexpr unsigned long long count = buffer_size - 1; //???
+
   for(auto const pipe : poll_results)
   {
-    unsigned char *buffer = 0; //???
-    //???zero buffer here
-    unsigned long long count = 0; //???
+    std::memset(buffer.get(), 0, buffer_size);
     [[maybe_unused]]
-    //???
     auto read_result = waypoint::internal::OutputPipeEnd::ReadResult::Success;
     switch(pipe)
     {
     case StdPipe::Output:
-      read_result = std_out_read_pipe.read(buffer, count);
-      output.emplace_back(pipe, std::string{}); //???include buffer here
+      read_result = std_out_read_pipe.read_at_most(buffer.get(), count);
+      //???aliasing?
+      output.emplace_back(pipe, reinterpret_cast<char *>(buffer.get()));
       break;
     case StdPipe::Error:
-      read_result = std_err_read_pipe.read(buffer, count);
-      output.emplace_back(pipe, std::string{}); //???include buffer here
+      read_result = std_err_read_pipe.read_at_most(buffer.get(), count);
+      //???aliasing?
+      output.emplace_back(pipe, reinterpret_cast<char *>(buffer.get()));
       break;
     }
   }
@@ -559,7 +578,10 @@ auto parent_main(
       //???read one buffer's worth of stdout and/or stderr based on epoll output
       auto interleaved_outputs =
         read_std_pipes(std_out_read_pipe, std_err_read_pipe);
-
+      for(auto const &out : interleaved_outputs)
+      {
+        std::cout << "??? " << out.second << " ???" << std::endl;
+      }
       auto const maybe_response = receive_response(response_read_pipe);
       if(!maybe_response.has_value())
       {
