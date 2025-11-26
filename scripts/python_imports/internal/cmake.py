@@ -6,13 +6,28 @@ import contextlib
 import json
 import os
 
+from .compiler import Compiler
 from .process import run
 from .system import NewEnv
 from .system import get_cpu_count
 from .system import remove_dir
 
+CLANG20_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
+GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
 
-def configure_cmake(preset, env_patch, cmake_source_dir) -> bool:
+
+def env_patch_from_reset(preset):
+    if preset.compiler == Compiler.Clang:
+        return CLANG20_ENV_PATCH
+    if preset.compiler == Compiler.Gcc:
+        return GCC15_ENV_PATCH
+
+    assert False, "Unreachable"
+
+
+def configure_cmake(preset, cmake_source_dir) -> bool:
+    env_patch = env_patch_from_reset(preset)
+
     env = os.environ.copy()
     env.update(env_patch)
     with NewEnv(env):
@@ -35,7 +50,9 @@ def configure_cmake(preset, env_patch, cmake_source_dir) -> bool:
     return True
 
 
-def build_cmake(config, preset, env_patch, cmake_source_dir, target) -> bool:
+def build_cmake(config, preset, cmake_source_dir, target) -> bool:
+    env_patch = env_patch_from_reset(preset)
+
     env = os.environ.copy()
     env.update(env_patch)
     with NewEnv(env):

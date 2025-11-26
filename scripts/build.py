@@ -9,6 +9,7 @@ import enum
 import os
 import sys
 
+from python_imports import Compiler
 from python_imports import NewEnv
 from python_imports import Task
 from python_imports import analyze_gcc_coverage
@@ -156,8 +157,6 @@ EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR = os.path.realpath(
     f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR}/waypoint"
 )
 
-CLANG20_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
-GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
 EXPORT_COMPILE_COMMANDS_ENV_PATCH = {"CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"}
 
 LICENSE_FILE_PATH = f"{PROJECT_ROOT_DIR}/LICENSE"
@@ -373,48 +372,76 @@ class Mode(enum.Enum):
 
 @enum.unique
 class CMakePresets(enum.Enum):
-    LinuxClang = ("configure_linux_clang", "build_linux_clang", "test_linux_clang")
-    LinuxGcc = ("configure_linux_gcc", "build_linux_gcc", "test_linux_gcc")
+    LinuxClang = (
+        Compiler.Clang,
+        "configure_linux_clang",
+        "build_linux_clang",
+        "test_linux_clang",
+    )
+    LinuxGcc = (
+        Compiler.Gcc,
+        "configure_linux_gcc",
+        "build_linux_gcc",
+        "test_linux_gcc",
+    )
     LinuxClangShared = (
+        Compiler.Clang,
         "configure_linux_clang_shared",
         "build_linux_clang_shared",
         "test_linux_clang_shared",
     )
     LinuxGccShared = (
+        Compiler.Gcc,
         "configure_linux_gcc_shared",
         "build_linux_gcc_shared",
         "test_linux_gcc_shared",
     )
     LinuxGccCoverage = (
+        Compiler.Gcc,
         "configure_linux_gcc_coverage",
         "build_linux_gcc_coverage",
         "test_linux_gcc_coverage",
     )
     Example = (
+        Compiler.Clang,
         "example_configure",
         "example_build",
         "example_test",
     )
     ExampleShared = (
+        Compiler.Clang,
         "example_configure_shared",
         "example_build_shared",
         "example_test_shared",
     )
     AddressSanitizerClang = (
+        Compiler.Clang,
         "configure_linux_clang_address_sanitizer",
         "build_linux_clang_address_sanitizer",
         "test_linux_clang_address_sanitizer",
     )
     UndefinedBehaviourSanitizerClang = (
+        Compiler.Clang,
         "configure_linux_clang_undefined_behaviour_sanitizer",
         "build_linux_clang_undefined_behaviour_sanitizer",
         "test_linux_clang_undefined_behaviour_sanitizer",
     )
 
-    def __init__(self, configure_preset, build_preset, test_preset):
+    def __init__(
+        self,
+        compiler: Compiler,
+        configure_preset: str,
+        build_preset: str,
+        test_preset: str,
+    ):
+        self._compiler = compiler
         self._configure_preset = configure_preset
         self._build_preset = build_preset
         self._test_preset = test_preset
+
+    @property
+    def compiler(self):
+        return self._compiler
 
     @property
     def configure(self):
@@ -593,33 +620,27 @@ def install_clang_release_shared_fn() -> bool:
 
 
 def configure_cmake_clang_fn() -> bool:
-    return configure_cmake(CMakePresets.LinuxClang, CLANG20_ENV_PATCH, CMAKE_SOURCE_DIR)
+    return configure_cmake(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR)
 
 
 def configure_cmake_gcc_fn() -> bool:
-    return configure_cmake(CMakePresets.LinuxGcc, GCC15_ENV_PATCH, CMAKE_SOURCE_DIR)
+    return configure_cmake(CMakePresets.LinuxGcc, CMAKE_SOURCE_DIR)
 
 
 def configure_cmake_clang_shared_fn() -> bool:
-    return configure_cmake(
-        CMakePresets.LinuxClangShared, CLANG20_ENV_PATCH, CMAKE_SOURCE_DIR
-    )
+    return configure_cmake(CMakePresets.LinuxClangShared, CMAKE_SOURCE_DIR)
 
 
 def configure_cmake_gcc_shared_fn() -> bool:
-    return configure_cmake(
-        CMakePresets.LinuxGccShared, GCC15_ENV_PATCH, CMAKE_SOURCE_DIR
-    )
+    return configure_cmake(CMakePresets.LinuxGccShared, CMAKE_SOURCE_DIR)
 
 
 def configure_example_clang_fn() -> bool:
-    return configure_cmake(CMakePresets.Example, CLANG20_ENV_PATCH, CMAKE_SOURCE_DIR)
+    return configure_cmake(CMakePresets.Example, CMAKE_SOURCE_DIR)
 
 
 def configure_example_clang_shared_fn() -> bool:
-    return configure_cmake(
-        CMakePresets.ExampleShared, CLANG20_ENV_PATCH, CMAKE_SOURCE_DIR
-    )
+    return configure_cmake(CMakePresets.ExampleShared, CMAKE_SOURCE_DIR)
 
 
 def collect_inputs_for_static_analysis(all_files_set):
@@ -855,16 +876,13 @@ def process_coverage_fn() -> bool:
 
 
 def configure_cmake_gcc_coverage_fn() -> bool:
-    return configure_cmake(
-        CMakePresets.LinuxGccCoverage, GCC15_ENV_PATCH, CMAKE_SOURCE_DIR
-    )
+    return configure_cmake(CMakePresets.LinuxGccCoverage, CMAKE_SOURCE_DIR)
 
 
 def build_gcc_coverage_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccCoverage,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -874,7 +892,6 @@ def build_gcc_coverage_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccCoverage,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -897,7 +914,6 @@ def build_example_clang_debug_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.Example,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -907,7 +923,6 @@ def build_example_clang_relwithdebinfo_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.Example,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -917,7 +932,6 @@ def build_example_clang_release_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.Example,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -927,7 +941,6 @@ def build_example_clang_debug_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.ExampleShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -937,7 +950,6 @@ def build_example_clang_relwithdebinfo_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.ExampleShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -947,7 +959,6 @@ def build_example_clang_release_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.ExampleShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -957,7 +968,6 @@ def build_clang_debug_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -967,7 +977,6 @@ def build_clang_debug_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -977,7 +986,6 @@ def build_clang_relwithdebinfo_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -987,7 +995,6 @@ def build_clang_relwithdebinfo_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -997,7 +1004,6 @@ def build_clang_release_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1007,7 +1013,6 @@ def build_clang_release_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1017,7 +1022,6 @@ def build_gcc_debug_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1027,7 +1031,6 @@ def build_gcc_debug_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1037,7 +1040,6 @@ def build_gcc_relwithdebinfo_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1047,7 +1049,6 @@ def build_gcc_relwithdebinfo_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1057,7 +1058,6 @@ def build_gcc_release_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1067,7 +1067,6 @@ def build_gcc_release_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1077,7 +1076,6 @@ def build_clang_debug_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1087,7 +1085,6 @@ def build_clang_debug_all_tests_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1097,7 +1094,6 @@ def build_clang_relwithdebinfo_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1107,7 +1103,6 @@ def build_clang_relwithdebinfo_all_tests_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1117,7 +1112,6 @@ def build_clang_release_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1127,7 +1121,6 @@ def build_clang_release_all_tests_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1137,7 +1130,6 @@ def build_gcc_debug_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1147,7 +1139,6 @@ def build_gcc_debug_all_tests_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1157,7 +1148,6 @@ def build_gcc_relwithdebinfo_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1167,7 +1157,6 @@ def build_gcc_relwithdebinfo_all_tests_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1177,7 +1166,6 @@ def build_gcc_release_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1187,7 +1175,6 @@ def build_gcc_release_all_tests_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1377,7 +1364,6 @@ def test_install_find_package_no_version_clang_copy_artifacts_fn() -> bool:
 def test_install_find_package_no_version_gcc_configure_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
     )
 
@@ -1385,7 +1371,6 @@ def test_install_find_package_no_version_gcc_configure_fn() -> bool:
 def test_install_find_package_no_version_clang_configure_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
     )
 
@@ -1394,7 +1379,6 @@ def test_install_find_package_no_version_gcc_debug_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1404,7 +1388,6 @@ def test_install_find_package_no_version_gcc_debug_build_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1414,7 +1397,6 @@ def test_install_find_package_no_version_gcc_relwithdebinfo_build_all_fn() -> bo
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1426,7 +1408,6 @@ def test_install_find_package_no_version_gcc_relwithdebinfo_build_all_tests_fn()
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1436,7 +1417,6 @@ def test_install_find_package_no_version_gcc_release_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1446,7 +1426,6 @@ def test_install_find_package_no_version_gcc_release_build_all_tests_fn() -> boo
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1456,7 +1435,6 @@ def test_install_find_package_no_version_clang_debug_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1466,7 +1444,6 @@ def test_install_find_package_no_version_clang_debug_build_all_tests_fn() -> boo
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1476,7 +1453,6 @@ def test_install_find_package_no_version_clang_relwithdebinfo_build_all_fn() -> 
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1488,7 +1464,6 @@ def test_install_find_package_no_version_clang_relwithdebinfo_build_all_tests_fn
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1498,7 +1473,6 @@ def test_install_find_package_no_version_clang_release_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1508,7 +1482,6 @@ def test_install_find_package_no_version_clang_release_build_all_tests_fn() -> b
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1585,7 +1558,6 @@ def test_install_find_package_exact_version_clang_copy_artifacts_fn() -> bool:
 def test_install_find_package_exact_version_gcc_configure_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
     )
 
@@ -1593,7 +1565,6 @@ def test_install_find_package_exact_version_gcc_configure_fn() -> bool:
 def test_install_find_package_exact_version_clang_configure_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
     )
 
@@ -1602,7 +1573,6 @@ def test_install_find_package_exact_version_gcc_debug_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1612,7 +1582,6 @@ def test_install_find_package_exact_version_gcc_debug_build_all_tests_fn() -> bo
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1622,7 +1591,6 @@ def test_install_find_package_exact_version_gcc_relwithdebinfo_build_all_fn() ->
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1634,7 +1602,6 @@ def test_install_find_package_exact_version_gcc_relwithdebinfo_build_all_tests_f
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1644,7 +1611,6 @@ def test_install_find_package_exact_version_gcc_release_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1654,7 +1620,6 @@ def test_install_find_package_exact_version_gcc_release_build_all_tests_fn() -> 
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1664,7 +1629,6 @@ def test_install_find_package_exact_version_clang_debug_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1674,7 +1638,6 @@ def test_install_find_package_exact_version_clang_debug_build_all_tests_fn() -> 
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1684,7 +1647,6 @@ def test_install_find_package_exact_version_clang_relwithdebinfo_build_all_fn() 
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1696,7 +1658,6 @@ def test_install_find_package_exact_version_clang_relwithdebinfo_build_all_tests
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1706,7 +1667,6 @@ def test_install_find_package_exact_version_clang_release_build_all_fn() -> bool
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1716,7 +1676,6 @@ def test_install_find_package_exact_version_clang_release_build_all_tests_fn() -
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1799,7 +1758,6 @@ def test_install_find_package_no_version_clang_copy_artifacts_shared_fn() -> boo
 def test_install_find_package_no_version_gcc_configure_shared_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
     )
 
@@ -1807,7 +1765,6 @@ def test_install_find_package_no_version_gcc_configure_shared_fn() -> bool:
 def test_install_find_package_no_version_clang_configure_shared_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
     )
 
@@ -1816,7 +1773,6 @@ def test_install_find_package_no_version_gcc_debug_build_all_shared_fn() -> bool
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1826,7 +1782,6 @@ def test_install_find_package_no_version_gcc_debug_build_all_tests_shared_fn() -
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1838,7 +1793,6 @@ def test_install_find_package_no_version_gcc_relwithdebinfo_build_all_shared_fn(
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1850,7 +1804,6 @@ def test_install_find_package_no_version_gcc_relwithdebinfo_build_all_tests_shar
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1860,7 +1813,6 @@ def test_install_find_package_no_version_gcc_release_build_all_shared_fn() -> bo
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1872,7 +1824,6 @@ def test_install_find_package_no_version_gcc_release_build_all_tests_shared_fn()
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1882,7 +1833,6 @@ def test_install_find_package_no_version_clang_debug_build_all_shared_fn() -> bo
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1894,7 +1844,6 @@ def test_install_find_package_no_version_clang_debug_build_all_tests_shared_fn()
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1906,7 +1855,6 @@ def test_install_find_package_no_version_clang_relwithdebinfo_build_all_shared_f
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1918,7 +1866,6 @@ def test_install_find_package_no_version_clang_relwithdebinfo_build_all_tests_sh
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -1928,7 +1875,6 @@ def test_install_find_package_no_version_clang_release_build_all_shared_fn() -> 
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -1940,7 +1886,6 @@ def test_install_find_package_no_version_clang_release_build_all_tests_shared_fn
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2023,7 +1968,6 @@ def test_install_find_package_exact_version_clang_copy_artifacts_shared_fn() -> 
 def test_install_find_package_exact_version_gcc_configure_shared_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
     )
 
@@ -2031,7 +1975,6 @@ def test_install_find_package_exact_version_gcc_configure_shared_fn() -> bool:
 def test_install_find_package_exact_version_clang_configure_shared_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
     )
 
@@ -2040,7 +1983,6 @@ def test_install_find_package_exact_version_gcc_debug_build_all_shared_fn() -> b
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2052,7 +1994,6 @@ def test_install_find_package_exact_version_gcc_debug_build_all_tests_shared_fn(
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2064,7 +2005,6 @@ def test_install_find_package_exact_version_gcc_relwithdebinfo_build_all_shared_
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2076,7 +2016,6 @@ def test_install_find_package_exact_version_gcc_relwithdebinfo_build_all_tests_s
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2086,7 +2025,6 @@ def test_install_find_package_exact_version_gcc_release_build_all_shared_fn() ->
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2098,7 +2036,6 @@ def test_install_find_package_exact_version_gcc_release_build_all_tests_shared_f
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2108,7 +2045,6 @@ def test_install_find_package_exact_version_clang_debug_build_all_shared_fn() ->
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2120,7 +2056,6 @@ def test_install_find_package_exact_version_clang_debug_build_all_tests_shared_f
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2132,7 +2067,6 @@ def test_install_find_package_exact_version_clang_relwithdebinfo_build_all_share
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2144,7 +2078,6 @@ def test_install_find_package_exact_version_clang_relwithdebinfo_build_all_tests
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2154,7 +2087,6 @@ def test_install_find_package_exact_version_clang_release_build_all_shared_fn() 
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2166,7 +2098,6 @@ def test_install_find_package_exact_version_clang_release_build_all_tests_shared
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2244,7 +2175,6 @@ def test_install_add_subdirectory_copy_sources_fn() -> bool:
 def test_install_add_subdirectory_gcc_configure_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
     )
 
@@ -2252,7 +2182,6 @@ def test_install_add_subdirectory_gcc_configure_fn() -> bool:
 def test_install_add_subdirectory_clang_configure_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
     )
 
@@ -2261,7 +2190,6 @@ def test_install_add_subdirectory_gcc_debug_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2271,7 +2199,6 @@ def test_install_add_subdirectory_gcc_debug_build_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2281,7 +2208,6 @@ def test_install_add_subdirectory_gcc_relwithdebinfo_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2291,7 +2217,6 @@ def test_install_add_subdirectory_gcc_relwithdebinfo_build_all_tests_fn() -> boo
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2301,7 +2226,6 @@ def test_install_add_subdirectory_gcc_release_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2311,7 +2235,6 @@ def test_install_add_subdirectory_gcc_release_build_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2321,7 +2244,6 @@ def test_install_add_subdirectory_clang_debug_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2331,7 +2253,6 @@ def test_install_add_subdirectory_clang_debug_build_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2341,7 +2262,6 @@ def test_install_add_subdirectory_clang_relwithdebinfo_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2351,7 +2271,6 @@ def test_install_add_subdirectory_clang_relwithdebinfo_build_all_tests_fn() -> b
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2361,7 +2280,6 @@ def test_install_add_subdirectory_clang_release_build_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2371,7 +2289,6 @@ def test_install_add_subdirectory_clang_release_build_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2434,7 +2351,6 @@ def test_install_add_subdirectory_clang_release_test_fn() -> bool:
 def test_install_add_subdirectory_gcc_configure_shared_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
     )
 
@@ -2442,7 +2358,6 @@ def test_install_add_subdirectory_gcc_configure_shared_fn() -> bool:
 def test_install_add_subdirectory_clang_configure_shared_fn() -> bool:
     return configure_cmake(
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
     )
 
@@ -2451,7 +2366,6 @@ def test_install_add_subdirectory_gcc_debug_build_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2461,7 +2375,6 @@ def test_install_add_subdirectory_gcc_debug_build_all_tests_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2471,7 +2384,6 @@ def test_install_add_subdirectory_gcc_relwithdebinfo_build_all_shared_fn() -> bo
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2483,7 +2395,6 @@ def test_install_add_subdirectory_gcc_relwithdebinfo_build_all_tests_shared_fn()
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2493,7 +2404,6 @@ def test_install_add_subdirectory_gcc_release_build_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2503,7 +2413,6 @@ def test_install_add_subdirectory_gcc_release_build_all_tests_shared_fn() -> boo
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2513,7 +2422,6 @@ def test_install_add_subdirectory_clang_debug_build_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2523,7 +2431,6 @@ def test_install_add_subdirectory_clang_debug_build_all_tests_shared_fn() -> boo
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2533,7 +2440,6 @@ def test_install_add_subdirectory_clang_relwithdebinfo_build_all_shared_fn() -> 
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2545,7 +2451,6 @@ def test_install_add_subdirectory_clang_relwithdebinfo_build_all_tests_shared_fn
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2555,7 +2460,6 @@ def test_install_add_subdirectory_clang_release_build_all_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all",
     )
@@ -2565,7 +2469,6 @@ def test_install_add_subdirectory_clang_release_build_all_tests_shared_fn() -> b
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -2629,7 +2532,6 @@ def test_clang_debug_test_target_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2639,7 +2541,6 @@ def test_clang_relwithdebinfo_test_target_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2649,7 +2550,6 @@ def test_clang_release_test_target_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2659,7 +2559,6 @@ def test_clang_debug_test_target_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2669,7 +2568,6 @@ def test_clang_relwithdebinfo_test_target_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2679,7 +2577,6 @@ def test_clang_release_test_target_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxClangShared,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2689,7 +2586,6 @@ def test_gcc_debug_test_target_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2699,7 +2595,6 @@ def test_gcc_relwithdebinfo_test_target_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2709,7 +2604,6 @@ def test_gcc_release_test_target_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGcc,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2719,7 +2613,6 @@ def test_gcc_debug_test_target_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2729,7 +2622,6 @@ def test_gcc_relwithdebinfo_test_target_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2739,7 +2631,6 @@ def test_gcc_release_test_target_shared_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.LinuxGccShared,
-        GCC15_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "test",
     )
@@ -2747,7 +2638,6 @@ def test_gcc_release_test_target_shared_fn() -> bool:
 
 def example_quick_start_build_and_install_fn() -> bool:
     example_cmake_source_dir = EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
-    env_patch = CLANG20_ENV_PATCH
     build_dir = build_dir_from_preset(CMakePresets.Example, example_cmake_source_dir)
 
     # use Waypoint as a static library
@@ -2762,16 +2652,13 @@ def example_quick_start_build_and_install_fn() -> bool:
     env = os.environ.copy()
     env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
     with NewEnv(env):
-        success = configure_cmake(
-            CMakePresets.Example, env_patch, example_cmake_source_dir
-        )
+        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
         if not success:
             return False
 
         success = build_cmake(
             CMakeBuildConfig.Debug,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "all",
         )
@@ -2780,7 +2667,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.RelWithDebInfo,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "all",
         )
@@ -2789,7 +2675,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.Release,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "all",
         )
@@ -2799,7 +2684,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.Debug,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "test",
         )
@@ -2808,7 +2692,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.RelWithDebInfo,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "test",
         )
@@ -2817,7 +2700,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.Release,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "test",
         )
@@ -2878,16 +2760,13 @@ def example_quick_start_build_and_install_fn() -> bool:
     env = os.environ.copy()
     env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
     with NewEnv(env):
-        success = configure_cmake(
-            CMakePresets.Example, env_patch, example_cmake_source_dir
-        )
+        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
         if not success:
             return False
 
         success = build_cmake(
             CMakeBuildConfig.Debug,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "all",
         )
@@ -2896,7 +2775,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.RelWithDebInfo,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "all",
         )
@@ -2905,7 +2783,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.Release,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "all",
         )
@@ -2915,7 +2792,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.Debug,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "test",
         )
@@ -2924,7 +2800,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.RelWithDebInfo,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "test",
         )
@@ -2933,7 +2808,6 @@ def example_quick_start_build_and_install_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.Release,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "test",
         )
@@ -2997,22 +2871,18 @@ def example_quick_start_add_subdirectory_fn() -> bool:
     )
 
     example_cmake_source_dir = EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
-    env_patch = CLANG20_ENV_PATCH
     build_dir = build_dir_from_preset(CMakePresets.Example, example_cmake_source_dir)
 
     env = os.environ.copy()
     env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
     with NewEnv(env):
-        success = configure_cmake(
-            CMakePresets.Example, env_patch, example_cmake_source_dir
-        )
+        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
         if not success:
             return False
 
         success = build_cmake(
             CMakeBuildConfig.Debug,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "all",
         )
@@ -3021,7 +2891,6 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.RelWithDebInfo,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "all",
         )
@@ -3030,7 +2899,6 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.Release,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "all",
         )
@@ -3040,7 +2908,6 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.Debug,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "test",
         )
@@ -3049,7 +2916,6 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.RelWithDebInfo,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "test",
         )
@@ -3058,7 +2924,6 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         success = build_cmake(
             CMakeBuildConfig.Release,
             CMakePresets.Example,
-            env_patch,
             example_cmake_source_dir,
             "test",
         )
@@ -3117,16 +2982,13 @@ def check_license_file_fn() -> bool:
 
 
 def configure_clang_address_sanitizer_fn() -> bool:
-    return configure_cmake(
-        CMakePresets.AddressSanitizerClang, CLANG20_ENV_PATCH, CMAKE_SOURCE_DIR
-    )
+    return configure_cmake(CMakePresets.AddressSanitizerClang, CMAKE_SOURCE_DIR)
 
 
 def build_clang_address_sanitizer_debug_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.AddressSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -3136,7 +2998,6 @@ def build_clang_address_sanitizer_relwithdebinfo_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.AddressSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -3146,7 +3007,6 @@ def build_clang_address_sanitizer_release_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.AddressSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -3156,7 +3016,6 @@ def build_clang_address_sanitizer_debug_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.AddressSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -3166,7 +3025,6 @@ def build_clang_address_sanitizer_relwithdebinfo_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.AddressSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -3176,7 +3034,6 @@ def build_clang_address_sanitizer_release_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.AddressSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -3212,7 +3069,6 @@ def test_clang_address_sanitizer_release_fn() -> bool:
 def configure_clang_undefined_behaviour_sanitizer_fn() -> bool:
     return configure_cmake(
         CMakePresets.UndefinedBehaviourSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
     )
 
@@ -3221,7 +3077,6 @@ def build_clang_undefined_behaviour_sanitizer_debug_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.UndefinedBehaviourSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -3231,7 +3086,6 @@ def build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.UndefinedBehaviourSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -3241,7 +3095,6 @@ def build_clang_undefined_behaviour_sanitizer_release_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.UndefinedBehaviourSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -3251,7 +3104,6 @@ def build_clang_undefined_behaviour_sanitizer_debug_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Debug,
         CMakePresets.UndefinedBehaviourSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -3261,7 +3113,6 @@ def build_clang_undefined_behaviour_sanitizer_relwithdebinfo_all_tests_fn() -> b
     return build_cmake(
         CMakeBuildConfig.RelWithDebInfo,
         CMakePresets.UndefinedBehaviourSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
@@ -3271,7 +3122,6 @@ def build_clang_undefined_behaviour_sanitizer_release_all_tests_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.UndefinedBehaviourSanitizerClang,
-        CLANG20_ENV_PATCH,
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
