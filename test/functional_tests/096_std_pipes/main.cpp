@@ -25,16 +25,36 @@ WAYPOINT_AUTORUN(waypoint::TestRun const &t)
       {
         std::cout << "a3" << std::endl;
         ctx.assert(true);
-        std::cout << "a4" << std::endl;
+        std::cerr << "a4" << std::endl;
       });
 
   t.test(g, "Test 3")
     .run(
       [](waypoint::Context const &ctx)
       {
-        std::cout << "a5" << std::endl;
+        std::cerr << "a5" << std::endl;
         ctx.assert(true);
         std::cout << "a6" << std::endl;
+      });
+
+  t.test(g, "Test 4")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        std::cerr << "a7" << std::endl;
+        ctx.assert(true);
+        std::cerr << "a8" << std::endl;
+      });
+
+  t.test(g, "Test 5")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        std::cout << "a9" << std::endl;
+        std::cerr << "a10" << std::endl;
+        ctx.assert(true);
+        std::cout << "a11" << std::endl;
+        std::cerr << "a12" << std::endl;
       });
 }
 

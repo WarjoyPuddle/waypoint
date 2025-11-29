@@ -441,54 +441,122 @@ enum class StdPipe : unsigned char
   Error
 };
 
+//???encapsulate epoll calls behind API
+class EpollGuard
+{
+public:
+  EpollGuard(
+    waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+    waypoint::internal::OutputPipeEnd const &std_err_read_pipe)
+    : epoll_descriptor_(::epoll_create1(0)),
+      stdout_(std_out_read_pipe),
+      stderr_(std_err_read_pipe)
+  {
+    waypoint::internal::assert(
+      this->epoll_descriptor_ > 0,
+      "Call to ::epoll_create1 returned an error.");
+
+    constexpr auto event_mask = EPOLLERR | EPOLLHUP | EPOLLIN | EPOLLRDHUP;
+    std::array<::epoll_event, 2> events{};
+    events.data()->events = event_mask;
+    events.data()->data.fd = std_out_read_pipe.raw();
+    (events.data() + 1)->events = event_mask;
+    (events.data() + 1)->data.fd = std_err_read_pipe.raw();
+    auto ret = ::epoll_ctl(
+      this->epoll_descriptor_,
+      EPOLL_CTL_ADD,
+      std_out_read_pipe.raw(),
+      events.data());
+    waypoint::internal::assert(
+      ret == 0,
+      "Call to ::epoll_ctl (stdout) returned an error.");
+    ret = ::epoll_ctl(
+      this->epoll_descriptor_,
+      EPOLL_CTL_ADD,
+      std_err_read_pipe.raw(),
+      events.data() + 1);
+    waypoint::internal::assert(
+      ret == 0,
+      "Call to ::epoll_ctl (stderr) returned an error.");
+  }
+
+  ~EpollGuard()
+  {
+    ::close(this->epoll_descriptor_);
+  }
+
+  [[nodiscard]]
+  auto poll() const -> std::optional<std::vector<StdPipe>>
+  {
+    std::array<::epoll_event, 2> events{};
+    std::memset(
+      events.data(),
+      0,
+      events.size() * sizeof(decltype(events)::value_type));
+
+    auto const ret =
+      ::epoll_wait(this->epoll_descriptor_, events.data(), events.size(), 0);
+    waypoint::internal::assert(
+      ret >= 0,
+      "Call to ::epoll_wait returned an error.");
+
+    constexpr auto problem_mask = EPOLLERR | EPOLLHUP | EPOLLRDHUP;
+
+    std::vector<StdPipe> output{};
+    for(auto const &e : events)
+    {
+      if((e.events & EPOLLIN) > 0 && (e.events & EPOLLERR) == 0)
+      {
+        if(e.data.fd == this->stdout_.raw())
+        {
+          output.push_back(StdPipe::Output);
+        }
+        else if(e.data.fd == this->stderr_.raw())
+        {
+          output.push_back(StdPipe::Error);
+        }
+      }
+    }
+
+    //???
+    // waypoint::internal::assert(
+    // (stdout_events & problem_mask) == 0,
+    // "stdout error???");
+    // waypoint::internal::assert(
+    // (stderr_events & problem_mask) == 0,
+    // "stderr error???");
+
+    if(!output.empty())
+    {
+      return output;
+    }
+
+    for(auto const &e : events)
+    {
+      if((e.events & problem_mask) > 0)
+      {
+        return std::nullopt;
+      }
+    }
+
+    return output;
+  }
+
+private:
+  decltype(::epoll_create1(0)) epoll_descriptor_;
+  waypoint::internal::OutputPipeEnd const &stdout_;
+  waypoint::internal::OutputPipeEnd const &stderr_;
+};
+
 auto poll_std_pipes(
   waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
   waypoint::internal::OutputPipeEnd const &std_err_read_pipe)
   -> std::optional<std::vector<StdPipe>>
+
 {
-  //???encapsulate epoll calls behind API
+  EpollGuard const epoll(std_out_read_pipe, std_err_read_pipe);
 
-  //???call once and reuse descriptor, save as RAII, ::close when done
-  auto const epoll_descriptor = ::epoll_create1(0);
-  waypoint::internal::assert(
-    epoll_descriptor > 0,
-    "call to ::epoll_create1 returned an error");
-
-  std::array<::epoll_event, 2> events{};
-  events.data()->events = EPOLLERR | EPOLLHUP | EPOLLIN | EPOLLRDHUP;
-  (events.data() + 1)->events = EPOLLERR | EPOLLHUP | EPOLLIN | EPOLLRDHUP;
-  auto ret = ::epoll_ctl(
-    epoll_descriptor,
-    EPOLL_CTL_ADD,
-    std_out_read_pipe.raw(),
-    events.data());
-  waypoint::internal::assert(ret == 0, "call to ::epoll_ctl returned an error");
-  ret = ::epoll_ctl(
-    epoll_descriptor,
-    EPOLL_CTL_ADD,
-    std_err_read_pipe.raw(),
-    events.data() + 1);
-  waypoint::internal::assert(ret == 0, "call to ::epoll_ctl returned an error");
-
-  std::memset(
-    events.data(),
-    0,
-    events.size() * sizeof(decltype(events)::value_type));
-  ret = ::epoll_wait(epoll_descriptor, events.data(), events.size(), 0);
-  waypoint::internal::assert(
-    ret >= 0,
-    "call to ::epoll_wait returned an error");
-
-  std::vector<StdPipe> output;
-  if((events[0].events & EPOLLIN) > 0)
-  {
-    output.push_back(StdPipe::Output);
-  }
-
-  //???call in RAII dtor
-  ::close(epoll_descriptor);
-
-  return output;
+  return epoll.poll();
 }
 
 using StdPipeOutputLine = std::pair<StdPipe, std::string>;
@@ -512,13 +580,12 @@ auto read_std_pipes(
   std::vector<StdPipeOutputLine> output;
 
   constexpr auto buffer_size = PIPE_BUF;
-  auto const buffer = std::make_unique<unsigned char[]>(buffer_size); //???
-  //???zero buffer here
-  constexpr unsigned long long count = buffer_size - 1; //???
+  auto const buffer = std::make_unique<unsigned char[]>(buffer_size);
+  constexpr unsigned long long count = buffer_size - 1;
+  std::memset(buffer.get(), 0, buffer_size);
 
   for(auto const pipe : poll_results)
   {
-    std::memset(buffer.get(), 0, buffer_size);
     [[maybe_unused]]
     auto read_result = waypoint::internal::OutputPipeEnd::ReadResult::Success;
     switch(pipe)
@@ -527,11 +594,13 @@ auto read_std_pipes(
       read_result = std_out_read_pipe.read_at_most(buffer.get(), count);
       //???aliasing?
       output.emplace_back(pipe, reinterpret_cast<char *>(buffer.get()));
+      std::memset(buffer.get(), 0, buffer_size);
       break;
     case StdPipe::Error:
       read_result = std_err_read_pipe.read_at_most(buffer.get(), count);
       //???aliasing?
       output.emplace_back(pipe, reinterpret_cast<char *>(buffer.get()));
+      std::memset(buffer.get(), 0, buffer_size);
       break;
     }
   }
@@ -578,9 +647,18 @@ auto parent_main(
       //???read one buffer's worth of stdout and/or stderr based on epoll output
       auto interleaved_outputs =
         read_std_pipes(std_out_read_pipe, std_err_read_pipe);
-      for(auto const &out : interleaved_outputs)
+      if(!interleaved_outputs.empty())
       {
-        std::cout << "??? " << out.second << " ???" << std::endl;
+        std::cout << "-----\n"; //???
+      }
+      for(auto const &val : interleaved_outputs)
+      {
+        std::cout << (val.first == StdPipe::Output ? "stdout" : "stderr") << " "
+                  << val.second; //???
+      }
+      if(!interleaved_outputs.empty())
+      {
+        std::cout << "-----" << std::endl; //???
       }
       auto const maybe_response = receive_response(response_read_pipe);
       if(!maybe_response.has_value())
@@ -679,6 +757,7 @@ void initialize(waypoint::TestRun const &t) noexcept
 } // namespace
 
 namespace waypoint
+
 {
 
 auto run_all_tests_in_process(TestRun const &t) noexcept -> TestRunResult
