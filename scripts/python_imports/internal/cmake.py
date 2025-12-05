@@ -16,7 +16,7 @@ CLANG20_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
 GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
 
 
-def env_patch_from_reset(preset):
+def env_patch_from_preset(preset):
     if preset.compiler == Compiler.Clang:
         return CLANG20_ENV_PATCH
     if preset.compiler == Compiler.Gcc:
@@ -26,7 +26,7 @@ def env_patch_from_reset(preset):
 
 
 def configure_cmake(preset, cmake_source_dir) -> bool:
-    env_patch = env_patch_from_reset(preset)
+    env_patch = env_patch_from_preset(preset)
 
     env = os.environ.copy()
     env.update(env_patch)
@@ -51,7 +51,7 @@ def configure_cmake(preset, cmake_source_dir) -> bool:
 
 
 def build_cmake(config, preset, cmake_source_dir, target) -> bool:
-    env_patch = env_patch_from_reset(preset)
+    env_patch = env_patch_from_preset(preset)
 
     env = os.environ.copy()
     env.update(env_patch)
