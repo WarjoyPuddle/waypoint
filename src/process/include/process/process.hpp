@@ -96,6 +96,7 @@ public:
   [[nodiscard]]
   auto read_exactly(unsigned char *buffer, unsigned long long count) const
     -> ReadResult;
+  void read_at_most(unsigned char *buffer, unsigned long long count) const;
 
 private:
   std::unique_ptr<OutputPipeEnd_impl> impl_;
@@ -120,6 +121,10 @@ public:
   auto command_write_pipe() const -> InputPipeEnd const &;
   [[nodiscard]]
   auto response_read_pipe() const -> OutputPipeEnd const &;
+  [[nodiscard]]
+  auto std_out_read_pipe() const -> OutputPipeEnd const &;
+  [[nodiscard]]
+  auto std_err_read_pipe() const -> OutputPipeEnd const &;
 
   [[nodiscard]]
   auto wait() const -> unsigned long long;
@@ -135,6 +140,8 @@ auto is_child() -> bool;
 
 enum class PipePollResult : unsigned char
 {
+  StdOutput,
+  StdError,
   Response
 };
 
@@ -150,8 +157,10 @@ public:
     -> ReadPipePollGuard & = delete;
   auto operator=(ReadPipePollGuard &&other) noexcept
     -> ReadPipePollGuard & = delete;
-  explicit ReadPipePollGuard(
-    waypoint::internal::OutputPipeEnd const &response_read_pipe);
+  ReadPipePollGuard(
+    waypoint::internal::OutputPipeEnd const &response_read_pipe,
+    waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+    waypoint::internal::OutputPipeEnd const &std_err_read_pipe);
 
   [[nodiscard]]
   auto poll() const
@@ -160,5 +169,9 @@ public:
 private:
   std::unique_ptr<waypoint::internal::ReadPipePollGuard_impl> impl_;
 };
+
+[[nodiscard]]
+auto read_std_pipe(waypoint::internal::OutputPipeEnd const &pipe)
+  -> std::string;
 
 } // namespace waypoint::internal
