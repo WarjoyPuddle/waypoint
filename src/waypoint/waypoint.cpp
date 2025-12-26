@@ -649,9 +649,9 @@ auto parent_main(
     all_records.size() - initial_test_index);
 
   waypoint::internal::ReadPipePollGuard const poll_guard(
-    response_read_pipe,
-    std_out_read_pipe,
-    std_err_read_pipe);
+    {{response_read_pipe, waypoint::internal::PipePollResult::Response},
+     {std_out_read_pipe, waypoint::internal::PipePollResult::StdOutput},
+     {std_err_read_pipe, waypoint::internal::PipePollResult::StdError}});
 
   for(auto *const record : record_subset)
   {
