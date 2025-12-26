@@ -465,13 +465,14 @@ namespace
 
 auto resolve_path(std::string const &input) noexcept -> std::string
 {
-  std::vector<char> dest;
-  constexpr unsigned long long bufsize = 4'096;
-  dest.resize(bufsize);
-  std::ranges::fill(dest, 0);
+  std::array<char, PATH_MAX> dest{};
+  std::memset(dest.data(), 0, dest.size() / sizeof(decltype(dest)::value_type));
 
-  [[maybe_unused]]
   char const *const ret = ::realpath(input.c_str(), dest.data());
+  waypoint::internal::assert(
+    dest[dest.size() - 1] == '\0',
+    "Output buffer is not null-terminated");
+  waypoint::internal::assert(ret != nullptr, "::realpath returned an error");
 
   return {dest.data()};
 }
