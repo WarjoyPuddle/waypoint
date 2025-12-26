@@ -110,7 +110,7 @@ for this purpose.
 This function does nothing in non-coverage builds.
 
 After a coverage build, you will find a helpful coverage report in
-`coverage_gcovr_kMkR9SM1S69oCLJ5___/index.html`.
+`build___/coverage_gcovr_kMkR9SM1S69oCLJ5___/index.html`.
 
 ### Development on Linux
 
