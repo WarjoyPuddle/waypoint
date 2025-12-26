@@ -472,6 +472,7 @@ auto TestRun_impl::make_test_outcome(TestId const test_id) const noexcept
     });
 
   auto *const impl = new TestOutcome_impl{};
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
   auto test_outcome = std::unique_ptr<TestOutcome>(new TestOutcome{impl});
 
   for(auto const &assertion : assertions)
@@ -485,6 +486,7 @@ auto TestRun_impl::make_test_outcome(TestId const test_id) const noexcept
       assertion.passed(),
       assertion.index());
 
+    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
     assertion_outcomes.emplace_back(
       std::unique_ptr<AssertionOutcome>(new AssertionOutcome{assertion_impl}));
   }
@@ -633,6 +635,7 @@ auto TestRun_impl::make_in_process_context(TestId const test_id) const
 
   impl->initialize(*this->test_run_, test_id);
 
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
   return std::unique_ptr<ContextInProcess>(new ContextInProcess{impl});
 }
 
@@ -649,6 +652,7 @@ auto TestRun_impl::make_child_process_context(
     response_write_pipe,
     transmission_mutex);
 
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
   return std::unique_ptr<ContextChildProcess>(new ContextChildProcess{impl});
 }
 
