@@ -326,27 +326,6 @@ class Mode(enum.Enum):
     Format = ModeConfig(
         fix_formatting=True,
     )
-    Full = ModeConfig(
-        check_legal=True,
-        check_formatting=True,
-        static_lib=True,
-        shared_lib=True,
-        clang=True,
-        gcc=True,
-        debug=True,
-        release=True,
-        static_analysis=True,
-        address_sanitizer=True,
-        undefined_behaviour_sanitizer=True,
-        test=True,
-        test_target=True,
-        valgrind=True,
-        coverage=True,
-        misc=True,
-        examples=True,
-        install=True,
-        test_install=True,
-    )
     Clean = ModeConfig(
         clean=True,
     )
@@ -398,8 +377,6 @@ class Mode(enum.Enum):
             return "fast"
         if self == Mode.Format:
             return "format"
-        if self == Mode.Full:
-            return "full"
         if self == Mode.StaticAnalysis:
             return "static"
         if self == Mode.Valgrind:
@@ -1328,8 +1305,6 @@ class CliConfig:
             self.mode = Mode.Fast
         if mode_str == f"{Mode.Format}":
             self.mode = Mode.Format
-        if mode_str == f"{Mode.Full}":
-            self.mode = Mode.Full
         if mode_str == f"{Mode.StaticAnalysis}":
             self.mode = Mode.StaticAnalysis
         if mode_str == f"{Mode.Valgrind}":
@@ -1353,7 +1328,6 @@ def preamble() -> tuple[CliConfig | None, bool]:
             f"{Mode.Coverage}",
             f"{Mode.Fast}",
             f"{Mode.Format}",
-            f"{Mode.Full}",
             f"{Mode.StaticAnalysis}",
             f"{Mode.Valgrind}",
             f"{Mode.Verify}",
@@ -1364,10 +1338,9 @@ def preamble() -> tuple[CliConfig | None, bool]:
                  "{Mode.Coverage}" measures test coverage;
                  "{Mode.Format}" formats source files;
                  "{Mode.Fast}" runs one build and tests for quick iterations;
-                 "{Mode.Full}" builds everything and runs all checks;
                  "{Mode.StaticAnalysis}" performs static analysis;
                  "{Mode.Valgrind}" runs Valgrind/memcheck;
-                 "{Mode.Verify}" runs "{Mode.Clean}" followed by "{Mode.Full}".""",
+                 "{Mode.Verify}" runs "{Mode.Clean}" followed by all builds and checks.""",
     )
 
     parsed = parser.parse_args()
