@@ -212,6 +212,8 @@ if(DEFINED PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr
   new_waypoint_main_test(TARGET 093_waypoint_main_pass)
   new_waypoint_main_test(EXPECTED_FAILURE TARGET 094_waypoint_main_fail)
   new_waypoint_main_test(EXPECTED_FAILURE TARGET 095_waypoint_main_error)
+
+  new_basic_test(096_std_pipes)
 endif()
 
 prepare_installation()
