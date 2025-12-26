@@ -216,6 +216,9 @@ auto OutputPipeEnd::read(
   {
     auto const transferred_this_time =
       ::read(this->impl_->raw_pipe(), buffer + transferred, left_to_transfer);
+    waypoint::internal::assert(
+      transferred_this_time >= 0,
+      "::read returned error");
 
     if(transferred_this_time == 0)
     {
@@ -321,6 +324,7 @@ auto create_child_process(
   std::array<int, 2> const &pipe_response) noexcept -> std::tuple<int, int, int>
 {
   auto const fork_ret = ::fork();
+  waypoint::internal::assert(fork_ret >= 0, "::fork returned error");
   if(fork_ret > 0)
   {
     auto const child_pid = fork_ret;
