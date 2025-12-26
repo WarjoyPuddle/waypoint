@@ -21,7 +21,7 @@ void assert(
 {
   if(!condition)
   {
-    std::cerr << "Assertion failed" << std::endl;
+    std::cerr << "Assertion failed (waypoint)" << std::endl;
     std::cerr << "- Message: " << message << std::endl;
     std::cerr << "- File: " << loc.file_name() << " L" << loc.line() << "C"
               << loc.column() << std::endl;
