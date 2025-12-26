@@ -160,7 +160,47 @@ ctest --preset example_test --build-config Debug
 
 ### Providing your own entry point
 
-TODO
+If you have special requirements that cannot be satisfied by the
+default `main()` function provided by Waypoint, you are free to write
+your own.
+Apart from compiling it along with your other source files, the only
+difference is that you should link against the CMake target
+`waypoint::waypoint` instead of `waypoint::waypoint_main` (which
+includes a default entry point).
+
+You will find that this workflow is essentially identical to the
+build-and-install method described above.
+In particular, you should follow the steps described there to generate
+the `waypoint_install___` directory.
+Once that is done, you may copy it into the
+`examples/quick_start_custom_main` directory, which contains an example
+project.
+The `main` function is in the file `main.cpp`.
+
+```shell
+cd examples/quick_start_custom_main
+cp --recursive ../../waypoint_install___ ./
+
+# Configure step
+CC=clang-20 CXX=clang++-20 cmake --preset example_configure
+
+# Build step
+cmake --build --preset example_build --config Debug
+
+# Run the tests with CMake
+cmake --build --preset example_build --target test --config Debug
+
+# Alternatively, run the tests with CTest (a more flexible approach)
+ctest --preset example_test --build-config Debug
+
+# You may also run the test executable directly
+./build___/Debug/test_program
+```
+
+If you wish, it is not difficult to adapt the add_subdirectory workflow
+to provide your own program entry point.
+Again, the main difference is that you would link against
+`waypoint::waypoint` and not `waypoint::waypoint_main`.
 
 ## Releases
 
