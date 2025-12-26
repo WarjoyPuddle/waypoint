@@ -251,7 +251,7 @@ void await_handshake_start(
 
   unsigned char data = 0;
   [[maybe_unused]]
-  auto const read_result = pipe.read(&data, sizeof data);
+  auto const read_result = pipe.read_exactly(&data, sizeof data);
 }
 
 void complete_handshake(
@@ -270,7 +270,7 @@ void await_handshake_end(waypoint::internal::OutputPipeEnd const &pipe)
 {
   unsigned char data = 0;
   [[maybe_unused]]
-  auto const read_result = pipe.read(&data, sizeof data);
+  auto const read_result = pipe.read_exactly(&data, sizeof data);
 }
 
 auto receive_command(
@@ -281,14 +281,14 @@ auto receive_command(
 
   auto code_ = std::to_underlying(waypoint::internal::Command::Code::Invalid);
   [[maybe_unused]]
-  auto read_result = command_read_pipe.read(&code_, sizeof code_);
+  auto read_result = command_read_pipe.read_exactly(&code_, sizeof code_);
 
   auto const code = static_cast<waypoint::internal::Command::Code>(code_);
 
   if(code == waypoint::internal::Command::Code::RunTest)
   {
     unsigned long long test_index = 0;
-    read_result = command_read_pipe.read(
+    read_result = command_read_pipe.read_exactly(
       reinterpret_cast<unsigned char *>(&test_index),
       sizeof test_index);
 
@@ -304,7 +304,7 @@ auto receive_response(
 {
   auto code_ = std::to_underlying(waypoint::internal::Response::Code::Invalid);
   [[maybe_unused]]
-  auto read_result = response_read_pipe.read(&code_, sizeof code_);
+  auto read_result = response_read_pipe.read_exactly(&code_, sizeof code_);
   if(read_result == waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
   {
     return std::nullopt;
@@ -321,7 +321,7 @@ auto receive_response(
   }
 
   unsigned long long test_id = 0;
-  read_result = response_read_pipe.read(
+  read_result = response_read_pipe.read_exactly(
     reinterpret_cast<unsigned char *>(&test_id),
     sizeof test_id);
 
@@ -333,15 +333,16 @@ auto receive_response(
   }
 
   unsigned char passed = 0;
-  read_result = response_read_pipe.read(&passed, sizeof passed);
+  read_result = response_read_pipe.read_exactly(&passed, sizeof passed);
 
   unsigned long long assertion_index = 0;
-  read_result = response_read_pipe.read(
+  read_result = response_read_pipe.read_exactly(
     reinterpret_cast<unsigned char *>(&assertion_index),
     sizeof assertion_index);
 
   unsigned char has_message = 0;
-  read_result = response_read_pipe.read(&has_message, sizeof has_message);
+  read_result =
+    response_read_pipe.read_exactly(&has_message, sizeof has_message);
   if(has_message == 0)
   {
     return {waypoint::internal::Response{
@@ -353,12 +354,12 @@ auto receive_response(
   }
 
   unsigned long long message_size = 0;
-  read_result = response_read_pipe.read(
+  read_result = response_read_pipe.read_exactly(
     reinterpret_cast<unsigned char *>(&message_size),
     sizeof message_size);
 
   std::string message(message_size, 'X');
-  read_result = response_read_pipe.read(
+  read_result = response_read_pipe.read_exactly(
     reinterpret_cast<unsigned char *>(message.data()),
     message_size);
 

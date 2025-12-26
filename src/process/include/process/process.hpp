@@ -91,7 +91,7 @@ public:
   auto operator=(OutputPipeEnd &&other) noexcept -> OutputPipeEnd & = delete;
 
   [[nodiscard]]
-  auto read(unsigned char *buffer, unsigned long long count) const
+  auto read_exactly(unsigned char *buffer, unsigned long long count) const
     -> ReadResult;
 
 private:
