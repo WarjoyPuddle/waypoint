@@ -456,7 +456,6 @@ auto parent_main(
       waypoint::internal::Command::Code::RunTest,
       test_index};
     send_command(command_write_pipe, command);
-    record->mark_as_run();
 
     while(true)
     {
@@ -493,6 +492,7 @@ auto parent_main(
 
       if(response.code == waypoint::internal::Response::Code::TestComplete)
       {
+        record->mark_as_run();
         break;
       }
     }
