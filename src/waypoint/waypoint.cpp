@@ -748,7 +748,7 @@ Group::Group(internal::Group_impl *const impl)
 Test3<void>::~Test3() = default;
 
 Test3<void>::Test3(internal::Registrar<void> registrar)
-  : registrar_{internal::move(registrar)}
+  : registrar_{std::move(registrar)}
 {
 }
 
@@ -765,7 +765,7 @@ void Test3<void>::disable(bool const is_disabled) && noexcept
 Test2<void>::~Test2() = default;
 
 Test2<void>::Test2(internal::Registrar<void> registrar)
-  : registrar_{internal::move(registrar)}
+  : registrar_{std::move(registrar)}
 {
 }
 
