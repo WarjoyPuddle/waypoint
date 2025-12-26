@@ -13,6 +13,7 @@
 #include <cstring>
 #include <format>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <ranges>
@@ -28,6 +29,7 @@
 #include <unistd.h>
 
 #include <linux/limits.h>
+#include <sys/epoll.h>
 #include <sys/wait.h>
 
 namespace
@@ -224,17 +226,142 @@ auto OutputPipeEnd::read_exactly(
       transferred_this_time >= 0,
       "::read returned error");
 
+    // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
     if(transferred_this_time == 0)
     {
       // The other end of the pipe is closed - peer crashed or exited
       return OutputPipeEnd::ReadResult::PipeClosed;
     }
+    // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
     transferred += transferred_this_time;
     left_to_transfer -= transferred_this_time;
   }
 
   return OutputPipeEnd::ReadResult::Success;
+}
+
+auto get_impl(OutputPipeEnd const &pipe) -> OutputPipeEnd_impl &
+{
+  return *pipe.impl_;
+}
+
+class ReadPipePollGuard_impl
+{
+public:
+  ~ReadPipePollGuard_impl()
+  {
+    ::close(this->epoll_descriptor_);
+  }
+
+  ReadPipePollGuard_impl(ReadPipePollGuard_impl const &other) = delete;
+  ReadPipePollGuard_impl(ReadPipePollGuard_impl &&other) noexcept = delete;
+  auto operator=(ReadPipePollGuard_impl const &other)
+    -> ReadPipePollGuard_impl & = delete;
+  auto operator=(ReadPipePollGuard_impl &&other) noexcept
+    -> ReadPipePollGuard_impl & = delete;
+
+  explicit ReadPipePollGuard_impl(
+    waypoint::internal::OutputPipeEnd const &response_read_pipe)
+    : epoll_descriptor_{::epoll_create1(0)},
+      response_raw_{
+        waypoint::internal::get_impl(response_read_pipe).raw_pipe()},
+      events_{}
+  {
+    waypoint::internal::assert(
+      this->epoll_descriptor_ > 0,
+      "Call to ::epoll_create1 returned an error.");
+    std::memset(
+      this->events_.data(),
+      0,
+      this->events_.size() * sizeof(decltype(this->events_)::value_type));
+
+    constexpr auto event_mask = EPOLLERR | EPOLLHUP | EPOLLIN | EPOLLRDHUP;
+
+    this->events_[0].data.fd = this->response_raw_;
+
+    for(auto &event : this->events_)
+    {
+      event.events = event_mask;
+      auto const ret = ::epoll_ctl(
+        this->epoll_descriptor_,
+        EPOLL_CTL_ADD,
+        event.data.fd,
+        &event);
+      waypoint::internal::assert(
+        ret == 0,
+        "Call to ::epoll_ctl returned an error.");
+    }
+  }
+
+  [[nodiscard]]
+  auto poll() const
+    -> std::optional<std::vector<waypoint::internal::PipePollResult>>
+  {
+    std::memset(
+      this->events_.data(),
+      0,
+      this->events_.size() * sizeof(decltype(this->events_)::value_type));
+
+    waypoint::internal::assert(
+      this->events_.size() <= std::numeric_limits<int>::max(),
+      "Narrowing conversion to int would lose data");
+    auto const int_size = static_cast<int>(this->events_.size());
+    auto const ret =
+      ::epoll_wait(this->epoll_descriptor_, this->events_.data(), int_size, 0);
+    waypoint::internal::assert(
+      ret >= 0,
+      "Call to ::epoll_wait returned an error.");
+
+    bool const data_to_read = std::ranges::any_of(
+      this->events_,
+      [](auto const &event)
+      {
+        return (event.events & EPOLLIN) > 0;
+      });
+    bool const all_hanged_up = std::ranges::all_of(
+      this->events_,
+      [](auto const &event)
+      {
+        return (event.events & EPOLLHUP) > 0;
+      });
+
+    if(!data_to_read && all_hanged_up)
+    {
+      return {};
+    }
+
+    std::vector<waypoint::internal::PipePollResult> output{};
+    for(auto const &event : this->events_)
+    {
+      if((event.events & EPOLLIN) != 0)
+      {
+        output.push_back(waypoint::internal::PipePollResult::Response);
+      }
+    }
+
+    return output;
+  }
+
+private:
+  int epoll_descriptor_;
+  int response_raw_;
+  mutable std::array<::epoll_event, 1> events_;
+};
+
+ReadPipePollGuard::~ReadPipePollGuard() = default;
+
+ReadPipePollGuard::ReadPipePollGuard(
+  waypoint::internal::OutputPipeEnd const &response_read_pipe)
+  : impl_{std::make_unique<waypoint::internal::ReadPipePollGuard_impl>(
+      response_read_pipe)}
+{
+}
+
+auto ReadPipePollGuard::poll() const
+  -> std::optional<std::vector<waypoint::internal::PipePollResult>>
+{
+  return this->impl_->poll();
 }
 
 auto get_pipes_from_env() noexcept -> std::pair<OutputPipeEnd, InputPipeEnd>
