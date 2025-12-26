@@ -15,6 +15,8 @@ from .system import remove_dir
 CLANG20_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
 GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
 
+EXPORT_COMPILE_COMMANDS_ENV_PATCH = {"CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"}
+
 
 def env_patch_from_preset(preset):
     if preset.compiler == Compiler.Clang:
@@ -30,6 +32,7 @@ def configure_cmake(preset, cmake_source_dir) -> bool:
 
     env = os.environ.copy()
     env.update(env_patch)
+    env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
     with NewEnv(env):
         build_dir = build_dir_from_preset(preset, cmake_source_dir)
 
