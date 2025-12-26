@@ -33,6 +33,26 @@
       "name": "example_build_shared"
     },
     {
+      "configurePreset": "configure_linux_valgrind_clang",
+      "hidden": false,
+      "inherits": [
+        "base_build_ninja",
+        "base_system_linux",
+        "base_verbose"
+      ],
+      "name": "build_linux_valgrind_clang"
+    },
+    {
+      "configurePreset": "configure_linux_valgrind_gcc",
+      "hidden": false,
+      "inherits": [
+        "base_build_ninja",
+        "base_system_linux",
+        "base_verbose"
+      ],
+      "name": "build_linux_valgrind_gcc"
+    },
+    {
       "configurePreset": "configure_linux_clang",
       "hidden": false,
       "inherits": [
@@ -181,6 +201,13 @@
       "name": "base_system_linux"
     },
     {
+      "cacheVariables": {
+        "PRESET_VALGRIND_COMPILER_OPTIONS_vII5N7cLv784aOET": true
+      },
+      "hidden": true,
+      "name": "base_valgrind"
+    },
+    {
       "binaryDir": "${sourceDir}/../waypoint_build_static___",
       "generator": "Ninja Multi-Config",
       "hidden": false,
@@ -196,6 +223,34 @@
       ],
       "installDir": "${sourceDir}/../waypoint_install_shared___",
       "name": "example_configure_shared"
+    },
+    {
+      "binaryDir": "${sourceDir}/../build_linux_valgrind_clang_ZP56y3Vf3Yfw20bT___",
+      "hidden": false,
+      "inherits": [
+        "base_valgrind",
+        "base_elevated_compiler_warnings",
+        "base_generator_ninja",
+        "base_system_linux",
+        "base_enable_tests_build",
+        "base_target_properties"
+      ],
+      "installDir": "${sourceDir}/../install_linux_valgrind_clang_myL2IyCTjs3vJiT5___",
+      "name": "configure_linux_valgrind_clang"
+    },
+    {
+      "binaryDir": "${sourceDir}/../build_linux_valgrind_gcc_4XWXlqw1R4YRjvcF___",
+      "hidden": false,
+      "inherits": [
+        "base_valgrind",
+        "base_elevated_compiler_warnings",
+        "base_generator_ninja",
+        "base_system_linux",
+        "base_enable_tests_build",
+        "base_target_properties"
+      ],
+      "installDir": "${sourceDir}/../install_linux_valgrind_gcc_l3EyP2DaHiLvNBwX___",
+      "name": "configure_linux_valgrind_gcc"
     },
     {
       "binaryDir": "${sourceDir}/../build_linux_clang_xgozuT4W2AeFQhlh___",
@@ -330,6 +385,24 @@
         "outputOnFailure": true,
         "verbosity": "default"
       }
+    },
+    {
+      "configurePreset": "configure_linux_valgrind_clang",
+      "hidden": false,
+      "inherits": [
+        "base_test_config",
+        "base_test_linux"
+      ],
+      "name": "test_linux_valgrind_clang"
+    },
+    {
+      "configurePreset": "configure_linux_valgrind_gcc",
+      "hidden": false,
+      "inherits": [
+        "base_test_config",
+        "base_test_linux"
+      ],
+      "name": "test_linux_valgrind_gcc"
     },
     {
       "configurePreset": "configure_linux_clang",
