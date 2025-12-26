@@ -8,6 +8,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace waypoint::internal
 {
@@ -73,6 +74,8 @@ private:
 };
 
 class OutputPipeEnd_impl;
+class OutputPipeEnd;
+auto get_impl(OutputPipeEnd const &pipe) -> OutputPipeEnd_impl &;
 
 class OutputPipeEnd
 {
@@ -96,6 +99,9 @@ public:
 
 private:
   std::unique_ptr<OutputPipeEnd_impl> impl_;
+
+  friend auto waypoint::internal::get_impl(OutputPipeEnd const &pipe)
+    -> OutputPipeEnd_impl &;
 };
 
 class ChildProcess_impl;
@@ -126,5 +132,33 @@ private:
 auto get_pipes_from_env() noexcept -> std::pair<OutputPipeEnd, InputPipeEnd>;
 [[nodiscard]]
 auto is_child() -> bool;
+
+enum class PipePollResult : unsigned char
+{
+  Response
+};
+
+class ReadPipePollGuard_impl;
+
+class ReadPipePollGuard
+{
+public:
+  ~ReadPipePollGuard();
+  ReadPipePollGuard(ReadPipePollGuard const &other) = delete;
+  ReadPipePollGuard(ReadPipePollGuard &&other) noexcept = delete;
+  auto operator=(ReadPipePollGuard const &other)
+    -> ReadPipePollGuard & = delete;
+  auto operator=(ReadPipePollGuard &&other) noexcept
+    -> ReadPipePollGuard & = delete;
+  explicit ReadPipePollGuard(
+    waypoint::internal::OutputPipeEnd const &response_read_pipe);
+
+  [[nodiscard]]
+  auto poll() const
+    -> std::optional<std::vector<waypoint::internal::PipePollResult>>;
+
+private:
+  std::unique_ptr<waypoint::internal::ReadPipePollGuard_impl> impl_;
+};
 
 } // namespace waypoint::internal
