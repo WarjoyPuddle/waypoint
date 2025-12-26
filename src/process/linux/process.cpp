@@ -167,6 +167,9 @@ void InputPipeEnd::write(
   {
     auto const transferred_this_time =
       ::write(this->impl_->raw_pipe(), buffer + transferred, left_to_transfer);
+    waypoint::internal::assert(
+      transferred_this_time != -1,
+      "Call to ::write() returned an error");
 
     transferred += transferred_this_time;
     left_to_transfer -= transferred_this_time;
@@ -502,14 +505,25 @@ auto create_child_process_with_pipes() noexcept
   std::array<int, 2> pipe_std_out{};
   std::array<int, 2> pipe_std_err{};
 
-  [[maybe_unused]]
-  auto const ret1 = ::pipe(pipe_command.data());
-  [[maybe_unused]]
-  auto const ret2 = ::pipe(pipe_response.data());
-  [[maybe_unused]]
-  auto const ret3 = ::pipe(pipe_std_out.data());
-  [[maybe_unused]]
-  auto const ret4 = ::pipe(pipe_std_err.data());
+  int pipe_ret = -1;
+  pipe_ret = ::pipe(pipe_command.data());
+  waypoint::internal::assert(
+    pipe_ret == 0,
+    "Call to ::pipe() returned an error");
+  pipe_ret = ::pipe(pipe_response.data());
+  waypoint::internal::assert(
+    pipe_ret == 0,
+    "Call to ::pipe() returned an error");
+  pipe_ret = ::pipe(pipe_std_out.data());
+  waypoint::internal::assert(
+    pipe_ret == 0,
+    "Call to ::pipe() returned an error");
+  pipe_ret = ::pipe(pipe_std_err.data());
+  waypoint::internal::assert(
+    pipe_ret == 0,
+    "Call to ::pipe() returned an error");
+
+  int close_ret = -1;
 
   auto const fork_ret = ::fork();
   waypoint::internal::assert(
@@ -519,11 +533,23 @@ auto create_child_process_with_pipes() noexcept
   {
     auto const child_pid = fork_ret;
 
-    ::close(pipe_command[0]);
-    ::close(pipe_response[1]);
+    close_ret = ::close(pipe_command[0]);
+    waypoint::internal::assert(
+      close_ret == 0,
+      "Call to ::close() returned an error");
+    close_ret = ::close(pipe_response[1]);
+    waypoint::internal::assert(
+      close_ret == 0,
+      "Call to ::close() returned an error");
 
-    ::close(pipe_std_out[1]);
-    ::close(pipe_std_err[1]);
+    close_ret = ::close(pipe_std_out[1]);
+    waypoint::internal::assert(
+      close_ret == 0,
+      "Call to ::close() returned an error");
+    close_ret = ::close(pipe_std_err[1]);
+    waypoint::internal::assert(
+      close_ret == 0,
+      "Call to ::close() returned an error");
 
     return {
       child_pid,
@@ -533,19 +559,50 @@ auto create_child_process_with_pipes() noexcept
       pipe_std_err[0]};
   }
 
-  ::close(pipe_command[1]);
-  ::close(pipe_response[0]);
+  close_ret = ::close(pipe_command[1]);
+  waypoint::internal::assert(
+    close_ret == 0,
+    "Call to ::close() returned an error");
+  close_ret = ::close(pipe_response[0]);
+  waypoint::internal::assert(
+    close_ret == 0,
+    "Call to ::close() returned an error");
 
-  ::close(STDOUT_FILENO);
-  ::close(STDERR_FILENO);
+  close_ret = ::close(STDOUT_FILENO);
+  waypoint::internal::assert(
+    close_ret == 0,
+    "Call to ::close() returned an error");
+  close_ret = ::close(STDERR_FILENO);
+  waypoint::internal::assert(
+    close_ret == 0,
+    "Call to ::close() returned an error");
 
-  ::dup3(pipe_std_out[1], STDOUT_FILENO, 0);
-  ::dup3(pipe_std_err[1], STDERR_FILENO, 0);
+  int dup3_ret = -1;
+  dup3_ret = ::dup3(pipe_std_out[1], STDOUT_FILENO, 0);
+  waypoint::internal::assert(
+    dup3_ret != -1,
+    "Call to ::dup3() returned an error");
+  dup3_ret = ::dup3(pipe_std_err[1], STDERR_FILENO, 0);
+  waypoint::internal::assert(
+    dup3_ret != -1,
+    "Call to ::dup3() returned an error");
 
-  ::close(pipe_std_out[0]);
-  ::close(pipe_std_out[1]);
-  ::close(pipe_std_err[0]);
-  ::close(pipe_std_err[1]);
+  close_ret = ::close(pipe_std_out[0]);
+  waypoint::internal::assert(
+    close_ret == 0,
+    "Call to ::close() returned an error");
+  close_ret = ::close(pipe_std_out[1]);
+  waypoint::internal::assert(
+    close_ret == 0,
+    "Call to ::close() returned an error");
+  close_ret = ::close(pipe_std_err[0]);
+  waypoint::internal::assert(
+    close_ret == 0,
+    "Call to ::close() returned an error");
+  close_ret = ::close(pipe_std_err[1]);
+  waypoint::internal::assert(
+    close_ret == 0,
+    "Call to ::close() returned an error");
 
   auto const path_to_exe = get_path_to_current_executable();
 
@@ -594,8 +651,10 @@ auto create_child_process_with_pipes() noexcept
 auto wait_for_child_process_end(int const child_pid) -> unsigned long long
 {
   int status = 0;
-  [[maybe_unused]]
-  auto const ret = ::waitpid(child_pid, &status, 0);
+  auto const waitpid_ret = ::waitpid(child_pid, &status, 0);
+  waypoint::internal::assert(
+    waitpid_ret != -1,
+    "Call to ::waitpid() returned an error");
 
   if(WIFEXITED(status))
   {
