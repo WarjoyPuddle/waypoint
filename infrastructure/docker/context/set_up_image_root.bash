@@ -56,15 +56,15 @@ function install_apps
   apt-get install --yes \
     bash \
     binutils \
-    black \
+    black=25.1.0-2 \
     build-essential \
     clang-20 \
     clang-tools-20 \
-    clang-format-20 \
-    clang-tidy-20 \
+    clang-format-20=1:20.1.2-0ubuntu1 \
+    clang-tidy-20=1:20.1.2-0ubuntu1 \
     libc++-20-dev \
     cmake \
-    cmake-format \
+    cmake-format=0.6.13-6 \
     gcc-15 \
     g++-15 \
     gcovr \
@@ -73,7 +73,7 @@ function install_apps
     make \
     ninja-build \
     python3.13 \
-    python3-isort \
+    python3-isort=6.0.1-1 \
     valgrind \
     vim
 }
