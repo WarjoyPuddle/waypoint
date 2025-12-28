@@ -10,11 +10,11 @@ import re
 import sys
 import typing
 
-from .file_types import is_bash_file
 from .file_types import is_cmake_file
 from .file_types import is_cpp_file
 from .file_types import is_docker_file
 from .file_types import is_python_file
+from .file_types import is_shell_script
 from .system import get_cpu_count
 
 COPYRIGHT_HOLDER_NAME = "Wojciech Kałuża"
@@ -23,7 +23,7 @@ EXPECTED_SPDX_LICENSE_ID = "MIT"
 
 def is_file_in_need_of_licensing_comment(f) -> bool:
     return (
-        is_bash_file(f)
+        is_shell_script(f)
         or is_cmake_file(f)
         or is_cpp_file(f)
         or is_docker_file(f)
@@ -129,7 +129,7 @@ def check_copyright_comments_in_single_file(
 ) -> typing.Tuple[bool, str | None, str]:
     with open(file, "r") as f:
         lines = f.readlines()
-    lines = lines[0:3]
+    lines = lines[0:4]
     lines = [line.strip() for line in lines]
     copyright_lines = [
         line for line in lines if match_copyright_notice_pattern(line) is not None

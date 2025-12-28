@@ -120,32 +120,27 @@ environment.
 To start using the container, make sure you have docker installed and
 enabled for `sudo`-less execution.
 
-Run the following command in a terminal.
-The `enter_docker.bash` script will build a Docker image with all the
+The `scripts/enter_docker.sh` script will build a Docker image with all the
 necessary tooling and start a terminal session inside a container.
-
-```shell
-bash scripts/enter_docker.bash
-```
 
 While inside the Docker container (or another suitable context), you
 can interact with the Waypoint codebase by running the commands in the
 `scripts/` directory.
 
-* `clean.bash` removes all build artifacts
-* `coverage.bash` builds and runs instrumented tests, outputs coverage report
-* `format_code.bash` formats source files
-* `short_build.bash` builds Waypoint and functional tests in Debug mode,
+* `clean.sh` removes all build artifacts
+* `coverage.sh` builds and runs instrumented tests, outputs coverage report
+* `format_code.sh` formats source files
+* `short_build.sh` builds Waypoint and functional tests in Debug mode,
 runs tests
-* `static_analysis.bash` runs static analysis
-* `valgrind.bash` builds and runs Valgrind tests
-* `verify_build.bash` removes all build artifacts, then builds using all
+* `static_analysis.sh` runs static analysis
+* `valgrind.sh` builds and runs Valgrind tests
+* `verify_build.sh` removes all build artifacts, then builds using all
 toolchains, runs all checks and tests, including coverage,
 sanitizers, Valgrind, and static analysis).
 
-We recommend working with `short_build.bash` during feature development to
+We recommend working with `short_build.sh` during feature development to
 ensure short iterations and quick feedback.
-Once the feature is finished, ensure that the `verify_build.bash` build
+Once the feature is finished, ensure that the `verify_build.sh` build
 succeeds and fix any problems if it does not.
 
 ### The pre-commit hook
