@@ -257,7 +257,7 @@ def check_formatting(files, clang_format_config) -> bool:
                 if output is not None:
                     print(output)
                 print(
-                    f'Error: {file}\nIncorrect formatting; run the build in "format" mode'
+                    f"Error: {file}\nIncorrect formatting; run scripts/format_code.bash"
                 )
 
             return False

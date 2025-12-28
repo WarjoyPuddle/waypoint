@@ -37,7 +37,7 @@ from python_imports import verify_installation_contents_shared
 from python_imports import verify_installation_contents_static
 
 THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
-PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/..")
+PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/../..")
 BUILD_DIR = os.path.realpath(f"{PROJECT_ROOT_DIR}/build___")
 
 

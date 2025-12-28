@@ -10,7 +10,7 @@ from python_imports import check_license_file
 from python_imports import get_files_staged_for_commit
 
 THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
-PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/..")
+PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/../..")
 INFRASTRUCTURE_DIR = os.path.realpath(f"{PROJECT_ROOT_DIR}/infrastructure")
 
 CLANG_FORMAT_CONFIG = os.path.realpath(f"{INFRASTRUCTURE_DIR}/.clang-format-20")
