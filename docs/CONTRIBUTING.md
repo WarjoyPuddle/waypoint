@@ -45,6 +45,10 @@ TODO
 As Waypoint currently has no dependencies, this repository is all you
 need for development work.
 
+Use Git for version control.
+Do not commit directly to the `main` branch.
+Create your own branches instead, one per each feature or bugfix.
+
 Waypoint is a CMake project.
 Make sure you have CMake installed to build it.
 
