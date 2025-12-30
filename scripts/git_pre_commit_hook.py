@@ -4,7 +4,10 @@
 
 import os
 
-from python_imports import *
+from python_imports import check_copyright_comments
+from python_imports import check_formatting
+from python_imports import check_license_file
+from python_imports import get_files_staged_for_commit
 
 THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/..")
