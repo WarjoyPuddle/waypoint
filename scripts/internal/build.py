@@ -5475,8 +5475,6 @@ def main() -> int:
     if not success:
         return 1
 
-    print(f"Success: {os.path.basename(sys.argv[0])}")
-
     return 0
 
 
