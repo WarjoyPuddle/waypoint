@@ -82,14 +82,14 @@ def process_depfiles(depfile_paths, root_dir) -> typing.Dict[str, typing.Set[str
         with open(path, "r") as f:
             lines = f.readlines()
         lines = lines[1:]
-        lines = [l.lstrip(" ").rstrip(" \\\n") for l in lines]
+        lines = [line.lstrip(" ").rstrip(" \\\n") for line in lines]
         paths = []
-        for l in lines:
-            if " " in l:
-                for x in l.split(" "):
+        for line in lines:
+            if " " in line:
+                for x in line.split(" "):
                     paths.append(x)
                 continue
-            paths.append(l)
+            paths.append(line)
 
         paths = [os.path.realpath(p) for p in paths if os.path.isfile(p)]
         paths = [p for p in paths if p.startswith(f"{root_dir}/")]
