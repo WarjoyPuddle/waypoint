@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -6,7 +6,6 @@ import argparse
 import dataclasses
 import enum
 import os
-import sys
 
 from python_imports import Compiler
 from python_imports import Task
