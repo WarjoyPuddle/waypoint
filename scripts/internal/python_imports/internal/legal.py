@@ -7,8 +7,6 @@ import hashlib
 import multiprocessing
 import os
 import re
-import sys
-import typing
 
 from .file_types import is_cmake_file
 from .file_types import is_cpp_file
@@ -33,7 +31,7 @@ def is_file_in_need_of_licensing_comment(f) -> bool:
 
 def validate_notice_of_copyright(
     file: str, copyright_notice: str
-) -> typing.Tuple[bool, str | None]:
+) -> tuple[bool, str | None]:
     single_year = re.match(r"^Copyright \(c\) ([0-9]{4}) (.+)$", copyright_notice)
     year_range = re.match(
         r"^Copyright \(c\) ([0-9]{4})-([0-9]{4}) (.+)$", copyright_notice
@@ -126,7 +124,7 @@ def match_spdx_license_id_pattern(line):
 
 def check_copyright_comments_in_single_file(
     file,
-) -> typing.Tuple[bool, str | None, str]:
+) -> tuple[bool, str | None, str]:
     with open(file, "r") as f:
         lines = f.readlines()
     lines = lines[0:4]

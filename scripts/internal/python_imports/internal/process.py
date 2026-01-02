@@ -1,13 +1,12 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
 import subprocess
 import tempfile
-import typing
 
 
-def run(cmd) -> typing.Tuple[bool, str | None]:
+def run(cmd) -> tuple[bool, str | None]:
     with tempfile.TemporaryFile("r+") as f:
         try:
             result = subprocess.run(cmd, stdout=f, stderr=f)

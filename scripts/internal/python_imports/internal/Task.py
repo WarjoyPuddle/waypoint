@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -18,7 +18,7 @@ class Task:
         self.success_ = False
         self.dependencies_ = []
 
-    def depends_on(self, deps: typing.List["Task"]):
+    def depends_on(self, deps: list["Task"]):
         for d in deps:
             self.dependencies_.append(d)
 

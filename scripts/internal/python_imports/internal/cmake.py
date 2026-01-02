@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -6,7 +6,6 @@ import contextlib
 import json
 import os
 import pathlib
-import typing
 
 from .compiler import Compiler
 from .process import run
@@ -192,7 +191,7 @@ def copy_install_dir(preset, cmake_source_dir, destination):
 
 def run_target(
     preset, cmake_source_dir, build_config, target
-) -> typing.Tuple[bool, str | None]:
+) -> tuple[bool, str | None]:
     with contextlib.chdir(cmake_source_dir):
         build_dir = build_dir_from_preset(preset, cmake_source_dir)
 
