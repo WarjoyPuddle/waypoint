@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -109,7 +109,7 @@ def get_files_staged_for_commit(root_dir) -> typing.List[str]:
     assert os.getcwd() == root_dir
 
     run(["git", "update-index", "--really-refresh", "-q"])
-    success, output = run(["git", "diff-index", "--name-only", "HEAD"])
+    success, output = run(["git", "diff-index", "--cached", "--name-only", "HEAD"])
     if not success:
         return find_all_files(root_dir)
 
