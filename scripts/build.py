@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -10,7 +10,6 @@ import os
 import sys
 
 from python_imports import Compiler
-from python_imports import NewEnv
 from python_imports import Task
 from python_imports import analyze_gcc_coverage
 from python_imports import build_cmake
