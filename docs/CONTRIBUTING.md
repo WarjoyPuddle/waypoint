@@ -54,6 +54,64 @@ Make sure you have CMake installed to build it.
 
 All source files are encoded using UTF-8.
 
+### Code coverage
+
+Perhaps the most controversial policy enforced in this project's is
+the requirement to maintain 100% test coverage in production library
+code.
+We recognise that this is burdensome and not always possible; we
+believe that the benefits are worth the effort.
+
+If you need to exclude a particular piece of code from coverage
+metrics, search this repository for the string
+`GCOV_COVERAGE_58QuSuUgMN8onvKx` for examples of how to do it using
+comments.
+
+So far this policy has presented particular problems in the following
+cases:
+
+* **Allocations** The compiler sometimes generates branches for when
+the system has enough memory to perform an allocation and for when it
+does not.
+However, it is difficult to reliably simulate out-of-memory conditions
+in tests, leading to uncovered branches.
+Consider the following static initialisation (actual production
+code snippet at the time of writing).
+
+    ```c++
+    auto get_autorun_tests() noexcept -> AutorunManagerTests &
+    {
+      // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_START
+      static AutorunManagerTests tests{
+        new AutorunFunctionPtrVector_impl{}};
+      // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_STOP
+
+      return tests;
+    }
+    ```
+
+    We have been unable to test all the branches generated in this code,
+    which necessitated the use of exclusion comments (`_BR_` indicates
+    that the block is only excluded from branch measurements, not overall
+    line coverage).
+
+* **Abnormal program termination** Calls to `std::abort()`,
+`std::terminate()`, and termination due to an uncaught exception in
+`main()` are some of the reasons that may lead to problems when
+gathering coverage metrics.
+This is caused by the fact that GCC instruments the program to write
+coverage data to disk on program exit using an exit handler;
+such handlers are not called during abnormal termination, so some code
+may appear uncovered even though it had been executed.
+The solution is to have the instrumentation flush its buffers prior
+to program termination.
+Waypoint provides the function `waypoint::coverage::gcov_dump()`
+for this purpose.
+This function does nothing in non-coverage builds.
+
+After a coverage build, you will find a helpful coverage report in
+`coverage_gcovr_kMkR9SM1S69oCLJ5___/index.html`.
+
 ### Development on Linux
 
 On Linux, development is best carried out in a Docker container;
