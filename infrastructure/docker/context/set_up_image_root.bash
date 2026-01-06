@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -69,7 +69,6 @@ function install_apps
     gcovr \
     gdb \
     git \
-    lcov \
     make \
     ninja-build \
     python3.13 \

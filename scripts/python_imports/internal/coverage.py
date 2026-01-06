@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -8,68 +8,6 @@ import json
 from .cmake import build_dir_from_preset
 from .process import run
 from .system import create_dir
-
-
-def run_lcov(
-    build_dir, coverage_dir_lcov, coverage_file_lcov, project_root_dir
-) -> bool:
-    success = create_dir(coverage_dir_lcov)
-    if not success:
-        print(f"Failed to create {coverage_dir_lcov}")
-
-        return False
-
-    with contextlib.chdir(project_root_dir):
-        success, output = run(
-            [
-                "lcov",
-                "--branch-coverage",
-                "--capture",
-                "--directory",
-                build_dir,
-                "--exclude",
-                f"{project_root_dir}/test/",
-                "--function-coverage",
-                "--ignore-errors",
-                "inconsistent",
-                "--include",
-                project_root_dir,
-                "--output-file",
-                coverage_file_lcov,
-            ]
-        )
-        if not success:
-            print("Error running lcov")
-            if output is not None:
-                print(output)
-
-            return False
-
-        success, output = run(
-            [
-                "genhtml",
-                "--branch-coverage",
-                "--dark-mode",
-                "--flat",
-                "--function-coverage",
-                "--ignore-errors",
-                "inconsistent",
-                "--legend",
-                "--output-directory",
-                coverage_dir_lcov,
-                "--show-zero-columns",
-                "--sort",
-                coverage_file_lcov,
-            ]
-        )
-        if not success:
-            print("Error running genhtml")
-            if output is not None:
-                print(output)
-
-            return False
-
-    return True
 
 
 def run_gcovr(
@@ -125,20 +63,12 @@ def run_gcovr(
 def process_coverage(
     preset,
     cmake_source_dir,
-    coverage_dir_lcov,
-    coverage_file_lcov,
     project_root_dir,
     coverage_dir_gcovr,
     coverage_file_html_gcovr,
     coverage_file_json_gcovr,
 ) -> bool:
     build_dir = build_dir_from_preset(preset, cmake_source_dir)
-
-    success = run_lcov(
-        build_dir, coverage_dir_lcov, coverage_file_lcov, project_root_dir
-    )
-    if not success:
-        return False
 
     success = run_gcovr(
         build_dir,
