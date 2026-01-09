@@ -15,22 +15,24 @@ POST_CHECKOUT_HOOK_PATH = os.path.realpath(f"{GIT_DIR}/hooks/post-checkout")
 
 
 def hook(script: str) -> str:
-    return f"""#!/bin/sh
+    return f"""#!/bin/bash
+set -euo pipefail
+
 THIS_SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
 PROJECT_ROOT_DIR="$(realpath "${{THIS_SCRIPT_DIR}}/../..")"
 
 cd "${{PROJECT_ROOT_DIR}}"
 
-if test -f "${{PROJECT_ROOT_DIR}}/scripts/internal/{script}";
+if test -f "${{PROJECT_ROOT_DIR}}/infrastructure/hooks/git/{script}";
 then
-  python3 "${{PROJECT_ROOT_DIR}}/scripts/internal/{script}"
+  "${{PROJECT_ROOT_DIR}}/infrastructure/hooks/git/{script}"
 fi
 """
 
 
-PRE_COMMIT_HOOK = hook("git_pre_commit_hook.py")
-POST_COMMIT_HOOK = hook("git_post_commit_hook.py")
-POST_CHECKOUT_HOOK = hook("git_post_checkout_hook.py")
+PRE_COMMIT_HOOK = hook("git_pre_commit_hook")
+POST_COMMIT_HOOK = hook("git_post_commit_hook")
+POST_CHECKOUT_HOOK = hook("git_post_checkout_hook")
 
 
 def create_hook(path: str, content: str) -> None:
