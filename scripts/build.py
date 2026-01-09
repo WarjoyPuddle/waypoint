@@ -17,7 +17,6 @@ from python_imports import check_copyright_comments
 from python_imports import check_formatting
 from python_imports import check_license_file
 from python_imports import clean_build_dir
-from python_imports import clean_install_dir
 from python_imports import configure_cmake
 from python_imports import copy_install_dir
 from python_imports import find_all_cpp_source_files
