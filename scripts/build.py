@@ -38,10 +38,9 @@ from python_imports import verify_installation_contents_static
 
 THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/..")
+BUILD_DIR = os.path.realpath(f"{PROJECT_ROOT_DIR}/build___")
 
-COVERAGE_DIR_GCOVR = os.path.realpath(
-    f"{PROJECT_ROOT_DIR}/coverage_gcovr_kMkR9SM1S69oCLJ5___"
-)
+COVERAGE_DIR_GCOVR = os.path.realpath(f"{BUILD_DIR}/coverage_gcovr_kMkR9SM1S69oCLJ5___")
 COVERAGE_FILE_HTML_GCOVR = os.path.realpath(f"{COVERAGE_DIR_GCOVR}/index.html")
 COVERAGE_FILE_JSON_GCOVR = os.path.realpath(f"{COVERAGE_DIR_GCOVR}/coverage.json")
 INFRASTRUCTURE_DIR = os.path.realpath(f"{PROJECT_ROOT_DIR}/infrastructure")
@@ -1361,10 +1360,8 @@ def preamble() -> tuple[CliConfig | None, bool]:
 
 
 def clean_fn() -> bool:
-    clean_build_dir(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR)
-    clean_build_dir(CMakePresets.LinuxGcc, CMAKE_SOURCE_DIR)
-    clean_build_dir(CMakePresets.LinuxClangShared, CMAKE_SOURCE_DIR)
-    clean_build_dir(CMakePresets.LinuxGccShared, CMAKE_SOURCE_DIR)
+    remove_dir(BUILD_DIR)
+
     clean_build_dir(
         CMakePresets.LinuxClang, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR
     )
@@ -1379,6 +1376,11 @@ def clean_fn() -> bool:
         CMakePresets.LinuxGccShared,
         TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
     )
+    remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR)
+    remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR)
+    remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR)
+    remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_SHARED_DIR)
+
     clean_build_dir(
         CMakePresets.LinuxClang,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
@@ -1394,6 +1396,11 @@ def clean_fn() -> bool:
         CMakePresets.LinuxGccShared,
         TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
     )
+    remove_dir(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_DIR)
+    remove_dir(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_DIR)
+    remove_dir(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_SHARED_DIR)
+    remove_dir(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_SHARED_DIR)
+
     clean_build_dir(
         CMakePresets.LinuxClang, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     )
@@ -1406,37 +1413,12 @@ def clean_fn() -> bool:
     clean_build_dir(
         CMakePresets.LinuxGccShared, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     )
-
-    clean_build_dir(CMakePresets.LinuxClangValgrind, CMAKE_SOURCE_DIR)
-    clean_build_dir(CMakePresets.LinuxGccValgrind, CMAKE_SOURCE_DIR)
-    clean_install_dir(CMakePresets.LinuxClangValgrind, CMAKE_SOURCE_DIR)
-    clean_install_dir(CMakePresets.LinuxGccValgrind, CMAKE_SOURCE_DIR)
-
-    clean_build_dir(CMakePresets.LinuxGccCoverage, CMAKE_SOURCE_DIR)
-    clean_install_dir(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR)
-    clean_install_dir(CMakePresets.LinuxGcc, CMAKE_SOURCE_DIR)
-    clean_install_dir(CMakePresets.LinuxClangShared, CMAKE_SOURCE_DIR)
-    clean_install_dir(CMakePresets.LinuxGccShared, CMAKE_SOURCE_DIR)
-    clean_install_dir(CMakePresets.LinuxGccCoverage, CMAKE_SOURCE_DIR)
-    remove_dir(COVERAGE_DIR_GCOVR)
-    remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR)
-    remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR)
-    remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR)
-    remove_dir(TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_SHARED_DIR)
-    remove_dir(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_DIR)
-    remove_dir(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_DIR)
-    remove_dir(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_SHARED_DIR)
-    remove_dir(TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_SHARED_DIR)
     remove_dir(TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR)
     remove_dir(TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_DIR)
     remove_dir(TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_SHARED_DIR)
     remove_dir(TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_DIR)
     remove_dir(TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_SHARED_DIR)
 
-    clean_build_dir(CMakePresets.Example, CMAKE_SOURCE_DIR)
-    clean_install_dir(CMakePresets.Example, CMAKE_SOURCE_DIR)
-    clean_build_dir(CMakePresets.ExampleShared, CMAKE_SOURCE_DIR)
-    clean_install_dir(CMakePresets.ExampleShared, CMAKE_SOURCE_DIR)
     clean_build_dir(
         CMakePresets.Example, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
     )
@@ -1451,9 +1433,6 @@ def clean_fn() -> bool:
         CMakePresets.Example, EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR
     )
     remove_dir(EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR)
-
-    clean_build_dir(CMakePresets.AddressSanitizerClang, CMAKE_SOURCE_DIR)
-    clean_build_dir(CMakePresets.UndefinedBehaviourSanitizerClang, CMAKE_SOURCE_DIR)
 
     return True
 
