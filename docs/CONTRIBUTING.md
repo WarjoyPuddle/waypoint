@@ -30,6 +30,10 @@ issue implemented.
 
 ## Reporting defects
 
+If you have a security exploit to report, please follow the procedure
+outlined in the [Security Policy](SECURITY.md).
+Do not report security-related defects on a public channel.
+
 TODO
 
 ## Proposing improvements
