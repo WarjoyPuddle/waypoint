@@ -87,8 +87,8 @@ new_exported_library(TARGET waypoint INTERFACE_LINKS waypoint_impl)
 
 new_exported_library(TARGET waypoint_main INTERFACE_LINKS waypoint_main_impl)
 
-if(DEFINED PRESET_BUILD_WAYPOINT_TESTS_jsGLwkD9eVN5hzRr
-   AND PRESET_BUILD_WAYPOINT_TESTS_jsGLwkD9eVN5hzRr)
+if(DEFINED PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr
+   AND PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr)
   add_custom_target(all_tests)
 
   new_test_library(
