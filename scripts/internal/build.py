@@ -1337,14 +1337,14 @@ def preamble() -> tuple[CliConfig | None, bool]:
     parser.add_argument(
         "mode",
         choices=[
-            f"{Mode.Clean}",
-            f"{Mode.Coverage}",
-            f"{Mode.Fast}",
-            f"{Mode.Format}",
-            f"{Mode.StaticAnalysisFull}",
-            f"{Mode.StaticAnalysisIncremental}",
-            f"{Mode.Valgrind}",
-            f"{Mode.Verify}",
+            str(Mode.Clean),
+            str(Mode.Coverage),
+            str(Mode.Fast),
+            str(Mode.Format),
+            str(Mode.StaticAnalysisFull),
+            str(Mode.StaticAnalysisIncremental),
+            str(Mode.Valgrind),
+            str(Mode.Verify),
         ],
         metavar="mode",
         help=f"""Selects build mode:
