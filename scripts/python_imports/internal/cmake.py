@@ -147,6 +147,21 @@ def dir_from_preset(dir_key, preset, cmake_source_dir) -> str:
         return os.path.realpath(dir_path)
 
 
+def cache_var_from_preset(var_name, preset, cmake_source_dir) -> str:
+    presets_path = os.path.realpath(f"{cmake_source_dir}/CMakePresets.json")
+    with open(presets_path) as f:
+        data = json.load(f)
+        configure_presets = [
+            p for p in data["configurePresets"] if p["name"] == preset.configure
+        ]
+        assert len(configure_presets) == 1
+        configure_preset = configure_presets[0]
+
+        cache_vars = configure_preset["cacheVariables"]
+
+        return cache_vars[var_name]
+
+
 def build_dir_from_preset(preset, cmake_source_dir) -> str:
     return dir_from_preset("binaryDir", preset, cmake_source_dir)
 
