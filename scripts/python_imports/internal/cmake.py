@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -54,31 +54,26 @@ def configure_cmake(preset, cmake_source_dir) -> bool:
 
 
 def build_cmake(config, preset, cmake_source_dir, target) -> bool:
-    env_patch = env_patch_from_preset(preset)
+    with contextlib.chdir(cmake_source_dir):
+        success, output = run(
+            [
+                "cmake",
+                "--build",
+                "--preset",
+                f"{preset.build}",
+                "--config",
+                f"{config}",
+                "--target",
+                f"{target}",
+                "--parallel",
+                f"{get_cpu_count()}",
+            ]
+        )
+        if not success:
+            if output is not None:
+                print(output)
 
-    env = os.environ.copy()
-    env.update(env_patch)
-    with NewEnv(env):
-        with contextlib.chdir(cmake_source_dir):
-            success, output = run(
-                [
-                    "cmake",
-                    "--build",
-                    "--preset",
-                    f"{preset.build}",
-                    "--config",
-                    f"{config}",
-                    "--target",
-                    f"{target}",
-                    "--parallel",
-                    f"{get_cpu_count()}",
-                ]
-            )
-            if not success:
-                if output is not None:
-                    print(output)
-
-                return False
+            return False
 
     return True
 
