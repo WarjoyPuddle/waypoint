@@ -6,8 +6,8 @@ import os
 import re
 
 
-def is_bash_file(f) -> bool:
-    return re.search(r"\.bash$", f) is not None
+def is_shell_script(f) -> bool:
+    return re.search(r"\.bash$", f) is not None or re.search(r"\.sh$", f) is not None
 
 
 def is_cmake_file(f) -> bool:
