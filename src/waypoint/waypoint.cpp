@@ -257,7 +257,7 @@ void await_handshake_start(
     "Failed to read command during handshake, broken pipe");
   waypoint::internal::assert(
     data == std::to_underlying(waypoint::internal::Command::Code::Attention),
-    "Invalid command received during handshake");
+    "Unexpected command received during handshake");
 }
 
 void complete_handshake(
@@ -281,7 +281,7 @@ void await_handshake_end(waypoint::internal::OutputPipeEnd const &pipe)
     "Broken pipe during handshake");
   waypoint::internal::assert(
     data == std::to_underlying(waypoint::internal::Response::Code::Ready),
-    "Broken pipe during handshake");
+    "Unexpected response code received during handshake");
 }
 
 auto receive_command(
@@ -496,7 +496,7 @@ void shut_down_sequence(
   auto const &response = maybe_response.value();
   waypoint::internal::assert(
     response.code == waypoint::internal::Response::Code::ShuttingDown,
-    "Unexpected response code");
+    "Unexpected response code received during shutdown sequence");
 }
 
 enum class TestStatus : unsigned char

@@ -417,6 +417,13 @@ auto get_pipes_from_env() noexcept -> std::pair<OutputPipeEnd, InputPipeEnd>
   auto const maybe_response_write_pipe =
     get_env(WAYPOINT_INTERNAL_RESPONSE_SINK_ENV_NAME);
 
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_START
+  waypoint::internal::assert(
+    maybe_command_read_pipe.has_value() &&
+      maybe_response_write_pipe.has_value(),
+    "Could not read pipes from the environment");
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_STOP
+
   unset_env(WAYPOINT_INTERNAL_COMMAND_SOURCE_ENV_NAME);
   unset_env(WAYPOINT_INTERNAL_RESPONSE_SINK_ENV_NAME);
 
@@ -444,7 +451,11 @@ auto is_child() -> bool
 
   unset_env(WAYPOINT_INTERNAL_RUNNER_ENV_NAME);
 
-  return maybe_value.value() == WAYPOINT_INTERNAL_RUNNER_ENV_VALUE;
+  waypoint::internal::assert(
+    maybe_value.value() == WAYPOINT_INTERNAL_RUNNER_ENV_VALUE,
+    "Environment variable WAYPOINT_INTERNAL_RUNNER_ENV_NAME had unexpected value");
+
+  return true;
 }
 
 Response::Response(
@@ -475,7 +486,9 @@ auto resolve_path(std::string const &input) noexcept -> std::string
   waypoint::internal::assert(
     dest[dest.size() - 1] == '\0',
     "Output buffer is not null-terminated");
-  waypoint::internal::assert(ret != nullptr, "::realpath returned an error");
+  waypoint::internal::assert(
+    ret != nullptr,
+    "Call to ::realpath() returned an error");
 
   return {dest.data()};
 }
@@ -487,7 +500,10 @@ auto get_path_to_current_executable() noexcept -> std::string
   std::memset(dest.data(), 0, dest.size() * sizeof(decltype(dest)::value_type));
 
   auto const ret = ::readlink("/proc/self/exe", dest.data(), dest.size());
-  waypoint::internal::assert(ret > 0, "::readlink returned an error");
+  waypoint::internal::assert(ret > 0, "Call to ::readlink() returned an error");
+  waypoint::internal::assert(
+    dest[dest.size() - 1] == '\0',
+    "Output buffer is not null-terminated");
   waypoint::internal::assert(
     std::cmp_not_equal(ret, dest.size()),
     "Path to executable is too long");
@@ -655,6 +671,9 @@ auto wait_for_child_process_end(int const child_pid) -> unsigned long long
   waypoint::internal::assert(
     waitpid_ret != -1,
     "Call to ::waitpid() returned an error");
+  waypoint::internal::assert(
+    waitpid_ret == child_pid,
+    "Call to ::waitpid() returned unexpected value");
 
   if(WIFEXITED(status))
   {
