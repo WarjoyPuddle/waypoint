@@ -114,6 +114,10 @@ After a coverage build, you will find a helpful coverage report in
 
 ### Development on Linux
 
+After cloning the repository, run `scripts/init.sh` to initialise
+the repository for development.
+You only need to do this once for each new clone.
+
 On Linux, development is best carried out in a Docker container;
 see the files in `infrastructure/docker` for details of the
 environment.
@@ -127,13 +131,15 @@ While inside the Docker container (or another suitable context), you
 can interact with the Waypoint codebase by running the commands in the
 `scripts/` directory.
 
-* `clean.sh` removes all build artifacts
-* `coverage.sh` builds and runs instrumented tests, outputs coverage report
-* `format_code.sh` formats source files
+* `clean.sh` removes all build artifacts.
+* `coverage.sh` builds and runs instrumented tests, outputs coverage report.
+* `format_code.sh` formats source files.
+* `init.sh` initialises the repository for development. You only need
+to run this once right after cloning.
 * `short_build.sh` builds Waypoint and functional tests in Debug mode,
-runs tests
-* `static_analysis.sh` runs static analysis
-* `valgrind.sh` builds and runs Valgrind tests
+runs tests.
+* `static_analysis.sh` runs static analysis.
+* `valgrind.sh` builds and runs Valgrind tests.
 * `verify_build.sh` removes all build artifacts, then builds using all
 toolchains, runs all checks and tests, including coverage,
 sanitizers, Valgrind, and static analysis).
@@ -147,19 +153,8 @@ succeeds and fix any problems if it does not.
 
 Waypoint comes with a helpful pre-commit hook that will keep you from
 falling foul of some of the checks performed during the build.
-It is a Python script in `scripts/internal/git_pre_commit_hook.py`;
-among other things, it checks if your sources are correctly formatted
+Among other things, it checks if your sources are correctly formatted
 and makes sure that you update the notice of copyright in the files
 you change.
-All you have to do to use it is have Git's pre-commit hook invoke
-this script.
-
-A minimal pre-commit hook on Linux would be the following (make sure
-the `pre-commit` file is executable).
-
-`.git/hooks/pre-commit`
-
-```shell
-#!/bin/sh
-python3 "$(pwd)/scripts/internal/git_pre_commit_hook.py"
-```
+All you have to do is remember to run `scripts/init.sh` after you first
+clone the repository, and the hook will be installed for you.
