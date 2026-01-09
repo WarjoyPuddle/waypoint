@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <format>
+#include <functional>
 #include <iterator>
 #include <limits>
 #include <memory>
@@ -21,6 +22,7 @@
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -272,20 +274,28 @@ public:
   auto operator=(ReadPipePollGuard_impl &&other) noexcept
     -> ReadPipePollGuard_impl & = delete;
 
-  ReadPipePollGuard_impl(
-    waypoint::internal::OutputPipeEnd const &response_read_pipe,
-    waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
-    waypoint::internal::OutputPipeEnd const &std_err_read_pipe)
+  explicit ReadPipePollGuard_impl(
+    std::vector<std::pair<OutputPipeEnd const &, PipePollResult>> const &pipes)
     : epoll_descriptor_{::epoll_create1(0)},
-      response_raw_{
-        waypoint::internal::get_impl(response_read_pipe).raw_pipe()},
-      std_out_raw_{waypoint::internal::get_impl(std_out_read_pipe).raw_pipe()},
-      std_err_raw_{waypoint::internal::get_impl(std_err_read_pipe).raw_pipe()},
-      events_{}
+      descriptor_to_poll_results_{std::invoke(
+        [&pipes]()
+        {
+          std::unordered_map<int, waypoint::internal::PipePollResult>
+            descriptor_to_poll_results;
+
+          for(auto const &[pipe, poll_result] : pipes)
+          {
+            descriptor_to_poll_results[waypoint::internal::get_impl(pipe)
+                                         .raw_pipe()] = poll_result;
+          }
+
+          return descriptor_to_poll_results;
+        })}
   {
     waypoint::internal::assert(
       this->epoll_descriptor_ > 0,
       "Call to ::epoll_create1 returned an error.");
+    this->events_.resize(pipes.size());
     std::memset(
       this->events_.data(),
       0,
@@ -293,9 +303,11 @@ public:
 
     constexpr auto event_mask = EPOLLERR | EPOLLHUP | EPOLLIN | EPOLLRDHUP;
 
-    this->events_[0].data.fd = this->response_raw_;
-    this->events_[1].data.fd = this->std_out_raw_;
-    this->events_[2].data.fd = this->std_err_raw_;
+    for(std::size_t i = 0; i < this->events_.size(); ++i)
+    {
+      this->events_[i].data.fd =
+        waypoint::internal::get_impl(pipes[i].first).raw_pipe();
+    }
 
     for(auto &event : this->events_)
     {
@@ -354,18 +366,7 @@ public:
     {
       if((event.events & EPOLLIN) != 0)
       {
-        if(event.data.fd == this->response_raw_)
-        {
-          output.push_back(waypoint::internal::PipePollResult::Response);
-        }
-        if(event.data.fd == this->std_out_raw_)
-        {
-          output.push_back(waypoint::internal::PipePollResult::StdOutput);
-        }
-        if(event.data.fd == this->std_err_raw_)
-        {
-          output.push_back(waypoint::internal::PipePollResult::StdError);
-        }
+        output.push_back(descriptor_to_poll_results_[event.data.fd]);
       }
     }
 
@@ -374,22 +375,16 @@ public:
 
 private:
   int epoll_descriptor_;
-  int response_raw_;
-  int std_out_raw_;
-  int std_err_raw_;
-  mutable std::array<::epoll_event, 3> events_;
+  mutable std::unordered_map<int, waypoint::internal::PipePollResult>
+    descriptor_to_poll_results_;
+  mutable std::vector<::epoll_event> events_;
 };
 
 ReadPipePollGuard::~ReadPipePollGuard() = default;
 
 ReadPipePollGuard::ReadPipePollGuard(
-  waypoint::internal::OutputPipeEnd const &response_read_pipe,
-  waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
-  waypoint::internal::OutputPipeEnd const &std_err_read_pipe)
-  : impl_{std::make_unique<waypoint::internal::ReadPipePollGuard_impl>(
-      response_read_pipe,
-      std_out_read_pipe,
-      std_err_read_pipe)}
+  std::vector<std::pair<OutputPipeEnd const &, PipePollResult>> const &pipes)
+  : impl_{std::make_unique<waypoint::internal::ReadPipePollGuard_impl>(pipes)}
 {
 }
 
