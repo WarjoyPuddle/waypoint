@@ -68,7 +68,7 @@ target_sources(
   PRIVATE
     ${PROJECT_ROOT_DIR_W1Fe4INAzomRGHgi}/test/add_subdirectory_test/main.cpp)
 target_link_libraries(add_subdirectory_test PRIVATE stub_library
-                                                    waypoint::waypoint)
+                                                    waypoint::waypoint_no_main)
 
 add_test(NAME test_add_subdirectory_test
          COMMAND $<TARGET_FILE:add_subdirectory_test>)

@@ -41,8 +41,8 @@ target_link_libraries(
   test_program
   PRIVATE the_answer_lib
           # Waypoint is used here;
-          # waypoint::waypoint does not provide its own main function
-          waypoint::waypoint)
+          # waypoint::waypoint_no_main does not provide its own main function
+          waypoint::waypoint_no_main)
 
 # Register test with ctest
 add_test(NAME run_test_program COMMAND $<TARGET_FILE:test_program>)
