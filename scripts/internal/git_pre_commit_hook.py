@@ -7,6 +7,7 @@ import os
 from python_imports import check_copyright_comments
 from python_imports import check_formatting
 from python_imports import check_license_file
+from python_imports import ensure_hooks_installed
 from python_imports import get_files_staged_for_commit
 
 THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
@@ -19,6 +20,10 @@ LICENSE_FILE_PATH = f"{PROJECT_ROOT_DIR}/LICENSE"
 
 
 def main() -> int:
+    success = ensure_hooks_installed(PROJECT_ROOT_DIR)
+    if not success:
+        return 1
+
     success = check_license_file(LICENSE_FILE_PATH)
     if not success:
         return 1

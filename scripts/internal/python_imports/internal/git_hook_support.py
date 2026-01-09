@@ -37,7 +37,11 @@ def post_checkout_hook_path(git_dir: str) -> str:
 
 
 def install_hooks_script_path(project_root_dir: str) -> str:
-    return os.path.realpath(f"{project_root_dir}/scripts/internal/install_hooks.py")
+    path = os.path.realpath(f"{project_root_dir}/scripts/internal/install_hooks.py")
+
+    assert os.path.isfile(path)
+
+    return path
 
 
 def digest(path: str) -> str:
@@ -60,7 +64,7 @@ def ensure_hooks_installed(project_root_dir: str) -> bool:
     if (
         os.path.isfile(pre_commit_hook_path(git_dir))
         and os.path.isfile(post_commit_hook_path(git_dir))
-        and os.path.isfile(post_commit_hook_path(git_dir))
+        and os.path.isfile(post_checkout_hook_path(git_dir))
         and pre_commit_hook_digest == PRE_COMMIT_HOOK_DIGEST
         and post_commit_hook_digest == POST_COMMIT_HOOK_DIGEST
         and post_checkout_hook_digest == POST_CHECKOUT_HOOK_DIGEST
