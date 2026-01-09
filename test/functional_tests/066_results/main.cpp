@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -73,12 +73,12 @@ auto main() -> int
     std::format("Expected test_count to be 6, but it is {}", test_count));
 
   std::vector const test_indices{
-    4U,
-    2U,
-    0U,
-    1U,
     3U,
+    0U,
     5U,
+    1U,
+    2U,
+    4U,
   };
 
   for(unsigned i = 0; i < test_count; ++i)
