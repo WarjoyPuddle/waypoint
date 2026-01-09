@@ -152,7 +152,7 @@ EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR = os.path.realpath(
     f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR}/waypoint"
 )
 
-LICENSE_FILE_PATH = f"{PROJECT_ROOT_DIR}/LICENSE"
+LICENSE_FILE_PATH = os.path.realpath(f"{PROJECT_ROOT_DIR}/LICENSE")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -2986,9 +2986,7 @@ def example_quick_start_add_subdirectory_fn() -> bool:
 
 
 def check_license_file_fn() -> bool:
-    license_file_path = os.path.realpath(LICENSE_FILE_PATH)
-
-    return check_license_file(license_file_path)
+    return check_license_file(LICENSE_FILE_PATH)
 
 
 def configure_clang_address_sanitizer_fn() -> bool:
