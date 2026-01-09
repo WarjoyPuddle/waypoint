@@ -18,7 +18,7 @@ class Task:
         self.success_ = False
         self.dependencies_ = []
 
-    def depends_on(self, deps: typing.List["Task"]):
+    def depends_on(self, deps: list["Task"]):
         for d in deps:
             self.dependencies_.append(d)
 

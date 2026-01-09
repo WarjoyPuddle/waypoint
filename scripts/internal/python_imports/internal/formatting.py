@@ -4,7 +4,6 @@
 
 import json
 import multiprocessing
-import typing
 
 from .file_types import is_cmake_file
 from .file_types import is_cpp_file
@@ -15,7 +14,7 @@ from .system import get_cpu_count
 from .system import get_python
 
 
-def check_formatting_cmake(file) -> typing.Tuple[bool, str | None]:
+def check_formatting_cmake(file) -> tuple[bool, str | None]:
     success, output = run(
         [
             "cmake-format",
@@ -31,7 +30,7 @@ def check_formatting_cmake(file) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
-def check_formatting_cpp(file, path_to_config) -> typing.Tuple[bool, str | None]:
+def check_formatting_cpp(file, path_to_config) -> tuple[bool, str | None]:
     success, output = run(
         [
             "clang-format-20",
@@ -47,7 +46,7 @@ def check_formatting_cpp(file, path_to_config) -> typing.Tuple[bool, str | None]
     return True, None
 
 
-def check_formatting_json(file) -> typing.Tuple[bool, str | None]:
+def check_formatting_json(file) -> tuple[bool, str | None]:
     with open(file, "r") as f:
         original = f.read()
     with open(file, "r") as f:
@@ -63,7 +62,7 @@ def check_formatting_json(file) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
-def check_formatting_python(file) -> typing.Tuple[bool, str | None]:
+def check_formatting_python(file) -> tuple[bool, str | None]:
     success, output = run(
         [
             get_python(),
@@ -91,7 +90,7 @@ def check_formatting_python(file) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
-def format_cmake(file) -> typing.Tuple[bool, str | None]:
+def format_cmake(file) -> tuple[bool, str | None]:
     success, output = run(
         [
             "cmake-format",
@@ -107,7 +106,7 @@ def format_cmake(file) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
-def format_cpp(f, path_to_config) -> typing.Tuple[bool, str | None]:
+def format_cpp(f, path_to_config) -> tuple[bool, str | None]:
     success, output = run(
         [
             "clang-format-20",
@@ -122,7 +121,7 @@ def format_cpp(f, path_to_config) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
-def format_json(file) -> typing.Tuple[bool, str | None]:
+def format_json(file) -> tuple[bool, str | None]:
     with open(file, "r") as f:
         original = f.read()
     with open(file, "r") as f:
@@ -137,7 +136,7 @@ def format_json(file) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
-def format_python(file) -> typing.Tuple[bool, str | None]:
+def format_python(file) -> tuple[bool, str | None]:
     success, output = run(
         [
             get_python(),
@@ -196,7 +195,7 @@ def check_whitespace(file: str) -> bool:
     return text == original
 
 
-def check_formatting_in_single_file(data) -> typing.Tuple[bool, str | None, str]:
+def check_formatting_in_single_file(data) -> tuple[bool, str | None, str]:
     file, path_to_clang_format_config = data
 
     success = True
@@ -216,7 +215,7 @@ def check_formatting_in_single_file(data) -> typing.Tuple[bool, str | None, str]
     return success, output, file
 
 
-def format_single_file(data) -> typing.Tuple[bool, str | None, str]:
+def format_single_file(data) -> tuple[bool, str | None, str]:
     file, path_to_clang_format_config = data
 
     success = True

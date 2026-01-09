@@ -4,10 +4,9 @@
 
 import subprocess
 import tempfile
-import typing
 
 
-def run(cmd) -> typing.Tuple[bool, str | None]:
+def run(cmd) -> tuple[bool, str | None]:
     with tempfile.TemporaryFile("r+") as f:
         try:
             result = subprocess.run(cmd, stdout=f, stderr=f)
