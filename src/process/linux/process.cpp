@@ -205,7 +205,7 @@ OutputPipeEnd::OutputPipeEnd(OutputPipeEnd_impl *const impl)
 {
 }
 
-auto OutputPipeEnd::read(
+auto OutputPipeEnd::read_exactly(
   unsigned char *const buffer,
   unsigned long long const count) const -> OutputPipeEnd::ReadResult
 {
