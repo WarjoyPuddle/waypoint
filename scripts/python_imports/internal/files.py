@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -126,23 +126,24 @@ def get_files_staged_for_commit(root_dir) -> typing.List[str]:
 
 def get_changed_files(root_dir, predicate) -> typing.List[str]:
     with contextlib.chdir(root_dir):
-        success1, output1 = run(["git", "diff", "--name-only"])
-        success2, output2 = run(["git", "diff", "--cached", "--name-only"])
-        success3, output3 = run(["git", "ls-files", "--others", "--exclude-standard"])
+        # List untracked+unstaged files
+        success1, output1 = run(["git", "ls-files", "--others", "--exclude-standard"])
+        run(["git", "update-index", "--really-refresh", "-q"])
+        # List all changes except untracked+unstaged
+        success2, output2 = run(["git", "diff-index", "--name-only", "HEAD"])
         # Fall back to all files if git is not available
-        if not (success1 and success2 and success3):
+        if not (success1 and success2):
             return find_files_by_name(root_dir, predicate)
 
         files = output1.strip().split("\n")
         files += output2.strip().split("\n")
-        files += output3.strip().split("\n")
-        out = []
+        out = set()
         for f in files:
             path = os.path.realpath(f"{root_dir}/{f.strip()}")
             if os.path.isfile(path) and predicate(path):
-                out.append(path)
+                out.add(path)
 
-        out = list(set(out))
+        out = list(out)
         out.sort()
 
         return out
