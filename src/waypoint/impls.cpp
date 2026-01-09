@@ -7,7 +7,6 @@
 #include "types.hpp"
 #include "waypoint.hpp"
 
-#include "assert/assert.hpp"
 #include "process/process.hpp"
 
 #include <algorithm>
@@ -15,7 +14,6 @@
 #include <format>
 #include <functional>
 #include <iterator>
-#include <limits>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -659,21 +657,48 @@ auto TestRun_impl::make_child_process_context(
 namespace
 {
 
-using knuth_lcg = std::linear_congruential_engine<
-  std::uint64_t,
-  6'364'136'223'846'793'005U,
-  1'442'695'040'888'963'407U,
-  0U>;
-
-auto get_random_number_generator() noexcept -> knuth_lcg
+auto discard_until_within_range(auto &rng, std::uint64_t const max)
+  -> std::uint64_t
 {
-  constexpr std::uint64_t arbitrary_constant = 0x1234;
-  constexpr std::uint64_t arbitrary_seed = 0x0123'4567'89ab'cdef;
+  std::uint64_t next_value = 0;
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_START
+  while((next_value = rng()) > max)
+  {
+  }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_STOP
 
-  knuth_lcg rng(arbitrary_seed);
-  rng.discard(arbitrary_constant);
+  return next_value;
+}
 
-  return rng;
+class TruncatedRng
+{
+public:
+  constexpr static std::uint64_t TRUNCATED_RNG_MAX = 0xffff'ffff'ffff'fffeU;
+
+  TruncatedRng()
+    : rng_{0x0123'4567'89ab'cdefU}
+  {
+    this->rng_.discard(0x1234U);
+  }
+
+  auto operator()() -> std::uint64_t
+  {
+    return discard_until_within_range(this->rng_, TRUNCATED_RNG_MAX);
+  }
+
+private:
+  using knuth_lcg = std::linear_congruential_engine<
+    std::uint64_t,
+    6'364'136'223'846'793'005U,
+    1'442'695'040'888'963'407U,
+    0U>;
+
+  knuth_lcg rng_;
+};
+
+auto get_random_number_generator() noexcept -> TruncatedRng
+{
+  return TruncatedRng{};
 }
 
 auto get_test_record_ptrs(TestRun const &t) noexcept
@@ -695,21 +720,27 @@ auto get_test_record_ptrs(TestRun const &t) noexcept
 }
 
 // Unsophisticated, but works well enough for our purposes
-auto uniform_number(knuth_lcg &generator, std::uint64_t const max)
-  -> std::int64_t
+auto uniform_number(TruncatedRng &rng, std::uint64_t const max) -> std::uint64_t
 {
-  return static_cast<std::int64_t>(generator() % (max + 1));
+  auto const cycle_length = max + 1;
+
+  auto const rng_max_full_cycles =
+    ((TruncatedRng::TRUNCATED_RNG_MAX + 1) / cycle_length * cycle_length) - 1;
+
+  return discard_until_within_range(rng, rng_max_full_cycles) % cycle_length;
 }
 
-void Fisher_Yates_shuffle(std::vector<TestRecord *> &vec, knuth_lcg &generator)
+void Fisher_Yates_shuffle(std::vector<TestRecord *> &vec, TruncatedRng &rng)
 {
-  waypoint::internal::assert(
-    vec.size() < std::numeric_limits<std::int64_t>::max(),
-    "Too many tests");
-  for(std::int64_t i = static_cast<std::int64_t>(vec.size()) - 1; i > 0; --i)
+  if(vec.empty())
+  {
+    return;
+  }
+
+  for(std::uint64_t i = vec.size() - 1; i > 0; --i)
   {
     using std::swap;
-    swap(vec[i], vec[uniform_number(generator, i)]);
+    swap(vec[i], vec[uniform_number(rng, i)]);
   }
 }
 
