@@ -22,47 +22,55 @@ macro(add_basic_test)
   endif()
 endmacro()
 
-macro(add_valgrind_memcheck_test)
-  add_test(
-    NAME valgrind_memcheck_${arg_TARGET}
-    COMMAND
-      valgrind --tool=memcheck --read-var-info=yes --read-inline-info=yes
-      --log-file=valgrind_memcheck_${arg_TARGET}.%p.log --trace-children=yes
-      --leak-check=full --show-leak-kinds=all --error-exitcode=1
-      $<TARGET_FILE:${arg_TARGET}>
-    CONFIGURATIONS Debug)
-  set(valgrind_memcheck_${arg_TARGET}_labels valgrind valgrind_memcheck)
-  set_tests_properties(
-    valgrind_memcheck_${arg_TARGET}
-    PROPERTIES LABELS "${valgrind_memcheck_${arg_TARGET}_labels}")
-  set_tests_properties(
-    valgrind_memcheck_${arg_TARGET}
-    PROPERTIES ENVIRONMENT WAYPOINT_INTERNAL_RUNNING_TEST_XTSyiOp7QMFW8P2H=123)
+macro(conditionally_add_valgrind_memcheck_test)
+  if(DEFINED PRESET_ENABLE_VALGRIND_9AqzT11ECkNGKR62
+     AND PRESET_ENABLE_VALGRIND_9AqzT11ECkNGKR62)
+    add_test(
+      NAME valgrind_memcheck_${arg_TARGET}
+      COMMAND
+        valgrind --tool=memcheck --read-var-info=yes --read-inline-info=yes
+        --log-file=valgrind_memcheck_${arg_TARGET}.%p.log --trace-children=yes
+        --leak-check=full --show-leak-kinds=all --error-exitcode=1
+        $<TARGET_FILE:${arg_TARGET}>
+      CONFIGURATIONS Debug)
+    set(valgrind_memcheck_${arg_TARGET}_labels valgrind valgrind_memcheck)
+    set_tests_properties(
+      valgrind_memcheck_${arg_TARGET}
+      PROPERTIES LABELS "${valgrind_memcheck_${arg_TARGET}_labels}")
+    set_tests_properties(
+      valgrind_memcheck_${arg_TARGET}
+      PROPERTIES ENVIRONMENT
+                 WAYPOINT_INTERNAL_RUNNING_TEST_XTSyiOp7QMFW8P2H=123)
 
-  if(DEFINED arg_EXPECTED_FAILURE AND arg_EXPECTED_FAILURE)
-    set_tests_properties(valgrind_memcheck_${arg_TARGET} PROPERTIES WILL_FAIL
-                                                                    TRUE)
+    if(DEFINED arg_EXPECTED_FAILURE AND arg_EXPECTED_FAILURE)
+      set_tests_properties(valgrind_memcheck_${arg_TARGET} PROPERTIES WILL_FAIL
+                                                                      TRUE)
+    endif()
   endif()
 endmacro()
 
-macro(add_valgrind_helgrind_test)
-  add_test(
-    NAME valgrind_helgrind_${arg_TARGET}
-    COMMAND
-      valgrind --tool=helgrind --read-var-info=yes --read-inline-info=yes
-      --log-file=valgrind_helgrind_${arg_TARGET}.%p.log --trace-children=yes
-      --error-exitcode=1 $<TARGET_FILE:${arg_TARGET}>)
-  set(valgrind_helgrind_${arg_TARGET}_labels valgrind valgrind_helgrind)
-  set_tests_properties(
-    valgrind_helgrind_${arg_TARGET}
-    PROPERTIES LABELS "${valgrind_helgrind_${arg_TARGET}_labels}")
-  set_tests_properties(
-    valgrind_helgrind_${arg_TARGET}
-    PROPERTIES ENVIRONMENT WAYPOINT_INTERNAL_RUNNING_TEST_XTSyiOp7QMFW8P2H=123)
+macro(conditionally_add_valgrind_helgrind_test)
+  if(DEFINED PRESET_ENABLE_VALGRIND_9AqzT11ECkNGKR62
+     AND PRESET_ENABLE_VALGRIND_9AqzT11ECkNGKR62)
+    add_test(
+      NAME valgrind_helgrind_${arg_TARGET}
+      COMMAND
+        valgrind --tool=helgrind --read-var-info=yes --read-inline-info=yes
+        --log-file=valgrind_helgrind_${arg_TARGET}.%p.log --trace-children=yes
+        --error-exitcode=1 $<TARGET_FILE:${arg_TARGET}>)
+    set(valgrind_helgrind_${arg_TARGET}_labels valgrind valgrind_helgrind)
+    set_tests_properties(
+      valgrind_helgrind_${arg_TARGET}
+      PROPERTIES LABELS "${valgrind_helgrind_${arg_TARGET}_labels}")
+    set_tests_properties(
+      valgrind_helgrind_${arg_TARGET}
+      PROPERTIES ENVIRONMENT
+                 WAYPOINT_INTERNAL_RUNNING_TEST_XTSyiOp7QMFW8P2H=123)
 
-  if(DEFINED arg_EXPECTED_FAILURE AND arg_EXPECTED_FAILURE)
-    set_tests_properties(valgrind_helgrind_${arg_TARGET} PROPERTIES WILL_FAIL
-                                                                    TRUE)
+    if(DEFINED arg_EXPECTED_FAILURE AND arg_EXPECTED_FAILURE)
+      set_tests_properties(valgrind_helgrind_${arg_TARGET} PROPERTIES WILL_FAIL
+                                                                      TRUE)
+    endif()
   endif()
 endmacro()
 
@@ -158,8 +166,8 @@ macro(conditionally_enable_coverage)
 endmacro()
 
 macro(conditionally_configure_compiler_for_valgrind)
-  if(DEFINED PRESET_VALGRIND_COMPILER_OPTIONS_vII5N7cLv784aOET
-     AND PRESET_VALGRIND_COMPILER_OPTIONS_vII5N7cLv784aOET)
+  if(DEFINED PRESET_ENABLE_VALGRIND_9AqzT11ECkNGKR62
+     AND PRESET_ENABLE_VALGRIND_9AqzT11ECkNGKR62)
     target_compile_options(${arg_TARGET} PRIVATE -g -fno-inline)
   endif()
 endmacro()
@@ -429,8 +437,8 @@ function(new_basic_test name)
   target_compile_features(${arg_TARGET} PRIVATE cxx_std_23)
 
   add_basic_test()
-  add_valgrind_memcheck_test()
-  add_valgrind_helgrind_test()
+  conditionally_add_valgrind_memcheck_test()
+  conditionally_add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
@@ -468,8 +476,8 @@ function(new_waypoint_main_test)
   target_compile_features(${arg_TARGET} PRIVATE cxx_std_23)
 
   add_basic_test()
-  add_valgrind_memcheck_test()
-  add_valgrind_helgrind_test()
+  conditionally_add_valgrind_memcheck_test()
+  conditionally_add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
@@ -493,8 +501,8 @@ function(new_impl_test name)
             ${PROJECT_ROOT_DIR_s2GsE9Ma9zBssF2X}/src/waypoint/include/waypoint)
 
   add_basic_test()
-  add_valgrind_memcheck_test()
-  add_valgrind_helgrind_test()
+  conditionally_add_valgrind_memcheck_test()
+  conditionally_add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
@@ -534,8 +542,8 @@ function(new_cxx_std_11_test name)
   target_compile_features(${arg_TARGET} PRIVATE cxx_std_11)
 
   add_basic_test()
-  add_valgrind_memcheck_test()
-  add_valgrind_helgrind_test()
+  conditionally_add_valgrind_memcheck_test()
+  conditionally_add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
@@ -552,8 +560,8 @@ function(new_multifile_test name)
   target_compile_features(${arg_TARGET} PRIVATE cxx_std_23)
 
   add_basic_test()
-  add_valgrind_memcheck_test()
-  add_valgrind_helgrind_test()
+  conditionally_add_valgrind_memcheck_test()
+  conditionally_add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
