@@ -10,6 +10,7 @@ from .compiler import Compiler
 from .process import run
 from .system import NewEnv
 from .system import get_cpu_count
+from .system import recursively_copy_dir
 from .system import remove_dir
 
 CLANG20_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
@@ -160,3 +161,9 @@ def clean_build_dir(preset, cmake_source_dir):
 def clean_install_dir(preset, cmake_source_dir):
     install_dir = install_dir_from_preset(preset, cmake_source_dir)
     remove_dir(install_dir)
+
+
+def copy_install_dir(preset, cmake_source_dir, destination):
+    remove_dir(destination)
+    install_dir = install_dir_from_preset(preset, cmake_source_dir)
+    recursively_copy_dir(install_dir, destination)

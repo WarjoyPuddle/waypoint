@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -10,8 +10,8 @@ from .internal.cmake import build_dir_from_preset
 from .internal.cmake import clean_build_dir
 from .internal.cmake import clean_install_dir
 from .internal.cmake import configure_cmake
+from .internal.cmake import copy_install_dir
 from .internal.cmake import install_cmake
-from .internal.cmake import install_dir_from_preset
 from .internal.cmake import run_ctest
 from .internal.compiler import Compiler
 from .internal.coverage import analyze_gcc_coverage
