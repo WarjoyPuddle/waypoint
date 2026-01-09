@@ -12,6 +12,7 @@
     2. [Writing your first tests](#writing-your-first-tests)
 4. [Releases](#releases)
 5. [Contributing to Waypoint](#contributing-to-waypoint)
+6. [Why "Waypoint"?](#why-waypoint)
 
 ## License
 
@@ -292,3 +293,11 @@ observed prior to removal, unless exceptional circumstances arise
 ## Contributing to Waypoint
 
 Refer to the [contribution guidelines](CONTRIBUTING.md).
+
+## Why "Waypoint"?
+
+A waypoint is a point of reference used for navigation.
+The name Waypoint evokes the idea of software development as a journey
+towards an end goal.
+As we write tests, they serve as waypoints which help us find and
+negotiate an optimal route to effective and maintainable software.
