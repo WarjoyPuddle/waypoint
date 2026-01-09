@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -92,3 +92,13 @@ set_target_properties(find_package_exact_version_test PROPERTIES CXX_EXTENSIONS
                                                                  FALSE)
 set_target_properties(find_package_exact_version_test
                       PROPERTIES EXPORT_COMPILE_COMMANDS TRUE)
+
+function(switch_stdlib_for_clang target)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${target} PRIVATE -stdlib=libc++)
+    target_link_options(${target} PRIVATE -lc++)
+  endif()
+endfunction()
+
+switch_stdlib_for_clang(stub_library)
+switch_stdlib_for_clang(find_package_exact_version_test)
