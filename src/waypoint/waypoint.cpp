@@ -507,8 +507,11 @@ enum class TestStatus : unsigned char
 };
 
 auto process_pipes(
+  waypoint::internal::TestRecord *const record,
   std::vector<waypoint::internal::PipePollResult> const &ready_for_reading,
   waypoint::internal::OutputPipeEnd const &response_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_err_read_pipe,
   waypoint::internal::TestRun_impl &impl) -> TestStatus
 {
   if(ready_for_reading.empty())
@@ -516,48 +519,63 @@ auto process_pipes(
     return TestStatus::Running;
   }
 
-  auto const maybe_response = receive_response(response_read_pipe);
-  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
-  if(!maybe_response.has_value())
+  auto status = TestStatus::Running;
+
+  for(auto const ready_pipe : ready_for_reading)
   {
-    // Failed to receive response, most likely due to crash/timeout.
-    // Return TestStatus::Running, poll_guard will sort things out
-    // on the next iteration of the test loop.
-    return TestStatus::Running;
+    if(ready_pipe == waypoint::internal::PipePollResult::Response)
+    {
+      auto const maybe_response = receive_response(response_read_pipe);
+      // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+      if(!maybe_response.has_value())
+      {
+        // Failed to receive response, most likely due to crash.
+        // Do nothing, poll_guard will sort things out on the next
+        // iteration of the test loop.
+        continue;
+      }
+      // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
+
+      auto const &response = maybe_response.value();
+
+      // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_START
+      waypoint::internal::assert(
+        response.code == waypoint::internal::Response::Code::Assertion ||
+          response.code == waypoint::internal::Response::Code::Timeout ||
+          response.code == waypoint::internal::Response::Code::TestComplete,
+        "Unexpected response code");
+      // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_STOP
+
+      if(response.code == waypoint::internal::Response::Code::Assertion)
+      {
+        impl.register_assertion(
+          response.assertion_passed,
+          response.test_id,
+          response.assertion_index,
+          response.assertion_message);
+      }
+      if(response.code == waypoint::internal::Response::Code::Timeout)
+      {
+        status = TestStatus::TimedOut;
+      }
+      if(response.code == waypoint::internal::Response::Code::TestComplete)
+      {
+        status = TestStatus::Complete;
+      }
+    } // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_LINE
+    if(ready_pipe == waypoint::internal::PipePollResult::StdOutput)
+    {
+      record->append_std_output(
+        waypoint::internal::read_std_pipe(std_out_read_pipe));
+    }
+    if(ready_pipe == waypoint::internal::PipePollResult::StdError)
+    {
+      record->append_std_error(
+        waypoint::internal::read_std_pipe(std_err_read_pipe));
+    }
   }
-  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
-  auto const &response = maybe_response.value();
-
-  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_START
-  waypoint::internal::assert(
-    response.code == waypoint::internal::Response::Code::Assertion ||
-      response.code == waypoint::internal::Response::Code::Timeout ||
-      response.code == waypoint::internal::Response::Code::TestComplete,
-    "Unexpected response code");
-  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_STOP
-
-  if(response.code == waypoint::internal::Response::Code::Assertion)
-  {
-    impl.register_assertion(
-      response.assertion_passed,
-      response.test_id,
-      response.assertion_index,
-      response.assertion_message);
-
-    return TestStatus::Running;
-  }
-
-  if(response.code == waypoint::internal::Response::Code::Timeout)
-  {
-    return TestStatus::TimedOut;
-  }
-
-  waypoint::internal::assert(
-    response.code == waypoint::internal::Response::Code::TestComplete,
-    "Unexpected response code");
-
-  return TestStatus::Complete;
+  return status;
 }
 
 enum class SingleTestOutcome : unsigned char
@@ -570,6 +588,8 @@ auto single_test_loop(
   waypoint::internal::TestRecord *const record,
   waypoint::internal::ReadPipePollGuard const &poll_guard,
   waypoint::internal::OutputPipeEnd const &response_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_err_read_pipe,
   waypoint::internal::TestRun_impl &impl) -> SingleTestOutcome
 {
   while(true)
@@ -577,15 +597,21 @@ auto single_test_loop(
     auto const maybe_ready_for_reading = poll_guard.poll();
     if(!maybe_ready_for_reading.has_value())
     {
-      // poll returned empty optional (all pipes hanged up), meaning test has crashed
+      // poll returned empty optional (no data and all pipes hanged up),
+      // meaning test has crashed
       record->mark_as_crashed();
 
       return SingleTestOutcome::Interrupted;
     }
 
     auto const &ready_for_reading = maybe_ready_for_reading.value();
-    auto const status =
-      process_pipes(ready_for_reading, response_read_pipe, impl);
+    auto const status = process_pipes(
+      record,
+      ready_for_reading,
+      response_read_pipe,
+      std_out_read_pipe,
+      std_err_read_pipe,
+      impl);
     if(status == TestStatus::Complete)
     {
       break;
@@ -607,6 +633,8 @@ auto parent_main(
   waypoint::TestRun const &t,
   waypoint::internal::InputPipeEnd const &command_write_pipe,
   waypoint::internal::OutputPipeEnd const &response_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_err_read_pipe,
   unsigned long long const initial_test_index) noexcept
   -> std::tuple<waypoint::TestRunResult, bool, unsigned long long>
 {
@@ -620,7 +648,10 @@ auto parent_main(
     all_records.data() + initial_test_index,
     all_records.size() - initial_test_index);
 
-  waypoint::internal::ReadPipePollGuard const poll_guard(response_read_pipe);
+  waypoint::internal::ReadPipePollGuard const poll_guard(
+    response_read_pipe,
+    std_out_read_pipe,
+    std_err_read_pipe);
 
   for(auto *const record : record_subset)
   {
@@ -636,8 +667,13 @@ auto parent_main(
       test_index};
     send_command(command_write_pipe, command);
 
-    auto const test_outcome =
-      single_test_loop(record, poll_guard, response_read_pipe, impl);
+    auto const test_outcome = single_test_loop(
+      record,
+      poll_guard,
+      response_read_pipe,
+      std_out_read_pipe,
+      std_err_read_pipe,
+      impl);
     if(test_outcome == SingleTestOutcome::Interrupted)
     {
       return {impl.generate_results(), true, test_index};
@@ -774,6 +810,8 @@ auto run_all_tests(TestRun const &t) noexcept -> TestRunResult
       t,
       child.command_write_pipe(),
       child.response_read_pipe(),
+      child.std_out_read_pipe(),
+      child.std_err_read_pipe(),
       initial_test_index);
     auto run_result = std::move(std::get<0>(results));
     auto const crash_or_timeout = std::get<1>(results);
@@ -891,6 +929,16 @@ auto TestOutcome::exit_code() const noexcept -> unsigned long long const *
   }
 
   return nullptr;
+}
+
+auto TestOutcome::std_out() const noexcept -> char const *
+{
+  return this->impl_->std_out().c_str();
+}
+
+auto TestOutcome::std_err() const noexcept -> char const *
+{
+  return this->impl_->std_err().c_str();
 }
 
 Group::~Group() = default;
