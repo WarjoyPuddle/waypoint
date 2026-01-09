@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -19,7 +19,7 @@ class TestOutcome;
 namespace waypoint::internal
 {
 
-constexpr unsigned long long DEFAULT_TIMEOUT_MS = 100;
+constexpr unsigned long long DEFAULT_TIMEOUT_MS = 3'600'000;
 
 class AssertionOutcome_impl;
 class AutorunFunctionPtrVector_impl;
