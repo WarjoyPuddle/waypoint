@@ -37,6 +37,20 @@ macro(define_tests)
     set_tests_properties(valgrind_memcheck_${arg_TARGET} PROPERTIES WILL_FAIL
                                                                     TRUE)
   endif()
+
+  add_test(NAME valgrind_helgrind_${arg_TARGET}
+           COMMAND valgrind --tool=helgrind --trace-children=yes
+                   --error-exitcode=1 $<TARGET_FILE:${arg_TARGET}>)
+  set_tests_properties(valgrind_helgrind_${arg_TARGET} PROPERTIES LABELS
+                                                                  valgrind)
+  set_tests_properties(
+    valgrind_helgrind_${arg_TARGET}
+    PROPERTIES ENVIRONMENT WAYPOINT_INTERNAL_RUNNING_TEST_XTSyiOp7QMFW8P2H=123)
+
+  if(DEFINED arg_EXPECTED_FAILURE AND arg_EXPECTED_FAILURE)
+    set_tests_properties(valgrind_helgrind_${arg_TARGET} PROPERTIES WILL_FAIL
+                                                                    TRUE)
+  endif()
 endmacro()
 
 macro(links_and_sources)
