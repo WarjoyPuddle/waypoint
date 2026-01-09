@@ -584,6 +584,30 @@ enum class SingleTestOutcome : unsigned char
   Interrupted
 };
 
+template<typename F>
+class ScopedDefer
+{
+public:
+  ~ScopedDefer()
+  {
+    fn_();
+  }
+
+  ScopedDefer() = delete;
+  ScopedDefer(ScopedDefer const &other) = delete;
+  ScopedDefer(ScopedDefer &&other) noexcept = delete;
+  auto operator=(ScopedDefer const &other) -> ScopedDefer & = delete;
+  auto operator=(ScopedDefer &&other) noexcept -> ScopedDefer & = delete;
+
+  explicit ScopedDefer(F &&fn)
+    : fn_{std::move(fn)}
+  {
+  }
+
+private:
+  F fn_;
+};
+
 auto single_test_loop(
   waypoint::internal::TestRecord *const record,
   waypoint::internal::ReadPipePollGuard const &poll_guard,
@@ -592,6 +616,37 @@ auto single_test_loop(
   waypoint::internal::OutputPipeEnd const &std_err_read_pipe,
   waypoint::internal::TestRun_impl &impl) -> SingleTestOutcome
 {
+  ScopedDefer const drain_pipes{
+    [&poll_guard, record, &std_out_read_pipe, &std_err_read_pipe]()
+    {
+      while(true)
+      {
+        auto const maybe_ready_for_reading = poll_guard.poll();
+        if(!maybe_ready_for_reading.has_value())
+        {
+          break;
+        }
+        auto const &ready_pipes = maybe_ready_for_reading.value();
+        if(ready_pipes.empty())
+        {
+          break;
+        }
+        for(auto const ready_pipe : ready_pipes)
+        {
+          if(ready_pipe == waypoint::internal::PipePollResult::StdOutput)
+          {
+            record->append_std_output(
+              waypoint::internal::read_std_pipe(std_out_read_pipe));
+          }
+          if(ready_pipe == waypoint::internal::PipePollResult::StdError)
+          {
+            record->append_std_error(
+              waypoint::internal::read_std_pipe(std_err_read_pipe));
+          }
+        }
+      }
+    }};
+
   while(true)
   {
     auto const maybe_ready_for_reading = poll_guard.poll();
