@@ -5012,6 +5012,7 @@ def main() -> int:
             test_install_add_subdirectory_clang_release_build_all_tests,
             example_quick_start_build_and_install,
             example_quick_start_add_subdirectory,
+            example_quick_start_custom_main,
         ]
     )
     run_clang_static_analysis_changed_files_task.depends_on(
@@ -5037,6 +5038,7 @@ def main() -> int:
             test_install_add_subdirectory_clang_release_build_all_tests,
             example_quick_start_build_and_install,
             example_quick_start_add_subdirectory,
+            example_quick_start_custom_main,
         ]
     )
 
