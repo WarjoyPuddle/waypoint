@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -186,22 +186,23 @@ if(DEFINED PRESET_BUILD_WAYPOINT_TESTS_jsGLwkD9eVN5hzRr
   new_basic_test(073_disable)
   new_basic_test(074_status)
   new_basic_test(075_env_vars)
-  new_basic_test(076_crash)
-  new_basic_test(077_crash)
-  new_basic_test(078_crash)
-  new_basic_test(079_crash)
-  new_basic_test(080_crash)
-  new_basic_test(081_crash)
-  new_basic_test(082_crash)
-  new_basic_test(083_crash)
-  new_basic_test(084_timeout)
-  new_basic_test(085_timeout)
-  new_basic_test(086_timeout)
-  new_basic_test(087_timeout)
-  new_basic_test(088_timeout)
-  new_basic_test(089_process_exit_status)
 
-  new_impl_test(090_assert)
+  new_crash_test(076_crash)
+  new_crash_test(077_crash)
+  new_crash_test(078_crash)
+  new_crash_test(079_crash)
+  new_crash_test(080_crash)
+  new_crash_test(081_crash)
+  new_crash_test(082_crash)
+  new_crash_test(083_crash)
+  new_crash_test(084_timeout)
+  new_crash_test(085_timeout)
+  new_crash_test(086_timeout)
+  new_crash_test(087_timeout)
+  new_crash_test(088_timeout)
+  new_crash_test(089_process_exit_status)
+
+  new_crash_impl_test(090_assert)
 
   new_cxx_std_11_test(091_cxx_std_11)
 
