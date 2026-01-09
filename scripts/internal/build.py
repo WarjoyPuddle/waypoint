@@ -6,7 +6,6 @@ import argparse
 import dataclasses
 import enum
 import os
-import sys
 
 from python_imports import Compiler
 from python_imports import Task
