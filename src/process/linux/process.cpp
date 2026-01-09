@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -59,6 +59,12 @@ void unset_env(std::string const &var_name)
 auto int2str(int num, unsigned char const base) -> std::string
 {
   constexpr static std::string_view ALPHABET = "0123456789abcdef";
+  static_assert(ALPHABET.size() == 16);
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_START
+  waypoint::internal::assert(
+    2 <= base && base <= ALPHABET.size(),
+    "Base must be between 2 and 16, inclusive.");
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_STOP
 
   std::ostringstream ss;
 
@@ -78,6 +84,12 @@ auto int2str(int num, unsigned char const base) -> std::string
 auto str2int(std::string_view const str, unsigned char const base) -> int
 {
   constexpr static std::string_view ALPHABET = "0123456789abcdef";
+  static_assert(ALPHABET.size() == 16);
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_START
+  waypoint::internal::assert(
+    2 <= base && base <= ALPHABET.size(),
+    "Base must be between 2 and 16, inclusive.");
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_STOP
 
   int result = 0;
   int multiplier = 1;
