@@ -10,7 +10,7 @@ PROJECT_ROOT_DIR="$(realpath "${THIS_SCRIPT_DIR}/..")"
 
 main()
 {
-  python3 "${PROJECT_ROOT_DIR}/scripts/internal/build.py" static
+  python3 "${PROJECT_ROOT_DIR}/scripts/internal/build.py" static_incremental
 
   echo "Success: $(basename "$0")"
 }
