@@ -361,6 +361,7 @@ public:
   void register_crashed_exit_status(
     TestId crashed_test_id,
     unsigned long long exit_status);
+  [[nodiscard]]
   auto get_crashed_exit_status(TestId test_id) const
     -> std::optional<unsigned long long>;
 
