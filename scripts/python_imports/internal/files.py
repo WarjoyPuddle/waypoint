@@ -108,17 +108,19 @@ def get_files_staged_for_commit(root_dir) -> typing.List[str]:
     # TODO: update to contextlib.chdir after upgrade
     assert os.getcwd() == root_dir
 
-    success, output = run(["git", "diff", "--cached", "--name-only"])
+    run(["git", "update-index", "--really-refresh", "-q"])
+    success, output = run(["git", "diff-index", "--name-only", "HEAD"])
     if not success:
         return find_all_files(root_dir)
 
     files = output.strip().split("\n")
-    out = []
+    out = set()
     for f in files:
         path = os.path.realpath(f"{root_dir}/{f.strip()}")
         if os.path.isfile(path):
-            out.append(path)
+            out.add(path)
 
+    out = list(out)
     out.sort()
 
     return out
