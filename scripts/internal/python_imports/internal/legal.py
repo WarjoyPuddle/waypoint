@@ -5,7 +5,7 @@
 import datetime
 import hashlib
 import multiprocessing
-import os
+import pathlib
 import re
 
 from .file_types import is_cmake_file
@@ -19,7 +19,7 @@ COPYRIGHT_HOLDER_NAME = "Wojciech Kałuża"
 EXPECTED_SPDX_LICENSE_ID = "MIT"
 
 
-def is_file_in_need_of_licensing_comment(f) -> bool:
+def is_file_in_need_of_licensing_comment(f: pathlib.Path) -> bool:
     return (
         is_shell_script(f)
         or is_cmake_file(f)
@@ -30,7 +30,7 @@ def is_file_in_need_of_licensing_comment(f) -> bool:
 
 
 def validate_notice_of_copyright(
-    file: str, copyright_notice: str
+    file: pathlib.Path, copyright_notice: str
 ) -> tuple[bool, str | None]:
     single_year = re.match(r"^Copyright \(c\) ([0-9]{4}) (.+)$", copyright_notice)
     year_range = re.match(
@@ -123,8 +123,8 @@ def match_spdx_license_id_pattern(line):
 
 
 def check_copyright_comments_in_single_file(
-    file,
-) -> tuple[bool, str | None, str]:
+    file: pathlib.Path,
+) -> tuple[bool, str | None, pathlib.Path]:
     with open(file, "r") as f:
         lines = f.readlines()
     lines = lines[0:4]
@@ -183,7 +183,7 @@ def check_copyright_comments_in_single_file(
     return True, None, file
 
 
-def check_copyright_comments(files) -> bool:
+def check_copyright_comments(files: list[pathlib.Path]) -> bool:
     inputs = [f for f in files if is_file_in_need_of_licensing_comment(f)]
     with multiprocessing.Pool(get_cpu_count()) as pool:
         results = pool.map(check_copyright_comments_in_single_file, inputs)
@@ -199,8 +199,8 @@ def check_copyright_comments(files) -> bool:
     return True
 
 
-def check_license_file(license_file_path) -> bool:
-    if not os.path.isfile(license_file_path):
+def check_license_file(license_file_path: pathlib.Path) -> bool:
+    if not license_file_path.is_file():
         print(f"Error: file {license_file_path} does not exist")
 
         return False
@@ -218,7 +218,7 @@ def check_license_file(license_file_path) -> bool:
         print(
             f"Unexpected LICENSE file digest: {sha3_256_digest}\n"
             "Verify the LICENSE file is correct and update the variable "
-            f"expected_sha3_256_digest in {os.path.basename(__file__)}"
+            f"expected_sha3_256_digest in {pathlib.Path(__file__).name}"
         )
 
         return False

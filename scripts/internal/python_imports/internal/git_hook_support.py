@@ -4,7 +4,7 @@
 
 
 import hashlib
-import os
+import pathlib
 import subprocess
 
 from .system import get_python
@@ -20,31 +20,31 @@ POST_CHECKOUT_HOOK_DIGEST = (
 )
 
 
-def git_dir_path(project_root_dir: str) -> str:
-    return os.path.realpath(f"{project_root_dir}/.git")
+def git_dir_path(project_root_dir: pathlib.Path) -> pathlib.Path:
+    return project_root_dir / ".git"
 
 
-def pre_commit_hook_path(git_dir: str) -> str:
-    return os.path.realpath(f"{git_dir}/hooks/pre-commit")
+def pre_commit_hook_path(git_dir: pathlib.Path) -> pathlib.Path:
+    return git_dir / "hooks/pre-commit"
 
 
-def post_commit_hook_path(git_dir: str) -> str:
-    return os.path.realpath(f"{git_dir}/hooks/post-commit")
+def post_commit_hook_path(git_dir: pathlib.Path) -> pathlib.Path:
+    return git_dir / "hooks/post-commit"
 
 
-def post_checkout_hook_path(git_dir: str) -> str:
-    return os.path.realpath(f"{git_dir}/hooks/post-checkout")
+def post_checkout_hook_path(git_dir: pathlib.Path) -> pathlib.Path:
+    return git_dir / "hooks/post-checkout"
 
 
-def install_hooks_script_path(project_root_dir: str) -> str:
-    path = os.path.realpath(f"{project_root_dir}/scripts/internal/install_hooks.py")
+def install_hooks_script_path(project_root_dir: pathlib.Path) -> pathlib.Path:
+    path = project_root_dir / "scripts/internal/install_hooks.py"
 
-    assert os.path.isfile(path)
+    assert path.is_file()
 
     return path
 
 
-def digest(path: str) -> str:
+def digest(path: pathlib.Path) -> str:
     with open(path, "br") as f:
         data = f.read()
 
@@ -55,23 +55,29 @@ def digest(path: str) -> str:
     return sha3_256_digest
 
 
-def ensure_hooks_installed(project_root_dir: str) -> bool:
+def ensure_hooks_installed(project_root_dir: pathlib.Path) -> bool:
     git_dir = git_dir_path(project_root_dir)
 
-    pre_commit_hook_digest = digest(pre_commit_hook_path(git_dir))
-    post_commit_hook_digest = digest(post_commit_hook_path(git_dir))
-    post_checkout_hook_digest = digest(post_checkout_hook_path(git_dir))
+    pre_commit_hook = pre_commit_hook_path(git_dir)
+    post_commit_hook = post_commit_hook_path(git_dir)
+    post_checkout_hook = post_checkout_hook_path(git_dir)
+
+    pre_commit_hook_digest = digest(pre_commit_hook)
+    post_commit_hook_digest = digest(post_commit_hook)
+    post_checkout_hook_digest = digest(post_checkout_hook)
     if (
-        os.path.isfile(pre_commit_hook_path(git_dir))
-        and os.path.isfile(post_commit_hook_path(git_dir))
-        and os.path.isfile(post_checkout_hook_path(git_dir))
+        pre_commit_hook.is_file()
+        and post_commit_hook.is_file()
+        and post_checkout_hook.is_file()
         and pre_commit_hook_digest == PRE_COMMIT_HOOK_DIGEST
         and post_commit_hook_digest == POST_COMMIT_HOOK_DIGEST
         and post_checkout_hook_digest == POST_CHECKOUT_HOOK_DIGEST
     ):
         return True
 
-    result = subprocess.run([get_python(), install_hooks_script_path(project_root_dir)])
+    result = subprocess.run(
+        [get_python(), str(install_hooks_script_path(project_root_dir))]
+    )
     assert result.returncode == 0
 
     if (
@@ -80,7 +86,7 @@ def ensure_hooks_installed(project_root_dir: str) -> bool:
         or post_checkout_hook_digest != POST_CHECKOUT_HOOK_DIGEST
     ):
         print(
-            f"Error: Unexpected hook digest values: update {os.path.basename(__file__)}"
+            f"Error: Unexpected hook digest values: update {pathlib.Path(__file__).name}"
         )
         print(f"PRE_COMMIT_HOOK_DIGEST = {pre_commit_hook_digest}")
         print(f"POST_COMMIT_HOOK_DIGEST = {post_commit_hook_digest}")

@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
-import os
+import pathlib
 
 from python_imports import ensure_hooks_installed
 
-THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
-PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/../..")
+THIS_SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
+PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.parent.parent.resolve()
 
 
 def main() -> int:
@@ -19,5 +19,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    assert os.getcwd() == PROJECT_ROOT_DIR
+    assert pathlib.Path.cwd() == PROJECT_ROOT_DIR
     exit(main())

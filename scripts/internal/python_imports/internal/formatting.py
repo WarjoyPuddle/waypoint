@@ -4,6 +4,7 @@
 
 import json
 import multiprocessing
+import pathlib
 
 from .file_types import is_cmake_file
 from .file_types import is_cpp_file
@@ -14,14 +15,14 @@ from .system import get_cpu_count
 from .system import get_python
 
 
-def check_formatting_cmake(file) -> tuple[bool, str | None]:
+def check_formatting_cmake(file: pathlib.Path) -> tuple[bool, str | None]:
     success, output = run(
         [
             "cmake-format",
             "--enable-markup",
             "FALSE",
             "--check",
-            file,
+            str(file),
         ]
     )
     if not success:
@@ -30,14 +31,16 @@ def check_formatting_cmake(file) -> tuple[bool, str | None]:
     return True, None
 
 
-def check_formatting_cpp(file, path_to_config) -> tuple[bool, str | None]:
+def check_formatting_cpp(
+    file: pathlib.Path, path_to_config: pathlib.Path
+) -> tuple[bool, str | None]:
     success, output = run(
         [
             "clang-format-20",
             f"--style=file:{path_to_config}",
             "--dry-run",
             "-Werror",
-            file,
+            str(file),
         ]
     )
     if not success:
@@ -46,7 +49,7 @@ def check_formatting_cpp(file, path_to_config) -> tuple[bool, str | None]:
     return True, None
 
 
-def check_formatting_json(file) -> tuple[bool, str | None]:
+def check_formatting_json(file: pathlib.Path) -> tuple[bool, str | None]:
     with open(file, "r") as f:
         original = f.read()
     with open(file, "r") as f:
@@ -62,7 +65,7 @@ def check_formatting_json(file) -> tuple[bool, str | None]:
     return True, None
 
 
-def check_formatting_python(file) -> tuple[bool, str | None]:
+def check_formatting_python(file: pathlib.Path) -> tuple[bool, str | None]:
     success, output = run(
         [
             get_python(),
@@ -77,27 +80,29 @@ def check_formatting_python(file) -> tuple[bool, str | None]:
             "--star-first",
             "--line-length",
             "88",
-            file,
+            str(file),
         ]
     )
     if not success:
         return False, output
 
-    success, output = run(["black", "--quiet", "--check", "--line-length", "88", file])
+    success, output = run(
+        ["black", "--quiet", "--check", "--line-length", "88", str(file)]
+    )
     if not success:
         return False, output
 
     return True, None
 
 
-def format_cmake(file) -> tuple[bool, str | None]:
+def format_cmake(file: pathlib.Path) -> tuple[bool, str | None]:
     success, output = run(
         [
             "cmake-format",
             "--enable-markup",
             "FALSE",
             "-i",
-            file,
+            str(file),
         ]
     )
     if not success:
@@ -106,13 +111,15 @@ def format_cmake(file) -> tuple[bool, str | None]:
     return True, None
 
 
-def format_cpp(f, path_to_config) -> tuple[bool, str | None]:
+def format_cpp(
+    f: pathlib.Path, path_to_config: pathlib.Path
+) -> tuple[bool, str | None]:
     success, output = run(
         [
             "clang-format-20",
             f"--style=file:{path_to_config}",
             "-i",
-            f,
+            str(f),
         ]
     )
     if not success:
@@ -121,7 +128,7 @@ def format_cpp(f, path_to_config) -> tuple[bool, str | None]:
     return True, None
 
 
-def format_json(file) -> tuple[bool, str | None]:
+def format_json(file: pathlib.Path) -> tuple[bool, str | None]:
     with open(file, "r") as f:
         original = f.read()
     with open(file, "r") as f:
@@ -136,7 +143,7 @@ def format_json(file) -> tuple[bool, str | None]:
     return True, None
 
 
-def format_python(file) -> tuple[bool, str | None]:
+def format_python(file: pathlib.Path) -> tuple[bool, str | None]:
     success, output = run(
         [
             get_python(),
@@ -150,13 +157,13 @@ def format_python(file) -> tuple[bool, str | None]:
             "--star-first",
             "--line-length",
             "88",
-            file,
+            str(file),
         ]
     )
     if not success:
         return False, output
 
-    success, output = run(["black", "--quiet", "--line-length", "88", file])
+    success, output = run(["black", "--quiet", "--line-length", "88", str(file)])
     if not success:
         return False, output
 
@@ -173,7 +180,7 @@ def fix_lines(lines: list[str]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def fix_whitespace(file: str) -> bool:
+def fix_whitespace(file: pathlib.Path) -> bool:
     with open(file, "r") as f:
         lines = f.readlines()
 
@@ -185,7 +192,7 @@ def fix_whitespace(file: str) -> bool:
     return True
 
 
-def check_whitespace(file: str) -> bool:
+def check_whitespace(file: pathlib.Path) -> bool:
     with open(file, "r") as f:
         lines = f.readlines()
 
@@ -195,7 +202,7 @@ def check_whitespace(file: str) -> bool:
     return text == original
 
 
-def check_formatting_in_single_file(data) -> tuple[bool, str | None, str]:
+def check_formatting_in_single_file(data) -> tuple[bool, str | None, pathlib.Path]:
     file, path_to_clang_format_config = data
 
     success = True
@@ -215,7 +222,7 @@ def check_formatting_in_single_file(data) -> tuple[bool, str | None, str]:
     return success, output, file
 
 
-def format_single_file(data) -> tuple[bool, str | None, str]:
+def format_single_file(data) -> tuple[bool, str | None, pathlib.Path]:
     file, path_to_clang_format_config = data
 
     success = True
@@ -254,7 +261,9 @@ def format_files(files, clang_format_config) -> bool:
     return True
 
 
-def check_formatting(files, clang_format_config) -> bool:
+def check_formatting(
+    files: list[pathlib.Path], clang_format_config: pathlib.Path
+) -> bool:
     inputs = [
         (file, clang_format_config if is_cpp_file(file) else None) for file in files
     ]

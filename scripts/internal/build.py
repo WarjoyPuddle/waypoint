@@ -5,7 +5,7 @@
 import argparse
 import dataclasses
 import enum
-import os
+import pathlib
 
 from python_imports import Task
 from python_imports import analyze_gcc_coverage
@@ -33,9 +33,9 @@ from python_imports import run_target
 from python_imports import verify_installation_contents_shared
 from python_imports import verify_installation_contents_static
 
-THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
-PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/../..")
-BUILD_DIR = os.path.realpath(f"{PROJECT_ROOT_DIR}/build___")
+THIS_SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
+PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.parent.parent.resolve()
+BUILD_DIR = PROJECT_ROOT_DIR / "build___"
 
 
 @enum.unique
@@ -119,152 +119,202 @@ class CMakePresets(enum.Enum):
         return self._test_preset
 
 
-COVERAGE_DIR_GCOVR = os.path.realpath(f"{BUILD_DIR}/coverage_gcovr_kMkR9SM1S69oCLJ5___")
-COVERAGE_FILE_HTML_GCOVR = os.path.realpath(f"{COVERAGE_DIR_GCOVR}/index.html")
-COVERAGE_FILE_JSON_GCOVR = os.path.realpath(f"{COVERAGE_DIR_GCOVR}/coverage.json")
-INFRASTRUCTURE_DIR = os.path.realpath(f"{PROJECT_ROOT_DIR}/infrastructure")
+COVERAGE_DIR_GCOVR = BUILD_DIR / "coverage_gcovr_kMkR9SM1S69oCLJ5___"
+COVERAGE_FILE_HTML_GCOVR = COVERAGE_DIR_GCOVR / "index.html"
+COVERAGE_FILE_JSON_GCOVR = COVERAGE_DIR_GCOVR / "coverage.json"
+INFRASTRUCTURE_DIR = PROJECT_ROOT_DIR / "infrastructure"
 CMAKE_SOURCE_DIR = INFRASTRUCTURE_DIR
-CMAKE_LISTS_FILE = os.path.realpath(f"{CMAKE_SOURCE_DIR}/CMakeLists.txt")
-CMAKE_PRESETS_FILE = os.path.realpath(f"{CMAKE_SOURCE_DIR}/CMakePresets.json")
-assert os.path.isfile(CMAKE_LISTS_FILE) and os.path.isfile(CMAKE_PRESETS_FILE)
+CMAKE_LISTS_FILE = CMAKE_SOURCE_DIR / "CMakeLists.txt"
+CMAKE_PRESETS_FILE = CMAKE_SOURCE_DIR / "CMakePresets.json"
+assert CMAKE_LISTS_FILE.is_file() and CMAKE_PRESETS_FILE.is_file()
 
-CLANG_TIDY_CONFIG = os.path.realpath(f"{INFRASTRUCTURE_DIR}/.clang-tidy-20")
-assert os.path.isfile(CLANG_TIDY_CONFIG)
-CLANG_FORMAT_CONFIG = os.path.realpath(f"{INFRASTRUCTURE_DIR}/.clang-format-20")
-assert os.path.isfile(CLANG_FORMAT_CONFIG)
+CLANG_TIDY_CONFIG = INFRASTRUCTURE_DIR / ".clang-tidy-20"
+assert CLANG_TIDY_CONFIG.is_file()
+CLANG_FORMAT_CONFIG = INFRASTRUCTURE_DIR / ".clang-format-20"
+assert CLANG_FORMAT_CONFIG.is_file()
 
-MAIN_HEADER_PATH = f"{PROJECT_ROOT_DIR}/src/waypoint/include/waypoint/waypoint.hpp"
-assert os.path.isfile(MAIN_HEADER_PATH), "waypoint.hpp does not exist"
+MAIN_HEADER_PATH = PROJECT_ROOT_DIR / "src/waypoint/include/waypoint/waypoint.hpp"
+assert MAIN_HEADER_PATH.is_file(), "waypoint.hpp does not exist"
 
-INSTALL_TESTS_DIR_PATH = os.path.realpath(f"{PROJECT_ROOT_DIR}/test/install_tests")
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_no_version_test"
+INSTALL_TESTS_DIR_PATH = PROJECT_ROOT_DIR / "test/install_tests"
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR = (
+    INSTALL_TESTS_DIR_PATH / "find_package_no_version_test"
 )
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/infrastructure"
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR / "infrastructure"
 )
-assert os.path.isfile(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR}/CMakeLists.txt"
-) and os.path.isfile(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR}/CMakePresets.json"
+assert (
+    TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR / "CMakeLists.txt"
+).is_file() and (
+    TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR / "CMakePresets.json"
+).is_file()
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_INSTALL_DIR",
+        CMakePresets.LinuxClang,
+        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
+    )
 )
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR", CMakePresets.LinuxClang, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR)}"
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_INSTALL_DIR",
+        CMakePresets.LinuxGcc,
+        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
+    )
 )
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR", CMakePresets.LinuxGcc, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR)}"
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_INSTALL_DIR",
+        CMakePresets.LinuxClangShared,
+        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
+    )
 )
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR", CMakePresets.LinuxClangShared, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR)}"
-)
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR", CMakePresets.LinuxGccShared, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR)}"
-)
-
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/find_package_exact_version_test"
-)
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/infrastructure"
-)
-assert os.path.isfile(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR}/CMakeLists.txt"
-) and os.path.isfile(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR}/CMakePresets.json"
-)
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR", CMakePresets.LinuxClang, TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR)}"
-)
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR", CMakePresets.LinuxGcc, TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR)}"
-)
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR", CMakePresets.LinuxClangShared, TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR)}"
-)
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR", CMakePresets.LinuxGccShared, TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR)}"
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_SHARED_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_INSTALL_DIR",
+        CMakePresets.LinuxGccShared,
+        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR,
+    )
 )
 
-TEST_INSTALL_ADD_SUBDIRECTORY_DIR = os.path.realpath(
-    f"{INSTALL_TESTS_DIR_PATH}/add_subdirectory_test"
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR = (
+    INSTALL_TESTS_DIR_PATH / "find_package_exact_version_test"
 )
-TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/infrastructure"
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR / "infrastructure"
 )
-assert os.path.isfile(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/CMakeLists.txt"
-) and os.path.isfile(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/CMakePresets.json"
+assert (
+    TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR / "CMakeLists.txt"
+).is_file() and (
+    TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR / "CMakePresets.json"
+).is_file()
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_INSTALL_DIR",
+        CMakePresets.LinuxClang,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
+    )
 )
-
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_SOURCES_PATH", "base_sources_path", TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)}"
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_INSTALL_DIR",
+        CMakePresets.LinuxGcc,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
+    )
 )
-
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_BUILD_PATH", CMakePresets.LinuxClang, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)}"
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_SHARED_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_INSTALL_DIR",
+        CMakePresets.LinuxClangShared,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
+    )
 )
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_BUILD_PATH", CMakePresets.LinuxGcc, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)}"
-)
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_BUILD_PATH", CMakePresets.LinuxClangShared, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)}"
-)
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/"
-    f"{cache_var_from_preset("PRESET_WAYPOINT_BUILD_PATH", CMakePresets.LinuxGccShared, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)}"
-)
-
-EXAMPLES_DIR_PATH = os.path.realpath(f"{PROJECT_ROOT_DIR}/examples")
-EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR = os.path.realpath(
-    f"{EXAMPLES_DIR_PATH}/quick_start_build_and_install"
-)
-assert os.path.isfile(
-    f"{EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR}/CMakeLists.txt"
-) and os.path.isfile(
-    f"{EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR}/CMakePresets.json"
-)
-EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR = os.path.realpath(
-    f"{EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR}/waypoint_install___"
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_SHARED_DIR = (
+    TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_INSTALL_DIR",
+        CMakePresets.LinuxGccShared,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR,
+    )
 )
 
-EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR = os.path.realpath(
-    f"{EXAMPLES_DIR_PATH}/quick_start_add_subdirectory"
+TEST_INSTALL_ADD_SUBDIRECTORY_DIR = INSTALL_TESTS_DIR_PATH / "add_subdirectory_test"
+TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR = (
+    TEST_INSTALL_ADD_SUBDIRECTORY_DIR / "infrastructure"
 )
-assert os.path.isfile(
-    f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/CMakeLists.txt"
-) and os.path.isfile(
-    f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/CMakePresets.json"
-)
-EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR = os.path.realpath(
-    f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/third_party___"
-)
-EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR = os.path.realpath(
-    f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR}/waypoint"
+assert (
+    TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR / "CMakeLists.txt"
+).is_file() and (
+    TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR / "CMakePresets.json"
+).is_file()
+
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR = (
+    TEST_INSTALL_ADD_SUBDIRECTORY_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_SOURCES_PATH",
+        "base_sources_path",
+        TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+    )
 )
 
-EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR = os.path.realpath(
-    f"{EXAMPLES_DIR_PATH}/quick_start_custom_main"
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_DIR = (
+    TEST_INSTALL_ADD_SUBDIRECTORY_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_BUILD_PATH",
+        CMakePresets.LinuxClang,
+        TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+    )
 )
-assert os.path.isfile(
-    f"{EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR}/CMakeLists.txt"
-) and os.path.isfile(
-    f"{EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR}/CMakePresets.json"
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_DIR = (
+    TEST_INSTALL_ADD_SUBDIRECTORY_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_BUILD_PATH",
+        CMakePresets.LinuxGcc,
+        TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+    )
 )
-EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR = os.path.realpath(
-    f"{EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR}/waypoint_install___"
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_SHARED_DIR = (
+    TEST_INSTALL_ADD_SUBDIRECTORY_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_BUILD_PATH",
+        CMakePresets.LinuxClangShared,
+        TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+    )
+)
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_SHARED_DIR = (
+    TEST_INSTALL_ADD_SUBDIRECTORY_DIR
+    / cache_var_from_preset(
+        "PRESET_WAYPOINT_BUILD_PATH",
+        CMakePresets.LinuxGccShared,
+        TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+    )
+)
+
+EXAMPLES_DIR_PATH = PROJECT_ROOT_DIR / "examples"
+EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR = (
+    EXAMPLES_DIR_PATH / "quick_start_build_and_install"
+)
+assert (
+    EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR / "CMakeLists.txt"
+).is_file() and (
+    EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR / "CMakePresets.json"
+).is_file()
+EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR = (
+    EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR / "waypoint_install___"
+)
+
+EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR = (
+    EXAMPLES_DIR_PATH / "quick_start_add_subdirectory"
+)
+assert (
+    EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR / "CMakeLists.txt"
+).is_file() and (
+    EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR / "CMakePresets.json"
+).is_file()
+EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR = (
+    EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR / "third_party___"
+)
+EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR = (
+    EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR / "waypoint"
+)
+
+EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR = (
+    EXAMPLES_DIR_PATH / "quick_start_custom_main"
+)
+assert (
+    EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR / "CMakeLists.txt"
+).is_file() and (
+    EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR / "CMakePresets.json"
+).is_file()
+EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR = (
+    EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR / "waypoint_install___"
 )
 
 
@@ -2239,11 +2289,11 @@ def test_install_find_package_exact_version_clang_release_test_shared_fn() -> bo
 def test_install_add_subdirectory_copy_sources_fn() -> bool:
     recursively_copy_dir(
         INFRASTRUCTURE_DIR,
-        f"{TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR}/infrastructure",
+        TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR / "infrastructure",
     )
     recursively_copy_dir(
-        f"{PROJECT_ROOT_DIR}/src",
-        f"{TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR}/src",
+        PROJECT_ROOT_DIR / "src",
+        TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR / "src",
     )
 
     return True
@@ -3184,12 +3234,12 @@ def example_quick_start_custom_main_fn() -> bool:
 def example_quick_start_add_subdirectory_fn() -> bool:
     remove_dir(EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR)
     recursively_copy_dir(
-        f"{PROJECT_ROOT_DIR}/infrastructure",
-        f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR}/infrastructure",
+        PROJECT_ROOT_DIR / "infrastructure",
+        EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR / "infrastructure",
     )
     recursively_copy_dir(
-        f"{PROJECT_ROOT_DIR}/src",
-        f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR}/src",
+        PROJECT_ROOT_DIR / "src",
+        EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR / "src",
     )
 
     example_cmake_source_dir = EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
