@@ -2647,12 +2647,11 @@ def test_gcc_release_test_target_shared_fn() -> bool:
 
 def example_quick_start_build_and_install_fn() -> bool:
     example_cmake_source_dir = EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
-    build_dir = build_dir_from_preset(CMakePresets.Example, example_cmake_source_dir)
 
     # use Waypoint as a static library
-    remove_dir(build_dir)
-    remove_dir(EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR)
+    clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
 
+    remove_dir(EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR)
     install_dir = install_dir_from_preset(CMakePresets.Example, CMAKE_SOURCE_DIR)
     recursively_copy_dir(
         install_dir, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR
@@ -2738,6 +2737,10 @@ def example_quick_start_build_and_install_fn() -> bool:
         return False
 
     with contextlib.chdir(example_cmake_source_dir):
+        build_dir = build_dir_from_preset(
+            CMakePresets.Example, example_cmake_source_dir
+        )
+
         success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
         if not success:
             return False
@@ -2751,9 +2754,9 @@ def example_quick_start_build_and_install_fn() -> bool:
             return False
 
     # use Waypoint as a dynamic library
-    remove_dir(build_dir)
-    remove_dir(EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR)
+    clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
 
+    remove_dir(EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR)
     install_dir = install_dir_from_preset(CMakePresets.ExampleShared, CMAKE_SOURCE_DIR)
     recursively_copy_dir(
         install_dir, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR
@@ -2839,6 +2842,10 @@ def example_quick_start_build_and_install_fn() -> bool:
         return False
 
     with contextlib.chdir(example_cmake_source_dir):
+        build_dir = build_dir_from_preset(
+            CMakePresets.Example, example_cmake_source_dir
+        )
+
         success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
         if not success:
             return False
@@ -2866,7 +2873,6 @@ def example_quick_start_add_subdirectory_fn() -> bool:
     )
 
     example_cmake_source_dir = EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
-    build_dir = build_dir_from_preset(CMakePresets.Example, example_cmake_source_dir)
 
     success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
     if not success:
@@ -2948,6 +2954,10 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         return False
 
     with contextlib.chdir(example_cmake_source_dir):
+        build_dir = build_dir_from_preset(
+            CMakePresets.Example, example_cmake_source_dir
+        )
+
         success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
         if not success:
             return False
