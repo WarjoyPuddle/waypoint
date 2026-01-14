@@ -21,12 +21,12 @@ from python_imports import check_license_file
 from python_imports import clean_build_dir
 from python_imports import clean_install_dir
 from python_imports import configure_cmake
+from python_imports import copy_install_dir
 from python_imports import find_all_cpp_source_files
 from python_imports import find_all_files
 from python_imports import format_files
 from python_imports import get_files_from_compilation_database
 from python_imports import install_cmake
-from python_imports import install_dir_from_preset
 from python_imports import is_supported_os
 from python_imports import misc_checks
 from python_imports import process_coverage
@@ -1357,15 +1357,21 @@ def clean_fn() -> bool:
 
 
 def test_install_find_package_no_version_gcc_copy_artifacts_fn() -> bool:
-    install_dir = install_dir_from_preset(CMakePresets.LinuxGcc, CMAKE_SOURCE_DIR)
-    recursively_copy_dir(install_dir, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR)
+    copy_install_dir(
+        CMakePresets.LinuxGcc,
+        CMAKE_SOURCE_DIR,
+        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR,
+    )
 
     return True
 
 
 def test_install_find_package_no_version_clang_copy_artifacts_fn() -> bool:
-    install_dir = install_dir_from_preset(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR)
-    recursively_copy_dir(install_dir, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR)
+    copy_install_dir(
+        CMakePresets.LinuxClang,
+        CMAKE_SOURCE_DIR,
+        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR,
+    )
 
     return True
 
@@ -1551,15 +1557,21 @@ def test_install_find_package_no_version_clang_release_test_fn() -> bool:
 
 
 def test_install_find_package_exact_version_gcc_copy_artifacts_fn() -> bool:
-    install_dir = install_dir_from_preset(CMakePresets.LinuxGcc, CMAKE_SOURCE_DIR)
-    recursively_copy_dir(install_dir, TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_DIR)
+    copy_install_dir(
+        CMakePresets.LinuxGcc,
+        CMAKE_SOURCE_DIR,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_DIR,
+    )
 
     return True
 
 
 def test_install_find_package_exact_version_clang_copy_artifacts_fn() -> bool:
-    install_dir = install_dir_from_preset(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR)
-    recursively_copy_dir(install_dir, TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_DIR)
+    copy_install_dir(
+        CMakePresets.LinuxClang,
+        CMAKE_SOURCE_DIR,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_DIR,
+    )
 
     return True
 
@@ -1745,20 +1757,20 @@ def test_install_find_package_exact_version_clang_release_test_fn() -> bool:
 
 
 def test_install_find_package_no_version_gcc_copy_artifacts_shared_fn() -> bool:
-    install_dir = install_dir_from_preset(CMakePresets.LinuxGccShared, CMAKE_SOURCE_DIR)
-    recursively_copy_dir(
-        install_dir, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_SHARED_DIR
+    copy_install_dir(
+        CMakePresets.LinuxGccShared,
+        CMAKE_SOURCE_DIR,
+        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_SHARED_DIR,
     )
 
     return True
 
 
 def test_install_find_package_no_version_clang_copy_artifacts_shared_fn() -> bool:
-    install_dir = install_dir_from_preset(
-        CMakePresets.LinuxClangShared, CMAKE_SOURCE_DIR
-    )
-    recursively_copy_dir(
-        install_dir, TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR
+    copy_install_dir(
+        CMakePresets.LinuxClangShared,
+        CMAKE_SOURCE_DIR,
+        TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR,
     )
 
     return True
@@ -1955,20 +1967,20 @@ def test_install_find_package_no_version_clang_release_test_shared_fn() -> bool:
 
 
 def test_install_find_package_exact_version_gcc_copy_artifacts_shared_fn() -> bool:
-    install_dir = install_dir_from_preset(CMakePresets.LinuxGccShared, CMAKE_SOURCE_DIR)
-    recursively_copy_dir(
-        install_dir, TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_SHARED_DIR
+    copy_install_dir(
+        CMakePresets.LinuxGccShared,
+        CMAKE_SOURCE_DIR,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_SHARED_DIR,
     )
 
     return True
 
 
 def test_install_find_package_exact_version_clang_copy_artifacts_shared_fn() -> bool:
-    install_dir = install_dir_from_preset(
-        CMakePresets.LinuxClangShared, CMAKE_SOURCE_DIR
-    )
-    recursively_copy_dir(
-        install_dir, TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_SHARED_DIR
+    copy_install_dir(
+        CMakePresets.LinuxClangShared,
+        CMAKE_SOURCE_DIR,
+        TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_SHARED_DIR,
     )
 
     return True
@@ -2651,10 +2663,10 @@ def example_quick_start_build_and_install_fn() -> bool:
     # use Waypoint as a static library
     clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
 
-    remove_dir(EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR)
-    install_dir = install_dir_from_preset(CMakePresets.Example, CMAKE_SOURCE_DIR)
-    recursively_copy_dir(
-        install_dir, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR
+    copy_install_dir(
+        CMakePresets.Example,
+        CMAKE_SOURCE_DIR,
+        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR,
     )
 
     success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
@@ -2756,10 +2768,10 @@ def example_quick_start_build_and_install_fn() -> bool:
     # use Waypoint as a dynamic library
     clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
 
-    remove_dir(EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR)
-    install_dir = install_dir_from_preset(CMakePresets.ExampleShared, CMAKE_SOURCE_DIR)
-    recursively_copy_dir(
-        install_dir, EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR
+    copy_install_dir(
+        CMakePresets.ExampleShared,
+        CMAKE_SOURCE_DIR,
+        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR,
     )
 
     success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
