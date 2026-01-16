@@ -138,6 +138,11 @@ EXAMPLES_DIR_PATH = os.path.realpath(f"{PROJECT_ROOT_DIR}/examples")
 EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR = os.path.realpath(
     f"{EXAMPLES_DIR_PATH}/quick_start_build_and_install"
 )
+assert os.path.isfile(
+    f"{EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR}/CMakeLists.txt"
+) and os.path.isfile(
+    f"{EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR}/CMakePresets.json"
+)
 EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR = os.path.realpath(
     f"{EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR}/waypoint_install___"
 )
@@ -145,11 +150,28 @@ EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR = os.path.realpath(
 EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR = os.path.realpath(
     f"{EXAMPLES_DIR_PATH}/quick_start_add_subdirectory"
 )
+assert os.path.isfile(
+    f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/CMakeLists.txt"
+) and os.path.isfile(
+    f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/CMakePresets.json"
+)
 EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR = os.path.realpath(
     f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/third_party___"
 )
 EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_WAYPOINT_SOURCE_DIR = os.path.realpath(
     f"{EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR}/waypoint"
+)
+
+EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR = os.path.realpath(
+    f"{EXAMPLES_DIR_PATH}/quick_start_custom_main"
+)
+assert os.path.isfile(
+    f"{EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR}/CMakeLists.txt"
+) and os.path.isfile(
+    f"{EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR}/CMakePresets.json"
+)
+EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR = os.path.realpath(
+    f"{EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR}/waypoint_install___"
 )
 
 LICENSE_FILE_PATH = os.path.realpath(f"{PROJECT_ROOT_DIR}/LICENSE")
@@ -723,6 +745,21 @@ def collect_inputs_for_static_analysis(all_files_set):
             f,
             CMakePresets.Example,
             EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+            PROJECT_ROOT_DIR,
+            CLANG_TIDY_CONFIG,
+        )
+        for f in files_from_db
+        if f in all_files_set
+    ]
+
+    files_from_db = get_files_from_compilation_database(
+        CMakePresets.Example, EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR
+    )
+    inputs += [
+        (
+            f,
+            CMakePresets.Example,
+            EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR,
             PROJECT_ROOT_DIR,
             CLANG_TIDY_CONFIG,
         )
@@ -1349,6 +1386,11 @@ def clean_fn() -> bool:
         CMakePresets.Example, EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     )
     remove_dir(EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_THIRD_PARTY_DIR)
+
+    clean_build_dir(
+        CMakePresets.Example, EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR
+    )
+    remove_dir(EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR)
 
     clean_build_dir(CMakePresets.AddressSanitizerClang, CMAKE_SOURCE_DIR)
     clean_build_dir(CMakePresets.UndefinedBehaviourSanitizerClang, CMAKE_SOURCE_DIR)
@@ -2772,6 +2814,222 @@ def example_quick_start_build_and_install_fn() -> bool:
         CMakePresets.ExampleShared,
         CMAKE_SOURCE_DIR,
         EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR,
+    )
+
+    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+    if not success:
+        return False
+
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Debug,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.RelWithDebInfo,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Release,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+
+    with contextlib.chdir(example_cmake_source_dir):
+        build_dir = build_dir_from_preset(
+            CMakePresets.Example, example_cmake_source_dir
+        )
+
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        if not success:
+            return False
+        success, output = run(
+            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+        )
+        if not success:
+            return False
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        if not success:
+            return False
+
+    return True
+
+
+def example_quick_start_custom_main_fn() -> bool:
+    example_cmake_source_dir = EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR
+
+    # use Waypoint as a static library
+    clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
+
+    copy_install_dir(
+        CMakePresets.Example,
+        CMAKE_SOURCE_DIR,
+        EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR,
+    )
+
+    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+    if not success:
+        return False
+
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "all",
+    )
+    if not success:
+        return False
+
+    success = build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.RelWithDebInfo,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+    success = build_cmake(
+        CMakeBuildConfig.Release,
+        CMakePresets.Example,
+        example_cmake_source_dir,
+        "test",
+    )
+    if not success:
+        return False
+
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Debug,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.RelWithDebInfo,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+    success = run_ctest(
+        CMakePresets.Example,
+        CMakeBuildConfig.Release,
+        None,
+        example_cmake_source_dir,
+    )
+    if not success:
+        return False
+
+    with contextlib.chdir(example_cmake_source_dir):
+        build_dir = build_dir_from_preset(
+            CMakePresets.Example, example_cmake_source_dir
+        )
+
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        if not success:
+            return False
+        success, output = run(
+            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+        )
+        if not success:
+            return False
+        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        if not success:
+            return False
+
+    # use Waypoint as a dynamic library
+    clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
+
+    copy_install_dir(
+        CMakePresets.ExampleShared,
+        CMAKE_SOURCE_DIR,
+        EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR,
     )
 
     success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
@@ -4604,6 +4862,21 @@ def main() -> int:
         example_quick_start_add_subdirectory_fn,
     )
 
+    example_quick_start_custom_main = Task(
+        "Test examples/quick_start_custom_main",
+        example_quick_start_custom_main_fn,
+    )
+    example_quick_start_custom_main.depends_on(
+        [
+            install_example_clang_debug,
+            install_example_clang_relwithdebinfo,
+            install_example_clang_release,
+            install_example_clang_debug_shared,
+            install_example_clang_relwithdebinfo_shared,
+            install_example_clang_release_shared,
+        ]
+    )
+
     run_clang_static_analysis_all_files_task.depends_on(
         [
             build_clang_static_analysis,
@@ -5107,6 +5380,7 @@ def main() -> int:
     if mode.examples:
         build_dependencies.append(example_quick_start_build_and_install)
         build_dependencies.append(example_quick_start_add_subdirectory)
+        build_dependencies.append(example_quick_start_custom_main)
 
     if mode.static_analysis:
         if mode.clang:

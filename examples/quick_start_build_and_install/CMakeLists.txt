@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -39,7 +39,8 @@ target_compile_features(test_program PRIVATE cxx_std_11)
 target_link_libraries(
   test_program
   PRIVATE the_answer_lib
-          # Waypoint is used here; waypoint_main provides its own main function
+          # Waypoint is used here;
+          # waypoint::waypoint_main provides its own main function
           waypoint::waypoint_main)
 
 # Register test with ctest

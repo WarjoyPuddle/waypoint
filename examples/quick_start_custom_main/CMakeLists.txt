@@ -1,4 +1,4 @@
-# Copyright (c) 2025-2026 Wojciech Kałuża
+# Copyright (c) 2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -13,7 +13,9 @@ project(
 enable_testing()
 
 # Pull Waypoint into the project
-add_subdirectory(third_party___/waypoint/infrastructure)
+find_package(
+  waypoint REQUIRED CONFIG PATHS
+  ${CMAKE_CURRENT_SOURCE_DIR}/waypoint_install___/cmake NO_DEFAULT_PATH)
 
 # Create stub library to test
 add_library(the_answer_lib)
@@ -32,14 +34,15 @@ target_compile_features(the_answer_lib PRIVATE cxx_std_11)
 
 # Create test executable
 add_executable(test_program)
-target_sources(test_program PRIVATE test01.cpp test02.cpp)
+# main.cpp is included here - it provides the main function
+target_sources(test_program PRIVATE main.cpp test01.cpp test02.cpp)
 target_compile_features(test_program PRIVATE cxx_std_11)
 target_link_libraries(
   test_program
   PRIVATE the_answer_lib
           # Waypoint is used here;
-          # waypoint::waypoint_main provides its own main function
-          waypoint::waypoint_main)
+          # waypoint::waypoint does not provide its own main function
+          waypoint::waypoint)
 
 # Register test with ctest
 add_test(NAME run_test_program COMMAND $<TARGET_FILE:test_program>)
