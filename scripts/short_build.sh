@@ -7,10 +7,12 @@ set -euo pipefail
 
 THIS_SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
 PROJECT_ROOT_DIR="$(realpath "${THIS_SCRIPT_DIR}/..")"
+CONTAINER_ROOT_DIR="/workspace"
 
 main()
 {
-  python3 "${PROJECT_ROOT_DIR}/scripts/internal/build.py" fast
+  python3 "${PROJECT_ROOT_DIR}/scripts/internal/run_in_docker.py" \
+    python3 "${CONTAINER_ROOT_DIR}/scripts/internal/build.py" fast
 
   echo "Success: $(basename "$0")"
 }

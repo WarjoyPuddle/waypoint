@@ -17,6 +17,10 @@ from .internal.cmake import run_ctest
 from .internal.cmake import run_target
 from .internal.coverage import analyze_gcc_coverage
 from .internal.coverage import process_coverage
+from .internal.docker_support import build_docker
+from .internal.docker_support import docker_image_source_digest
+from .internal.docker_support import docker_tag_exists
+from .internal.docker_support import run_in_docker
 from .internal.files import changed_cpp_source_files_and_dependents
 from .internal.files import find_all_cpp_source_files
 from .internal.files import find_all_files
@@ -30,8 +34,12 @@ from .internal.legal import check_copyright_comments
 from .internal.legal import check_license_file
 from .internal.static_analysis import get_files_from_compilation_database
 from .internal.static_analysis import run_clang_static_analysis
+from .internal.system import current_timezone
 from .internal.system import get_python
 from .internal.system import is_supported_os
+from .internal.system import local_group_id
+from .internal.system import local_user_id
+from .internal.system import local_username
 from .internal.system import new_env
 from .internal.system import recursively_copy_dir
 from .internal.system import remove_dir
