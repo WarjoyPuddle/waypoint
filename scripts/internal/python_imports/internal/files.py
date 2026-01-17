@@ -95,13 +95,11 @@ def process_depfiles(
 
 
 def get_files_staged_for_commit(root_dir: pathlib.Path) -> list[pathlib.Path]:
-    # TODO: update to contextlib.chdir after upgrade
-    assert pathlib.Path.cwd() == root_dir
-
-    run(["git", "update-index", "--really-refresh", "-q"])
-    success, output = run(["git", "diff-index", "--cached", "--name-only", "HEAD"])
-    if not success:
-        return find_all_files(root_dir)
+    with contextlib.chdir(root_dir):
+        run(["git", "update-index", "--really-refresh", "-q"])
+        success, output = run(["git", "diff-index", "--cached", "--name-only", "HEAD"])
+        if not success:
+            return find_all_files(root_dir)
 
     files = output.strip().split("\n")
     out: set[pathlib.Path] = set()

@@ -3,7 +3,6 @@
 # For license details, see LICENSE file
 
 import hashlib
-import os
 import pathlib
 
 from .process import run
@@ -21,9 +20,7 @@ def docker_image_source_digest(
     if context_dir not in dockerfile_path.parents:
         output.append(dockerfile_path)
 
-    # TODO: migrate to context_dir.walk() after upgrade
-    for root, dirs, files in os.walk(context_dir):
-        root = pathlib.Path(root)
+    for root, dirs, files in context_dir.walk():
         for f in files:
             output.append((root / f).resolve())
 

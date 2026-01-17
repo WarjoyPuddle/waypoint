@@ -14,10 +14,7 @@ from .process import run
 
 
 def get_cpu_count() -> int:
-    if "process_cpu_count" in dir(os):
-        return os.process_cpu_count()
-
-    return os.cpu_count()
+    return os.process_cpu_count()
 
 
 @contextlib.contextmanager
