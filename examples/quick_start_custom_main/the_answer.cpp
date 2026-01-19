@@ -4,11 +4,15 @@
 
 #include "the_answer.hpp"
 
+#include <iostream>
+
 namespace deep_thought
 {
 
 auto the_answer() noexcept -> int
 {
+  std::cout << "The answer is 42" << std::endl;
+
   return 42;
 }
 
