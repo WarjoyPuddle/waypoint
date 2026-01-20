@@ -13,7 +13,6 @@ from python_imports import Compiler
 from python_imports import Task
 from python_imports import analyze_gcc_coverage
 from python_imports import build_cmake
-from python_imports import build_dir_from_preset
 from python_imports import changed_cpp_source_files_and_dependents
 from python_imports import check_copyright_comments
 from python_imports import check_formatting
@@ -2791,19 +2790,15 @@ def example_quick_start_build_and_install_fn() -> bool:
         return False
 
     with contextlib.chdir(example_cmake_source_dir):
-        build_dir = build_dir_from_preset(
-            CMakePresets.Example, example_cmake_source_dir
-        )
-
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Debug}/test_program"])
         if not success:
             return False
         success, output = run(
-            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+            [f"build___/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
         )
         if not success:
             return False
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Release}/test_program"])
         if not success:
             return False
 
@@ -2896,19 +2891,15 @@ def example_quick_start_build_and_install_fn() -> bool:
         return False
 
     with contextlib.chdir(example_cmake_source_dir):
-        build_dir = build_dir_from_preset(
-            CMakePresets.Example, example_cmake_source_dir
-        )
-
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Debug}/test_program"])
         if not success:
             return False
         success, output = run(
-            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+            [f"build___/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
         )
         if not success:
             return False
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Release}/test_program"])
         if not success:
             return False
 
@@ -3007,19 +2998,15 @@ def example_quick_start_custom_main_fn() -> bool:
         return False
 
     with contextlib.chdir(example_cmake_source_dir):
-        build_dir = build_dir_from_preset(
-            CMakePresets.Example, example_cmake_source_dir
-        )
-
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Debug}/test_program"])
         if not success:
             return False
         success, output = run(
-            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+            [f"build___/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
         )
         if not success:
             return False
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Release}/test_program"])
         if not success:
             return False
 
@@ -3112,19 +3099,15 @@ def example_quick_start_custom_main_fn() -> bool:
         return False
 
     with contextlib.chdir(example_cmake_source_dir):
-        build_dir = build_dir_from_preset(
-            CMakePresets.Example, example_cmake_source_dir
-        )
-
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Debug}/test_program"])
         if not success:
             return False
         success, output = run(
-            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+            [f"build___/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
         )
         if not success:
             return False
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Release}/test_program"])
         if not success:
             return False
 
@@ -3224,19 +3207,15 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         return False
 
     with contextlib.chdir(example_cmake_source_dir):
-        build_dir = build_dir_from_preset(
-            CMakePresets.Example, example_cmake_source_dir
-        )
-
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Debug}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Debug}/test_program"])
         if not success:
             return False
         success, output = run(
-            [f"{build_dir}/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
+            [f"build___/{CMakeBuildConfig.RelWithDebInfo}/test_program"]
         )
         if not success:
             return False
-        success, output = run([f"{build_dir}/{CMakeBuildConfig.Release}/test_program"])
+        success, output = run([f"build___/{CMakeBuildConfig.Release}/test_program"])
         if not success:
             return False
 
