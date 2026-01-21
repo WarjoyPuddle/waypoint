@@ -12,6 +12,7 @@ from .internal.cmake import configure_cmake
 from .internal.cmake import copy_install_dir
 from .internal.cmake import install_cmake
 from .internal.cmake import run_ctest
+from .internal.cmake import run_target
 from .internal.compiler import Compiler
 from .internal.coverage import analyze_gcc_coverage
 from .internal.coverage import process_coverage
@@ -23,7 +24,6 @@ from .internal.formatting import check_formatting
 from .internal.formatting import format_files
 from .internal.legal import check_copyright_comments
 from .internal.legal import check_license_file
-from .internal.process import run
 from .internal.static_analysis import get_files_from_compilation_database
 from .internal.static_analysis import run_clang_static_analysis
 from .internal.system import NewEnv
