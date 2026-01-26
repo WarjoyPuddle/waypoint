@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -22,17 +22,20 @@ macro(define_tests)
   endif()
 
   add_test(
-    NAME valgrind_${arg_TARGET}
-    COMMAND valgrind --leak-check=yes --error-exitcode=1
-            $<TARGET_FILE:${arg_TARGET}>
+    NAME valgrind_memcheck_${arg_TARGET}
+    COMMAND
+      valgrind --tool=memcheck --trace-children=yes --leak-check=full
+      --show-leak-kinds=all --error-exitcode=1 $<TARGET_FILE:${arg_TARGET}>
     CONFIGURATIONS Debug)
-  set_tests_properties(valgrind_${arg_TARGET} PROPERTIES LABELS valgrind)
+  set_tests_properties(valgrind_memcheck_${arg_TARGET} PROPERTIES LABELS
+                                                                  valgrind)
   set_tests_properties(
-    valgrind_${arg_TARGET}
+    valgrind_memcheck_${arg_TARGET}
     PROPERTIES ENVIRONMENT WAYPOINT_INTERNAL_RUNNING_TEST_XTSyiOp7QMFW8P2H=123)
 
   if(DEFINED arg_EXPECTED_FAILURE AND arg_EXPECTED_FAILURE)
-    set_tests_properties(valgrind_${arg_TARGET} PROPERTIES WILL_FAIL TRUE)
+    set_tests_properties(valgrind_memcheck_${arg_TARGET} PROPERTIES WILL_FAIL
+                                                                    TRUE)
   endif()
 endmacro()
 
