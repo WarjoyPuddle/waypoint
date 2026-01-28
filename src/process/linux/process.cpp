@@ -427,6 +427,7 @@ auto get_pipes_from_env() noexcept -> std::pair<OutputPipeEnd, InputPipeEnd>
   auto *command_read_pipe = new OutputPipeEnd_impl{raw_command_read_pipe};
   auto *response_write_pipe = new InputPipeEnd_impl{raw_response_write_pipe};
 
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
   return {OutputPipeEnd{command_read_pipe}, InputPipeEnd{response_write_pipe}};
 }
 
