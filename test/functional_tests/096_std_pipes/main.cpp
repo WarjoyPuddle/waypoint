@@ -10,6 +10,16 @@
 #include <string>
 #include <vector>
 
+namespace
+{
+
+auto long_text()
+{
+  return std::string(1'000'000, 'X');
+}
+
+} // namespace
+
 WAYPOINT_AUTORUN(waypoint::TestRun const &t)
 {
   auto const g = t.group("Test group");
@@ -86,6 +96,113 @@ WAYPOINT_AUTORUN(waypoint::TestRun const &t)
         std::cout << "five" << std::endl;
         std::cerr << "six" << std::endl;
       });
+
+  t.test(g, "Test 8")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        auto const text = long_text();
+
+        std::cout << text << std::endl;
+        ctx.assert(true);
+      });
+
+  t.test(g, "Test 9")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        auto const text = long_text();
+
+        ctx.assert(true);
+        std::cout << text << std::endl;
+      });
+
+  t.test(g, "Test 10")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        auto const text = long_text();
+
+        std::cout << text << std::endl;
+        ctx.assert(true);
+        std::cout << text << std::endl;
+      });
+
+  t.test(g, "Test 11")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        auto const text = long_text();
+
+        std::cerr << text << std::endl;
+        ctx.assert(true);
+        std::cout << text << std::endl;
+      });
+
+  t.test(g, "Test 12")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        auto const text = long_text();
+
+        std::cout << text << std::endl;
+        ctx.assert(true);
+        std::cerr << text << std::endl;
+      });
+
+  t.test(g, "Test 13")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        auto const text = long_text();
+
+        std::cerr << text << std::endl;
+        ctx.assert(true);
+        std::cerr << text << std::endl;
+      });
+
+  t.test(g, "Test 14")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        auto const text = long_text();
+
+        std::cout << text << std::endl;
+        std::cerr << text << std::endl;
+        ctx.assert(true);
+        std::cout << text << std::endl;
+        std::cerr << text << std::endl;
+      });
+
+  t.test(g, "Test 15")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        auto const text = long_text();
+
+        std::cout << text << std::endl;
+        std::cerr << text << std::endl;
+        ctx.assert(true);
+        std::cout << text << std::endl;
+        std::cerr << text << std::endl;
+        ctx.assert(true);
+        std::cout << text << std::endl;
+        std::cerr << text << std::endl;
+      });
+
+  t.test(g, "Test 16")
+    .run(
+      [](waypoint::Context const & /*ctx*/)
+      {
+        auto const text = long_text();
+
+        std::cout << text << std::endl;
+        std::cerr << text << std::endl;
+        std::cout << text << std::endl;
+        std::cerr << text << std::endl;
+        std::cout << text << std::endl;
+        std::cerr << text << std::endl;
+      });
 }
 
 auto main() -> int
@@ -108,6 +225,16 @@ auto main() -> int
     "a9\na11\n",
     "a13\na15\na17\n",
     "one\nthree\nfive\n",
+
+    long_text() + "\n",
+    long_text() + "\n",
+    long_text() + "\n" + long_text() + "\n",
+    long_text() + "\n",
+    long_text() + "\n",
+    "",
+    long_text() + "\n" + long_text() + "\n",
+    long_text() + "\n" + long_text() + "\n" + long_text() + "\n",
+    long_text() + "\n" + long_text() + "\n" + long_text() + "\n",
   };
   std::vector<std::string> const expected_std_errs = {
     "",
@@ -117,6 +244,15 @@ auto main() -> int
     "a10\na12\n",
     "a14\na16\na18\n",
     "two\nfour\nsix\n",
+    "",
+    "",
+    "",
+    long_text() + "\n",
+    long_text() + "\n",
+    long_text() + "\n" + long_text() + "\n",
+    long_text() + "\n" + long_text() + "\n",
+    long_text() + "\n" + long_text() + "\n" + long_text() + "\n",
+    long_text() + "\n" + long_text() + "\n" + long_text() + "\n",
   };
   std::vector<std::string> const expected_test_names = {
     "Test 1",
@@ -126,6 +262,15 @@ auto main() -> int
     "Test 5",
     "Test 6",
     "Test 7",
+    "Test 8",
+    "Test 9",
+    "Test 10",
+    "Test 11",
+    "Test 12",
+    "Test 13",
+    "Test 14",
+    "Test 15",
+    "Test 16",
   };
 
   for(unsigned i = 0; i < results.test_count(); ++i)
