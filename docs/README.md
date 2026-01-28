@@ -256,6 +256,9 @@ WAYPOINT_AUTORUN(waypoint::TestRun const &t)
 }
 ```
 
+For details, in particular those pertaining to test setup, teardown,
+and control flow, refer to the [User Guide](USER_GUIDE.md).
+
 ## Releases
 
 The Waypoint project follows the Live at Head philosophy.
