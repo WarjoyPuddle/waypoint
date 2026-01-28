@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdlib>
+#include <cstring>
 #include <format>
 #include <iterator>
 #include <memory>
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <linux/limits.h>
 #include <sys/wait.h>
 
 namespace
@@ -305,14 +307,16 @@ auto resolve_path(std::string const &input) noexcept -> std::string
 
 auto get_path_to_current_executable() noexcept -> std::string
 {
-  std::vector<char> dest;
-  constexpr unsigned long long bufsize = 4'096;
+  std::array<char, PATH_MAX> dest{};
 
-  dest.resize(bufsize);
-  std::ranges::fill(dest, 0);
+  std::memset(dest.data(), 0, dest.size() * sizeof(decltype(dest)::value_type));
 
   [[maybe_unused]]
-  auto const ret = ::readlink("/proc/self/exe", dest.data(), bufsize);
+  auto const ret = ::readlink("/proc/self/exe", dest.data(), dest.size());
+  waypoint::internal::assert(ret > 0, "::readlink returned an error");
+  waypoint::internal::assert(
+    std::cmp_not_equal(ret, dest.size()),
+    "Path to executable is too long");
 
   std::string const path{dest.data()};
 
