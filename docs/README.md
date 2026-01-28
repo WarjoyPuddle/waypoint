@@ -9,6 +9,7 @@
         1. [The build-and-install method (recommended)](#the-build-and-install-method-recommended)
         2. [The add_subdirectory method](#the-add_subdirectory-method)
         3. [Providing your own entry point](#providing-your-own-entry-point)
+    2. [Writing your first tests](#writing-your-first-tests)
 4. [Releases](#releases)
 5. [Contributing to Waypoint](#contributing-to-waypoint)
 
@@ -46,7 +47,7 @@ Building Waypoint requires a C++23-capable compiler.
 It has been confirmed to work out of the box with GCC 15 and Clang 20.
 We will use the latter in the examples that follow.
 
-When testing with Waypoint, make sure you do not use variables, classes
+When testing with Waypoint, make sure you do not use variables, classes,
 or functions from any namespace named `internal`
 (e.g. `waypoint::internal`).
 These APIs may not be stable between releases and using them directly
@@ -132,11 +133,10 @@ vendoring Waypoint.
 To build and run the test project, start by copying the
 `infrastructure` and `src` directories into
 `examples/quick_start_add_subdirectory/third_party___/waypoint`.
-In a production scenario, you would probably also track the files
-within using your version control system.
+In a production scenario, you would probably also track the contents of this
+directory using your version control system.
 Another approach would be to just clone Waypoint into the
-`third_party___` directory or use a Git submodule, but this is not
-strictly necessary.
+`third_party___/waypoint` directory or use a Git submodule.
 
 ```shell
 cd examples/quick_start_add_subdirectory
@@ -205,6 +205,56 @@ If you wish, it is not difficult to adapt the add_subdirectory workflow
 to provide your own program entry point.
 Again, the main difference is that you would link against
 `waypoint::waypoint` and not `waypoint::waypoint_main`.
+
+### Writing your first tests
+
+A Waypoint test must belong to a group, identified by its name.
+Tests are created with reference to this group, and each test has its own
+name as well.
+Test names within a group must be unique.
+
+A test's executable body is provided as a callable to its `run()` method.
+
+Assertions are defined through the `Context` parameter passed to the test
+body.
+
+The group and test definitions may be wrapped in a `WAYPOINT_AUTORUN` macro,
+which ensures automated test registration.
+
+An example `.cpp` file containing Waypoint tests looks like this.
+Build it as part of an executable target using CMake and link this target to
+the `waypoint::waypoint_main` library, as described in
+[Installation methods](#installation-methods).
+
+```c++
+WAYPOINT_AUTORUN(waypoint::TestRun const &t)
+{
+  auto const add_group = t.group("Addition tests");
+
+  t.test(add_group, "Two plus two equals four")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        ctx.assert(2 + 2 == 4);
+      });
+
+  t.test(add_group, "One plus three equals four")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        ctx.assert(1 + 3 == 4);
+      });
+
+  auto const multiply_group = t.group("Multiplication tests");
+
+  t.test(multiply_group, "Two times two equals four")
+    .run(
+      [](waypoint::Context const &ctx)
+      {
+        ctx.assert(2 * 2 == 4);
+      });
+}
+```
 
 ## Releases
 
