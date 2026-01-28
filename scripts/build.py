@@ -12,6 +12,7 @@ from python_imports import Compiler
 from python_imports import Task
 from python_imports import analyze_gcc_coverage
 from python_imports import build_cmake
+from python_imports import cache_var_from_preset
 from python_imports import changed_cpp_source_files_and_dependents
 from python_imports import check_copyright_comments
 from python_imports import check_formatting
@@ -39,6 +40,105 @@ THIS_SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 PROJECT_ROOT_DIR = os.path.realpath(f"{THIS_SCRIPT_DIR}/..")
 BUILD_DIR = os.path.realpath(f"{PROJECT_ROOT_DIR}/build___")
 
+
+@enum.unique
+class CMakePresets(enum.Enum):
+    LinuxClang = (
+        Compiler.Clang,
+        "configure_linux_clang",
+        "build_linux_clang",
+        "test_linux_clang",
+    )
+    LinuxGcc = (
+        Compiler.Gcc,
+        "configure_linux_gcc",
+        "build_linux_gcc",
+        "test_linux_gcc",
+    )
+    LinuxClangShared = (
+        Compiler.Clang,
+        "configure_linux_clang_shared",
+        "build_linux_clang_shared",
+        "test_linux_clang_shared",
+    )
+    LinuxGccShared = (
+        Compiler.Gcc,
+        "configure_linux_gcc_shared",
+        "build_linux_gcc_shared",
+        "test_linux_gcc_shared",
+    )
+    LinuxGccCoverage = (
+        Compiler.Gcc,
+        "configure_linux_gcc_coverage",
+        "build_linux_gcc_coverage",
+        "test_linux_gcc_coverage",
+    )
+    Example = (
+        Compiler.Clang,
+        "example_configure",
+        "example_build",
+        "example_test",
+    )
+    ExampleShared = (
+        Compiler.Clang,
+        "example_configure_shared",
+        "example_build_shared",
+        "example_test_shared",
+    )
+    AddressSanitizerClang = (
+        Compiler.Clang,
+        "configure_linux_clang_address_sanitizer",
+        "build_linux_clang_address_sanitizer",
+        "test_linux_clang_address_sanitizer",
+    )
+    UndefinedBehaviourSanitizerClang = (
+        Compiler.Clang,
+        "configure_linux_clang_undefined_behaviour_sanitizer",
+        "build_linux_clang_undefined_behaviour_sanitizer",
+        "test_linux_clang_undefined_behaviour_sanitizer",
+    )
+    LinuxClangValgrind = (
+        Compiler.Clang,
+        "configure_linux_valgrind_clang",
+        "build_linux_valgrind_clang",
+        "test_linux_valgrind_clang",
+    )
+    LinuxGccValgrind = (
+        Compiler.Gcc,
+        "configure_linux_valgrind_gcc",
+        "build_linux_valgrind_gcc",
+        "test_linux_valgrind_gcc",
+    )
+
+    def __init__(
+        self,
+        compiler: Compiler,
+        configure_preset: str,
+        build_preset: str,
+        test_preset: str,
+    ):
+        self._compiler = compiler
+        self._configure_preset = configure_preset
+        self._build_preset = build_preset
+        self._test_preset = test_preset
+
+    @property
+    def compiler(self):
+        return self._compiler
+
+    @property
+    def configure(self):
+        return self._configure_preset
+
+    @property
+    def build(self):
+        return self._build_preset
+
+    @property
+    def test(self):
+        return self._test_preset
+
+
 COVERAGE_DIR_GCOVR = os.path.realpath(f"{BUILD_DIR}/coverage_gcovr_kMkR9SM1S69oCLJ5___")
 COVERAGE_FILE_HTML_GCOVR = os.path.realpath(f"{COVERAGE_DIR_GCOVR}/index.html")
 COVERAGE_FILE_JSON_GCOVR = os.path.realpath(f"{COVERAGE_DIR_GCOVR}/coverage.json")
@@ -58,18 +158,6 @@ INSTALL_TESTS_DIR_PATH = os.path.realpath(f"{PROJECT_ROOT_DIR}/test/install_test
 TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR = os.path.realpath(
     f"{INSTALL_TESTS_DIR_PATH}/find_package_no_version_test"
 )
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/waypoint_install_linux_clang_MItqq12bE9VvgzWH___"
-)
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/waypoint_install_linux_gcc_99V4LexZ8aO7qhLC___"
-)
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/waypoint_install_linux_clang_shared_CJGWSsRXagJ22vHV___"
-)
-TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/waypoint_install_linux_gcc_shared_JRXQmCKTnzVcAYbS___"
-)
 TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR = os.path.realpath(
     f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/infrastructure"
 )
@@ -78,21 +166,25 @@ assert os.path.isfile(
 ) and os.path.isfile(
     f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR}/CMakePresets.json"
 )
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_DIR = os.path.realpath(
+    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR",CMakePresets.LinuxClang,TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR)}"
+)
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_DIR = os.path.realpath(
+    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR",CMakePresets.LinuxGcc,TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR)}"
+)
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CLANG_SHARED_DIR = os.path.realpath(
+    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR",CMakePresets.LinuxClangShared,TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR)}"
+)
+TEST_INSTALL_FIND_PACKAGE_NO_VERSION_GCC_SHARED_DIR = os.path.realpath(
+    f"{TEST_INSTALL_FIND_PACKAGE_NO_VERSION_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR",CMakePresets.LinuxGccShared,TEST_INSTALL_FIND_PACKAGE_NO_VERSION_CMAKE_SOURCE_DIR)}"
+)
 
 TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR = os.path.realpath(
     f"{INSTALL_TESTS_DIR_PATH}/find_package_exact_version_test"
-)
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/waypoint_install_linux_clang_2dp6n2H9O8te806G___"
-)
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/waypoint_install_linux_gcc_vo44y7Bxqbn3kKZA___"
-)
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/waypoint_install_linux_clang_shared_kd2bzSgxWMh8xpx8___"
-)
-TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/waypoint_install_linux_gcc_shared_zogAXLEQwWHTZO9T___"
 )
 TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR = os.path.realpath(
     f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/infrastructure"
@@ -102,24 +194,25 @@ assert os.path.isfile(
 ) and os.path.isfile(
     f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR}/CMakePresets.json"
 )
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_DIR = os.path.realpath(
+    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR",CMakePresets.LinuxClang,TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR)}"
+)
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_DIR = os.path.realpath(
+    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR",CMakePresets.LinuxGcc,TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR)}"
+)
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CLANG_SHARED_DIR = os.path.realpath(
+    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR",CMakePresets.LinuxClangShared,TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR)}"
+)
+TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_GCC_SHARED_DIR = os.path.realpath(
+    f"{TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_INSTALL_DIR",CMakePresets.LinuxGccShared,TEST_INSTALL_FIND_PACKAGE_EXACT_VERSION_CMAKE_SOURCE_DIR)}"
+)
 
 TEST_INSTALL_ADD_SUBDIRECTORY_DIR = os.path.realpath(
     f"{INSTALL_TESTS_DIR_PATH}/add_subdirectory_test"
-)
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_sources_4XF31O1T1ff3B3Tq___"
-)
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_build_clang_KGgicppoHf0mkVdJ___"
-)
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_build_gcc_ZcvFQuKcWaEwFis9___"
-)
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_build_clang_shared_ZKPQ5F48VyGbWfTq___"
-)
-TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_SHARED_DIR = os.path.realpath(
-    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_build_gcc_shared_uDavOddLQYiP7PUc___"
 )
 TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR = os.path.realpath(
     f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/infrastructure"
@@ -128,6 +221,25 @@ assert os.path.isfile(
     f"{TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/CMakeLists.txt"
 ) and os.path.isfile(
     f"{TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR}/CMakePresets.json"
+)
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_SOURCES_DIR = os.path.realpath(
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/waypoint_sources_4XF31O1T1ff3B3Tq___"
+)
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_DIR = os.path.realpath(
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_BUILD_PATH",CMakePresets.LinuxClang,TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)}"
+)
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_DIR = os.path.realpath(
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_BUILD_PATH",CMakePresets.LinuxGcc,TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)}"
+)
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_CLANG_BUILD_SHARED_DIR = os.path.realpath(
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_BUILD_PATH",CMakePresets.LinuxClangShared,TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)}"
+)
+TEST_INSTALL_ADD_SUBDIRECTORY_WAYPOINT_GCC_BUILD_SHARED_DIR = os.path.realpath(
+    f"{TEST_INSTALL_ADD_SUBDIRECTORY_DIR}/"
+    f"{cache_var_from_preset("PRESET_WAYPOINT_BUILD_PATH",CMakePresets.LinuxGccShared,TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR)}"
 )
 
 EXAMPLES_DIR_PATH = os.path.realpath(f"{PROJECT_ROOT_DIR}/examples")
@@ -379,104 +491,6 @@ class Mode(enum.Enum):
     @property
     def test_install(self):
         return self.config.test_install
-
-
-@enum.unique
-class CMakePresets(enum.Enum):
-    LinuxClang = (
-        Compiler.Clang,
-        "configure_linux_clang",
-        "build_linux_clang",
-        "test_linux_clang",
-    )
-    LinuxGcc = (
-        Compiler.Gcc,
-        "configure_linux_gcc",
-        "build_linux_gcc",
-        "test_linux_gcc",
-    )
-    LinuxClangShared = (
-        Compiler.Clang,
-        "configure_linux_clang_shared",
-        "build_linux_clang_shared",
-        "test_linux_clang_shared",
-    )
-    LinuxGccShared = (
-        Compiler.Gcc,
-        "configure_linux_gcc_shared",
-        "build_linux_gcc_shared",
-        "test_linux_gcc_shared",
-    )
-    LinuxGccCoverage = (
-        Compiler.Gcc,
-        "configure_linux_gcc_coverage",
-        "build_linux_gcc_coverage",
-        "test_linux_gcc_coverage",
-    )
-    Example = (
-        Compiler.Clang,
-        "example_configure",
-        "example_build",
-        "example_test",
-    )
-    ExampleShared = (
-        Compiler.Clang,
-        "example_configure_shared",
-        "example_build_shared",
-        "example_test_shared",
-    )
-    AddressSanitizerClang = (
-        Compiler.Clang,
-        "configure_linux_clang_address_sanitizer",
-        "build_linux_clang_address_sanitizer",
-        "test_linux_clang_address_sanitizer",
-    )
-    UndefinedBehaviourSanitizerClang = (
-        Compiler.Clang,
-        "configure_linux_clang_undefined_behaviour_sanitizer",
-        "build_linux_clang_undefined_behaviour_sanitizer",
-        "test_linux_clang_undefined_behaviour_sanitizer",
-    )
-    LinuxClangValgrind = (
-        Compiler.Clang,
-        "configure_linux_valgrind_clang",
-        "build_linux_valgrind_clang",
-        "test_linux_valgrind_clang",
-    )
-    LinuxGccValgrind = (
-        Compiler.Gcc,
-        "configure_linux_valgrind_gcc",
-        "build_linux_valgrind_gcc",
-        "test_linux_valgrind_gcc",
-    )
-
-    def __init__(
-        self,
-        compiler: Compiler,
-        configure_preset: str,
-        build_preset: str,
-        test_preset: str,
-    ):
-        self._compiler = compiler
-        self._configure_preset = configure_preset
-        self._build_preset = build_preset
-        self._test_preset = test_preset
-
-    @property
-    def compiler(self):
-        return self._compiler
-
-    @property
-    def configure(self):
-        return self._configure_preset
-
-    @property
-    def build(self):
-        return self._build_preset
-
-    @property
-    def test(self):
-        return self._test_preset
 
 
 @enum.unique
