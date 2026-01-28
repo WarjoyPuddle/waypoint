@@ -5,9 +5,10 @@
 1. [License](#license)
 2. [Introduction](#introduction)
 3. [Quick start](#quick-start)
-    1. [The build-and-install method (recommended)](#the-build-and-install-method-recommended)
-    2. [The add_subdirectory method](#the-add_subdirectory-method)
-    3. [Providing your own entry point](#providing-your-own-entry-point)
+    1. [Installation methods](#installation-methods)
+        1. [The build-and-install method (recommended)](#the-build-and-install-method-recommended)
+        2. [The add_subdirectory method](#the-add_subdirectory-method)
+        3. [Providing your own entry point](#providing-your-own-entry-point)
 4. [Releases](#releases)
 5. [Contributing to Waypoint](#contributing-to-waypoint)
 
@@ -34,6 +35,8 @@ Below are some of Waypoint's stand-out features.
 
 ## Quick start
 
+### Installation methods
+
 It is easiest to integrate Waypoint into your project if you use
 [CMake](https://cmake.org).
 You will need to install [Ninja](https://ninja-build.org) to use the
@@ -51,7 +54,7 @@ may result in defects up to and including undefined behaviour.
 Client-facing APIs are all in the `waypoint` namespace and will remain
 stable for the forseeable future.
 
-### The build-and-install method (recommended)
+#### The build-and-install method (recommended)
 
 Start by cloning the Waypoint Git repository and navigate to the
 clone's directory.
@@ -116,7 +119,7 @@ ctest --preset example_test --build-config Debug
 ./build___/Debug/test_program
 ```
 
-### The add_subdirectory method
+#### The add_subdirectory method
 
 This method uses an approach known as dependency vendoring, where the
 client project makes a copy of the dependency's sources and
@@ -159,7 +162,7 @@ ctest --preset example_test --build-config Debug
 ./build___/Debug/test_program
 ```
 
-### Providing your own entry point
+#### Providing your own entry point
 
 If you have special requirements that cannot be satisfied by the
 default `main()` function provided by Waypoint, you are free to write
