@@ -82,3 +82,13 @@ set_target_properties(add_subdirectory_test PROPERTIES LINK_WARNING_AS_ERROR
 set_target_properties(add_subdirectory_test PROPERTIES CXX_EXTENSIONS FALSE)
 set_target_properties(add_subdirectory_test PROPERTIES EXPORT_COMPILE_COMMANDS
                                                        TRUE)
+
+function(switch_stdlib_for_clang target)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${target} PRIVATE -stdlib=libc++)
+    target_link_options(${target} PRIVATE -lc++)
+  endif()
+endfunction()
+
+switch_stdlib_for_clang(stub_library)
+switch_stdlib_for_clang(add_subdirectory_test)

@@ -62,6 +62,7 @@ function install_apps
     clang-tools-20 \
     clang-format-20 \
     clang-tidy-20 \
+    libc++-20-dev \
     cmake \
     cmake-format \
     gcc-15 \

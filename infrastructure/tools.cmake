@@ -171,13 +171,20 @@ macro(disable_exceptions_in_coverage_mode)
   endif()
 endmacro()
 
+macro(switch_stdlib_for_clang)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${arg_TARGET} PRIVATE -stdlib=libc++)
+    target_link_options(${arg_TARGET} PRIVATE -lc++)
+  endif()
+endmacro()
+
 macro(conditionally_enable_address_sanitizer)
   if(DEFINED PRESET_USE_ADDRESS_SANITIZER_Yc27ZqrRDoMnuQXw
      AND PRESET_USE_ADDRESS_SANITIZER_Yc27ZqrRDoMnuQXw)
     target_compile_options(
-      ${arg_TARGET} PRIVATE -fsanitize=address -g -fno-omit-frame-pointer
+      ${arg_TARGET} PRIVATE -g -fsanitize=address -fno-omit-frame-pointer
                             -fno-inline-functions -fno-optimize-sibling-calls)
-    target_link_options(${arg_TARGET} PRIVATE -fsanitize=address -g)
+    target_link_options(${arg_TARGET} PRIVATE -g -fsanitize=address)
   endif()
 endmacro()
 
@@ -186,16 +193,18 @@ macro(conditionally_enable_undefined_behaviour_sanitizer)
      AND PRESET_USE_UNDEFINED_BEHAVIOUR_SANITIZER_Sg9fNtkF8wHdPaeP)
     target_compile_options(
       ${arg_TARGET}
-      PRIVATE -g
-              -fsanitize=undefined
-              -fsanitize=bounds
-              -fsanitize=float-divide-by-zero
-              -fsanitize=implicit-conversion
-              -fsanitize=integer
-              -fsanitize=nullability
-              -fsanitize=vptr
-              -fno-sanitize=unsigned-integer-overflow
-              -fno-sanitize-recover=all)
+      PRIVATE
+        -g
+        -fsanitize=undefined
+        -fsanitize-ignorelist=/workspace/infrastructure/ubsan_ignorelist.txt
+        -fsanitize=bounds
+        -fsanitize=float-divide-by-zero
+        -fsanitize=implicit-conversion
+        -fsanitize=integer
+        -fsanitize=nullability
+        -fsanitize=vptr
+        -fno-sanitize=unsigned-integer-overflow
+        -fno-sanitize-recover=all)
     target_link_options(${arg_TARGET} PRIVATE -g -fsanitize=undefined)
   endif()
 endmacro()
@@ -294,6 +303,7 @@ macro(prepare_platform_specific_paths)
 endmacro()
 
 macro(common_macros)
+  switch_stdlib_for_clang()
   links_and_sources()
   conditionally_configure_compiler_for_valgrind()
   conditionally_enable_coverage()

@@ -46,3 +46,13 @@ target_link_libraries(
 
 # Register test with ctest
 add_test(NAME run_test_program COMMAND $<TARGET_FILE:test_program>)
+
+function(switch_stdlib_for_clang target)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${target} PRIVATE -stdlib=libc++)
+    target_link_options(${target} PRIVATE -lc++)
+  endif()
+endfunction()
+
+switch_stdlib_for_clang(the_answer_lib)
+switch_stdlib_for_clang(test_program)
