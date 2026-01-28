@@ -5466,6 +5466,10 @@ def main() -> int:
     if not success:
         return 1
 
+    if mode.examples:
+        # Path used in README
+        assert os.path.isdir(os.path.realpath(f"{BUILD_DIR}/waypoint_install___"))
+
     print(f"Success: {os.path.basename(sys.argv[0])}")
 
     return 0
