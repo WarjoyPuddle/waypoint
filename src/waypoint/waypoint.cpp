@@ -444,7 +444,7 @@ auto parent_main(
     all_records.data() + initial_test_index,
     all_records.size() - initial_test_index);
 
-  for(auto *record : record_subset)
+  for(auto *const record : record_subset)
   {
     if(record->disabled())
     {
