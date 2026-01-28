@@ -285,6 +285,7 @@ public:
   template<
     typename F,
     typename SFINAE = typename enable_if<
+      // NOLINTNEXTLINE(modernize-type-traits)
       !is_same_v<F, Function<void(Context const &)>>,
       void>::type>
   // NOLINTNEXTLINE(bugprone-forwarding-reference-overload,cppcoreguidelines-missing-std-forward,google-explicit-constructor)
