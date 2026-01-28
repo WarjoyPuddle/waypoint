@@ -730,13 +730,14 @@ auto uniform_number(TruncatedRng &rng, std::uint64_t const max) -> std::uint64_t
   return discard_until_within_range(rng, rng_max_full_cycles) % cycle_length;
 }
 
-void Fisher_Yates_shuffle(std::vector<TestRecord *> &vec, TruncatedRng &rng)
+void shuffle(std::vector<TestRecord *> &vec, TruncatedRng &rng)
 {
   if(vec.empty())
   {
     return;
   }
 
+  // Fisher-Yates shuffle
   for(std::uint64_t i = vec.size() - 1; i > 0; --i)
   {
     using std::swap;
@@ -751,7 +752,7 @@ auto get_shuffled_test_record_ptrs_(TestRun const &t) noexcept
 
   auto rng = get_random_number_generator();
 
-  Fisher_Yates_shuffle(ptrs, rng);
+  shuffle(ptrs, rng);
 
   return ptrs;
 }
