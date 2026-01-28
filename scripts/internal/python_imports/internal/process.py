@@ -6,6 +6,15 @@ import subprocess
 import tempfile
 
 
+def run_with_output(cmd) -> bool:
+    try:
+        result = subprocess.run(cmd)
+    except FileNotFoundError:
+        return False
+
+    return result.returncode == 0
+
+
 def run(cmd) -> tuple[bool, str | None]:
     with tempfile.TemporaryFile("r+") as f:
         try:

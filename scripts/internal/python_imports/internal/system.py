@@ -6,8 +6,11 @@ import contextlib
 import os
 import pathlib
 import platform
+import re
 import shutil
 import sys
+
+from .process import run
 
 
 def get_cpu_count() -> int:
@@ -70,3 +73,47 @@ def get_python() -> str:
         if (sys.executable is None or sys.executable == "")
         else sys.executable
     )
+
+
+def fallback_current_timezone() -> str:
+    with open("/etc/timezone", "r") as f:
+        timezone = f.read().strip()
+
+    return timezone
+
+
+def current_timezone() -> str:
+    success, output = run(["timedatectl", "show"])
+    if not success:
+        return fallback_current_timezone()
+
+    lines = output.split("\n")
+    lines = [line.strip() for line in lines]
+    regex_results = [re.search(r"^Timezone=(.+)$", line) for line in lines]
+    regex_results = [result for result in regex_results if result is not None]
+    assert len(regex_results) == 1
+
+    timezone = regex_results[0].group(1)
+
+    return timezone
+
+
+def local_username() -> str:
+    success, output = run(["id", "-un"])
+    assert success
+
+    return output.strip()
+
+
+def local_user_id() -> str:
+    success, output = run(["id", "-u"])
+    assert success
+
+    return output.strip()
+
+
+def local_group_id() -> str:
+    success, output = run(["id", "-g"])
+    assert success
+
+    return output.strip()

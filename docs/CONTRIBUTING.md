@@ -133,12 +133,8 @@ environment.
 To start using the container, make sure you have docker installed and
 enabled for `sudo`-less execution.
 
-The `scripts/enter_docker.sh` script will build a Docker image with all the
-necessary tooling and start a terminal session inside a container.
-
-While inside the Docker container (or another suitable context), you
-can interact with the Waypoint codebase by running the commands in the
-`scripts/` directory.
+You can interact with the Waypoint codebase by running the commands in
+the `scripts/` directory.
 
 * `clean.sh` removes all build artifacts.
 * `coverage.sh` builds and runs instrumented tests, outputs coverage report.
