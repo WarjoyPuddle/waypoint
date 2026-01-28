@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -91,7 +91,7 @@ public:
   auto operator=(OutputPipeEnd &&other) noexcept -> OutputPipeEnd & = delete;
 
   [[nodiscard]]
-  auto read(unsigned char *buffer, unsigned long long count) const
+  auto read_exactly(unsigned char *buffer, unsigned long long count) const
     -> ReadResult;
 
 private:
