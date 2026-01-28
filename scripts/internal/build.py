@@ -1308,21 +1308,21 @@ class CliConfig:
     def __init__(self, mode_str):
         self.mode = None
 
-        if mode_str == f"{Mode.Clean}":
+        if mode_str == str(Mode.Clean):
             self.mode = Mode.Clean
-        if mode_str == f"{Mode.Coverage}":
+        if mode_str == str(Mode.Coverage):
             self.mode = Mode.Coverage
-        if mode_str == f"{Mode.Fast}":
+        if mode_str == str(Mode.Fast):
             self.mode = Mode.Fast
-        if mode_str == f"{Mode.Format}":
+        if mode_str == str(Mode.Format):
             self.mode = Mode.Format
-        if mode_str == f"{Mode.StaticAnalysisFull}":
+        if mode_str == str(Mode.StaticAnalysisFull):
             self.mode = Mode.StaticAnalysisFull
-        if mode_str == f"{Mode.StaticAnalysisIncremental}":
+        if mode_str == str(Mode.StaticAnalysisIncremental):
             self.mode = Mode.StaticAnalysisIncremental
-        if mode_str == f"{Mode.Valgrind}":
+        if mode_str == str(Mode.Valgrind):
             self.mode = Mode.Valgrind
-        if mode_str == f"{Mode.Verify}":
+        if mode_str == str(Mode.Verify):
             self.mode = Mode.Verify
 
         assert self.mode is not None
