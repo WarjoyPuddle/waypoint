@@ -2759,7 +2759,7 @@ def test_gcc_release_test_target_shared_fn() -> bool:
 def example_quick_start_build_and_install_fn() -> bool:
     example_cmake_source_dir = EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
 
-    # use Waypoint as a static library
+    # use as a static library
     clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
 
     copy_install_dir(
@@ -2872,7 +2872,7 @@ def example_quick_start_build_and_install_fn() -> bool:
     if not success:
         return False
 
-    # use Waypoint as a dynamic library
+    # use as a dynamic library
     clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
 
     copy_install_dir(
@@ -2991,7 +2991,7 @@ def example_quick_start_build_and_install_fn() -> bool:
 def example_quick_start_custom_main_fn() -> bool:
     example_cmake_source_dir = EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR
 
-    # use Waypoint as a static library
+    # use as a static library
     clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
 
     copy_install_dir(
@@ -3104,7 +3104,7 @@ def example_quick_start_custom_main_fn() -> bool:
     if not success:
         return False
 
-    # use Waypoint as a dynamic library
+    # use as a dynamic library
     clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
 
     copy_install_dir(
