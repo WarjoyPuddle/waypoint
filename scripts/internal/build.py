@@ -2747,16 +2747,16 @@ def test_gcc_release_test_target_shared_fn() -> bool:
     )
 
 
-def example_quick_start_build_and_install_fn() -> bool:
-    example_cmake_source_dir = EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR
-
+def installation_example_(
+    example_cmake_source_dir: pathlib.Path, example_waypoint_install_dir: pathlib.Path
+) -> bool:
     # use as a static library
     clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
 
     copy_install_dir(
         CMakePresets.DefaultStatic,
         CMAKE_SOURCE_DIR,
-        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR,
+        example_waypoint_install_dir,
     )
 
     with clang():
@@ -2841,7 +2841,7 @@ def example_quick_start_build_and_install_fn() -> bool:
 
     success, output = run_target(
         CMakePresets.Example,
-        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+        example_cmake_source_dir,
         CMakeBuildConfig.Debug,
         "test_program",
     )
@@ -2849,7 +2849,7 @@ def example_quick_start_build_and_install_fn() -> bool:
         return False
     success, output = run_target(
         CMakePresets.Example,
-        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+        example_cmake_source_dir,
         CMakeBuildConfig.RelWithDebInfo,
         "test_program",
     )
@@ -2857,7 +2857,7 @@ def example_quick_start_build_and_install_fn() -> bool:
         return False
     success, output = run_target(
         CMakePresets.Example,
-        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+        example_cmake_source_dir,
         CMakeBuildConfig.Release,
         "test_program",
     )
@@ -2870,7 +2870,7 @@ def example_quick_start_build_and_install_fn() -> bool:
     copy_install_dir(
         CMakePresets.DefaultShared,
         CMAKE_SOURCE_DIR,
-        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR,
+        example_waypoint_install_dir,
     )
 
     with clang():
@@ -2955,7 +2955,7 @@ def example_quick_start_build_and_install_fn() -> bool:
 
     success, output = run_target(
         CMakePresets.Example,
-        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+        example_cmake_source_dir,
         CMakeBuildConfig.Debug,
         "test_program",
     )
@@ -2963,7 +2963,7 @@ def example_quick_start_build_and_install_fn() -> bool:
         return False
     success, output = run_target(
         CMakePresets.Example,
-        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+        example_cmake_source_dir,
         CMakeBuildConfig.RelWithDebInfo,
         "test_program",
     )
@@ -2971,7 +2971,7 @@ def example_quick_start_build_and_install_fn() -> bool:
         return False
     success, output = run_target(
         CMakePresets.Example,
-        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+        example_cmake_source_dir,
         CMakeBuildConfig.Release,
         "test_program",
     )
@@ -2979,240 +2979,20 @@ def example_quick_start_build_and_install_fn() -> bool:
         return False
 
     return True
+
+
+def example_quick_start_build_and_install_fn() -> bool:
+    return installation_example_(
+        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_CMAKE_SOURCE_DIR,
+        EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR,
+    )
 
 
 def example_quick_start_custom_main_fn() -> bool:
-    example_cmake_source_dir = EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR
-
-    # use as a static library
-    clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
-
-    copy_install_dir(
-        CMakePresets.DefaultStatic,
-        CMAKE_SOURCE_DIR,
+    return installation_example_(
+        EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR,
         EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR,
     )
-
-    with clang():
-        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-        if not success:
-            return False
-
-    success = build_cmake(
-        CMakeBuildConfig.Debug,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "all",
-    )
-    if not success:
-        return False
-    success = build_cmake(
-        CMakeBuildConfig.RelWithDebInfo,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "all",
-    )
-    if not success:
-        return False
-    success = build_cmake(
-        CMakeBuildConfig.Release,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "all",
-    )
-    if not success:
-        return False
-
-    success = build_cmake(
-        CMakeBuildConfig.Debug,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "test",
-    )
-    if not success:
-        return False
-    success = build_cmake(
-        CMakeBuildConfig.RelWithDebInfo,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "test",
-    )
-    if not success:
-        return False
-    success = build_cmake(
-        CMakeBuildConfig.Release,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "test",
-    )
-    if not success:
-        return False
-
-    success = run_ctest(
-        CMakePresets.Example,
-        CMakeBuildConfig.Debug,
-        None,
-        example_cmake_source_dir,
-    )
-    if not success:
-        return False
-    success = run_ctest(
-        CMakePresets.Example,
-        CMakeBuildConfig.RelWithDebInfo,
-        None,
-        example_cmake_source_dir,
-    )
-    if not success:
-        return False
-    success = run_ctest(
-        CMakePresets.Example,
-        CMakeBuildConfig.Release,
-        None,
-        example_cmake_source_dir,
-    )
-    if not success:
-        return False
-
-    success, output = run_target(
-        CMakePresets.Example,
-        EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR,
-        CMakeBuildConfig.Debug,
-        "test_program",
-    )
-    if not success:
-        return False
-    success, output = run_target(
-        CMakePresets.Example,
-        EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR,
-        CMakeBuildConfig.RelWithDebInfo,
-        "test_program",
-    )
-    if not success:
-        return False
-    success, output = run_target(
-        CMakePresets.Example,
-        EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR,
-        CMakeBuildConfig.Release,
-        "test_program",
-    )
-    if not success:
-        return False
-
-    # use as a dynamic library
-    clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
-
-    copy_install_dir(
-        CMakePresets.DefaultShared,
-        CMAKE_SOURCE_DIR,
-        EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR,
-    )
-
-    with clang():
-        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-        if not success:
-            return False
-
-    success = build_cmake(
-        CMakeBuildConfig.Debug,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "all",
-    )
-    if not success:
-        return False
-    success = build_cmake(
-        CMakeBuildConfig.RelWithDebInfo,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "all",
-    )
-    if not success:
-        return False
-    success = build_cmake(
-        CMakeBuildConfig.Release,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "all",
-    )
-    if not success:
-        return False
-
-    success = build_cmake(
-        CMakeBuildConfig.Debug,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "test",
-    )
-    if not success:
-        return False
-    success = build_cmake(
-        CMakeBuildConfig.RelWithDebInfo,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "test",
-    )
-    if not success:
-        return False
-    success = build_cmake(
-        CMakeBuildConfig.Release,
-        CMakePresets.Example,
-        example_cmake_source_dir,
-        "test",
-    )
-    if not success:
-        return False
-
-    success = run_ctest(
-        CMakePresets.Example,
-        CMakeBuildConfig.Debug,
-        None,
-        example_cmake_source_dir,
-    )
-    if not success:
-        return False
-    success = run_ctest(
-        CMakePresets.Example,
-        CMakeBuildConfig.RelWithDebInfo,
-        None,
-        example_cmake_source_dir,
-    )
-    if not success:
-        return False
-    success = run_ctest(
-        CMakePresets.Example,
-        CMakeBuildConfig.Release,
-        None,
-        example_cmake_source_dir,
-    )
-    if not success:
-        return False
-
-    success, output = run_target(
-        CMakePresets.Example,
-        EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR,
-        CMakeBuildConfig.Debug,
-        "test_program",
-    )
-    if not success:
-        return False
-    success, output = run_target(
-        CMakePresets.Example,
-        EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR,
-        CMakeBuildConfig.RelWithDebInfo,
-        "test_program",
-    )
-    if not success:
-        return False
-    success, output = run_target(
-        CMakePresets.Example,
-        EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR,
-        CMakeBuildConfig.Release,
-        "test_program",
-    )
-    if not success:
-        return False
-
-    return True
 
 
 def example_quick_start_add_subdirectory_fn() -> bool:
@@ -3310,7 +3090,7 @@ def example_quick_start_add_subdirectory_fn() -> bool:
 
     success, output = run_target(
         CMakePresets.Example,
-        EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+        example_cmake_source_dir,
         CMakeBuildConfig.Debug,
         "test_program",
     )
@@ -3318,7 +3098,7 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         return False
     success, output = run_target(
         CMakePresets.Example,
-        EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+        example_cmake_source_dir,
         CMakeBuildConfig.RelWithDebInfo,
         "test_program",
     )
@@ -3326,7 +3106,7 @@ def example_quick_start_add_subdirectory_fn() -> bool:
         return False
     success, output = run_target(
         CMakePresets.Example,
-        EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR,
+        example_cmake_source_dir,
         CMakeBuildConfig.Release,
         "test_program",
     )
