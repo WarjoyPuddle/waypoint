@@ -157,10 +157,8 @@ public:
     -> ReadPipePollGuard & = delete;
   auto operator=(ReadPipePollGuard &&other) noexcept
     -> ReadPipePollGuard & = delete;
-  ReadPipePollGuard(
-    waypoint::internal::OutputPipeEnd const &response_read_pipe,
-    waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
-    waypoint::internal::OutputPipeEnd const &std_err_read_pipe);
+  explicit ReadPipePollGuard(
+    std::vector<std::pair<OutputPipeEnd const &, PipePollResult>> const &pipes);
 
   [[nodiscard]]
   auto poll() const
