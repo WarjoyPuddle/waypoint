@@ -7,6 +7,7 @@
 #include "types.hpp"
 #include "waypoint.hpp"
 
+#include "assert/assert.hpp"
 #include "process/process.hpp"
 
 #include <algorithm>
@@ -14,6 +15,7 @@
 #include <format>
 #include <functional>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -688,6 +690,25 @@ auto get_test_record_ptrs(TestRun const &t) noexcept
   return ptrs;
 }
 
+// Unsophisticated, but works well enough for our purposes
+auto uniform_number(knuth_lcg &generator, std::uint64_t const max)
+  -> std::int64_t
+{
+  return static_cast<std::int64_t>(generator() % (max + 1));
+}
+
+void Fisher_Yates_shuffle(std::vector<TestRecord *> &vec, knuth_lcg &generator)
+{
+  waypoint::internal::assert(
+    vec.size() < std::numeric_limits<std::int64_t>::max(),
+    "Too many tests");
+  for(std::int64_t i = static_cast<std::int64_t>(vec.size()) - 1; i > 0; --i)
+  {
+    using std::swap;
+    swap(vec[i], vec[uniform_number(generator, i)]);
+  }
+}
+
 auto get_shuffled_test_record_ptrs_(TestRun const &t) noexcept
   -> std::vector<TestRecord *>
 {
@@ -695,7 +716,7 @@ auto get_shuffled_test_record_ptrs_(TestRun const &t) noexcept
 
   auto rng = get_random_number_generator();
 
-  std::ranges::shuffle(ptrs, rng);
+  Fisher_Yates_shuffle(ptrs, rng);
 
   return ptrs;
 }
