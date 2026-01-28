@@ -410,11 +410,6 @@ void send_response(
   }
 }
 
-auto is_end_command(waypoint::internal::Command const &command) -> bool
-{
-  return command.code == waypoint::internal::Command::Code::End;
-}
-
 void shut_down_sequence(
   waypoint::internal::InputPipeEnd const &command_write_pipe,
   waypoint::internal::OutputPipeEnd const &response_read_pipe) noexcept
@@ -595,7 +590,7 @@ void child_main(
         }),
       transmission_mutex);
 
-    if(is_end_command(command))
+    if(command.code == waypoint::internal::Command::Code::End)
     {
       break;
     }
