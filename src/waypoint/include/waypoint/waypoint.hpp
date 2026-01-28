@@ -607,9 +607,9 @@ public:
     }
 
     this->test_run_.register_test_assembly(
-      [setup = move(this->setup_),
-       body = move(this->body_),
-       teardown = move(this->teardown_)](Context const &ctx) noexcept
+      [setup = internal::move(this->setup_),
+       body = internal::move(this->body_),
+       teardown = internal::move(this->teardown_)](Context const &ctx) noexcept
       {
         FixtureT fixture = setup(ctx);
         body(ctx, fixture);
@@ -630,9 +630,9 @@ public:
       test_run_{other.test_run_},
       test_id_{other.test_id_},
       timeout_ms_{other.timeout_ms_},
-      setup_{move(other.setup_)},
-      body_{move(other.body_)},
-      teardown_{move(other.teardown_)},
+      setup_{internal::move(other.setup_)},
+      body_{internal::move(other.body_)},
+      teardown_{internal::move(other.teardown_)},
       is_disabled_{false}
   {
     other.is_active_ = false;
@@ -645,21 +645,21 @@ public:
   {
     this->is_active_ = true;
 
-    this->setup_ = move(f);
+    this->setup_ = internal::move(f);
   }
 
   void register_body(TestBodyWithFixture<FixtureT> f)
   {
     this->is_active_ = true;
 
-    this->body_ = move(f);
+    this->body_ = internal::move(f);
   }
 
   void register_teardown(TeardownWithFixture<FixtureT> f)
   {
     this->is_active_ = true;
 
-    this->teardown_ = move(f);
+    this->teardown_ = internal::move(f);
   }
 
   void set_timeout_ms(unsigned long long const timeout_ms)

@@ -1,8 +1,10 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
 #include "waypoint.hpp"
+
+#include <utility>
 
 namespace waypoint::internal
 {
@@ -22,9 +24,9 @@ Registrar<void>::~Registrar()
   }
 
   this->test_run_.register_test_assembly(
-    [setup = move(this->setup_),
-     body = move(this->body_),
-     teardown = move(this->teardown_)](Context const &ctx) noexcept
+    [setup = std::move(this->setup_),
+     body = std::move(this->body_),
+     teardown = std::move(this->teardown_)](Context const &ctx) noexcept
     {
       if(static_cast<bool>(setup))
       {
@@ -46,9 +48,9 @@ Registrar<void>::Registrar(Registrar &&other) noexcept
     test_run_{other.test_run_},
     test_id_{other.test_id_},
     timeout_ms_{other.timeout_ms_},
-    setup_{move(other.setup_)},
-    body_{move(other.body_)},
-    teardown_{move(other.teardown_)},
+    setup_{std::move(other.setup_)},
+    body_{std::move(other.body_)},
+    teardown_{std::move(other.teardown_)},
     is_disabled_{false}
 {
   other.is_active_ = false;
@@ -58,21 +60,21 @@ void Registrar<void>::register_setup(VoidSetup f)
 {
   this->is_active_ = true;
 
-  this->setup_ = move(f);
+  this->setup_ = std::move(f);
 }
 
 void Registrar<void>::register_body(TestBodyNoFixture f)
 {
   this->is_active_ = true;
 
-  this->body_ = move(f);
+  this->body_ = std::move(f);
 }
 
 void Registrar<void>::register_teardown(TeardownNoFixture f)
 {
   this->is_active_ = true;
 
-  this->teardown_ = move(f);
+  this->teardown_ = std::move(f);
 }
 
 void Registrar<void>::set_timeout_ms(unsigned long long const timeout_ms)
