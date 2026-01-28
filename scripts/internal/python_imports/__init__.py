@@ -23,11 +23,15 @@ from .internal.files import find_all_files
 from .internal.files import get_files_staged_for_commit
 from .internal.formatting import check_formatting
 from .internal.formatting import format_files
+from .internal.git_hook_support import build_tools
+from .internal.git_hook_support import download_dependencies
+from .internal.git_hook_support import ensure_hooks_installed
 from .internal.legal import check_copyright_comments
 from .internal.legal import check_license_file
 from .internal.static_analysis import get_files_from_compilation_database
 from .internal.static_analysis import run_clang_static_analysis
 from .internal.system import NewEnv
+from .internal.system import get_python
 from .internal.system import is_supported_os
 from .internal.system import recursively_copy_dir
 from .internal.system import remove_dir
