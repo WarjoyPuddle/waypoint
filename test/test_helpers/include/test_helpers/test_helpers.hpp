@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -185,8 +185,4 @@ struct formatter<waypoint::TestOutcome::Status, char>
   }
 
 #define REQUIRE_STRING_EQUAL_IN_MAIN(str1, str2, message) \
-  if(std::strcmp((str1), (str2)) != 0) \
-  { \
-    std::cerr << (message) << std::endl; \
-    return 1; \
-  }
+  REQUIRE_IN_MAIN((std::strcmp((str1), (str2)) == 0), (message))
