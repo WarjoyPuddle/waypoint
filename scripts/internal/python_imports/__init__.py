@@ -40,7 +40,6 @@ from .internal.system import is_supported_os
 from .internal.system import local_group_id
 from .internal.system import local_user_id
 from .internal.system import local_username
-from .internal.system import new_env
 from .internal.system import recursively_copy_dir
 from .internal.system import remove_dir
 from .internal.Task import Task
