@@ -146,7 +146,7 @@
     },
     {
       "cacheVariables": {
-        "PRESET_BUILD_WAYPOINT_TESTS_jsGLwkD9eVN5hzRr": true
+        "PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr": true
       },
       "hidden": true,
       "name": "base_enable_tests_build"
