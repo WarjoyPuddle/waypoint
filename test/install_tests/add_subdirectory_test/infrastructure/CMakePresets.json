@@ -86,6 +86,13 @@
       "name": "base_system_linux"
     },
     {
+      "cacheVariables": {
+        "PRESET_WAYPOINT_SOURCES_PATH": "waypoint_sources_4XF31O1T1ff3B3Tq___"
+      },
+      "hidden": true,
+      "name": "base_sources_path"
+    },
+    {
       "binaryDir": "${sourceDir}/../build_linux_clang_kRuZ9Wdt929O5JHC___",
       "cacheVariables": {
         "PRESET_WAYPOINT_BUILD_PATH": "waypoint_build_clang_KGgicppoHf0mkVdJ___"
@@ -93,7 +100,8 @@
       "hidden": false,
       "inherits": [
         "base_generator_ninja",
-        "base_system_linux"
+        "base_system_linux",
+        "base_sources_path"
       ],
       "name": "configure_linux_clang"
     },
@@ -106,7 +114,8 @@
       "inherits": [
         "base_generator_ninja",
         "base_system_linux",
-        "base_build_shared_libs"
+        "base_build_shared_libs",
+        "base_sources_path"
       ],
       "name": "configure_linux_clang_shared"
     },
@@ -118,7 +127,8 @@
       "hidden": false,
       "inherits": [
         "base_generator_ninja",
-        "base_system_linux"
+        "base_system_linux",
+        "base_sources_path"
       ],
       "name": "configure_linux_gcc"
     },
@@ -131,7 +141,8 @@
       "inherits": [
         "base_generator_ninja",
         "base_system_linux",
-        "base_build_shared_libs"
+        "base_build_shared_libs",
+        "base_sources_path"
       ],
       "name": "configure_linux_gcc_shared"
     }
