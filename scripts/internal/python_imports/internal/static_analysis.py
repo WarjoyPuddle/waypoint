@@ -7,14 +7,13 @@ import json
 import multiprocessing
 import os
 import time
-import typing
 
 from .cmake import build_dir_from_preset
 from .process import run
 from .system import get_cpu_count
 
 
-def get_files_from_compilation_database(preset, cmake_source_dir) -> typing.List[str]:
+def get_files_from_compilation_database(preset, cmake_source_dir) -> list[str]:
     build_dir = build_dir_from_preset(preset, cmake_source_dir)
     compilation_db = os.path.realpath(f"{build_dir}/compile_commands.json")
     assert os.path.isfile(compilation_db)
@@ -35,7 +34,7 @@ def get_files_from_compilation_database(preset, cmake_source_dir) -> typing.List
     return files
 
 
-def clang_tidy_process_single_file(data) -> typing.Tuple[bool, str, float, str | None]:
+def clang_tidy_process_single_file(data) -> tuple[bool, str, float, str | None]:
     file, preset, cmake_source_dir, project_root_dir, config_path = data
 
     build_dir = build_dir_from_preset(preset, cmake_source_dir)

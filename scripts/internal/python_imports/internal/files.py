@@ -5,7 +5,6 @@
 import contextlib
 import os
 import re
-import typing
 
 from .cmake import build_dir_from_preset
 from .file_types import is_cpp_file
@@ -13,7 +12,7 @@ from .file_types import is_cpp_source_file
 from .process import run
 
 
-def find_files_by_name(dir_path, pred) -> typing.List[str]:
+def find_files_by_name(dir_path, pred) -> list[str]:
     output = []
     for root, dirs, files in os.walk(dir_path):
         indices_to_remove = []
@@ -59,11 +58,11 @@ def find_files_by_name(dir_path, pred) -> typing.List[str]:
     return output
 
 
-def find_all_files(root_dir) -> typing.List[str]:
+def find_all_files(root_dir) -> list[str]:
     return find_files_by_name(root_dir, lambda x: True)
 
 
-def invert_index(index) -> typing.Dict[str, typing.Set[str]]:
+def invert_index(index) -> dict[str, set[str]]:
     output = {}
     for file in index.keys():
         deps = index[file]
@@ -76,7 +75,7 @@ def invert_index(index) -> typing.Dict[str, typing.Set[str]]:
     return output
 
 
-def process_depfiles(depfile_paths, root_dir) -> typing.Dict[str, typing.Set[str]]:
+def process_depfiles(depfile_paths, root_dir) -> dict[str, set[str]]:
     index = {}
     for path in depfile_paths:
         with open(path, "r") as f:
@@ -104,7 +103,7 @@ def process_depfiles(depfile_paths, root_dir) -> typing.Dict[str, typing.Set[str
     return index
 
 
-def get_files_staged_for_commit(root_dir) -> typing.List[str]:
+def get_files_staged_for_commit(root_dir) -> list[str]:
     # TODO: update to contextlib.chdir after upgrade
     assert os.getcwd() == root_dir
 
@@ -126,7 +125,7 @@ def get_files_staged_for_commit(root_dir) -> typing.List[str]:
     return out
 
 
-def get_changed_files(root_dir, predicate) -> typing.List[str]:
+def get_changed_files(root_dir, predicate) -> list[str]:
     with contextlib.chdir(root_dir):
         # List untracked+unstaged files
         success1, output1 = run(["git", "ls-files", "--others", "--exclude-standard"])
@@ -169,7 +168,7 @@ def collect_depfiles(preset, cmake_source_dir):
 
 def changed_cpp_source_files_and_dependents(
     root_dir, cmake_source_dir, preset
-) -> typing.List[str]:
+) -> list[str]:
     changed_cpp_files = get_changed_files(root_dir, is_cpp_file)
     if len(changed_cpp_files) == 0:
         return []
@@ -192,5 +191,5 @@ def changed_cpp_source_files_and_dependents(
     return output
 
 
-def find_all_cpp_source_files(root_dir) -> typing.List[str]:
+def find_all_cpp_source_files(root_dir) -> list[str]:
     return find_files_by_name(root_dir, is_cpp_source_file)
