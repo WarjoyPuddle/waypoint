@@ -14,8 +14,8 @@ from python_imports import local_user_id
 from python_imports import local_username
 from python_imports import run_in_docker
 
-THIS_SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
-PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.parent.parent.resolve()
+THIS_SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
+PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.resolve().parent.parent
 INFRASTRUCTURE_DIR = PROJECT_ROOT_DIR / "infrastructure"
 DOCKER_DIR = INFRASTRUCTURE_DIR / "docker"
 

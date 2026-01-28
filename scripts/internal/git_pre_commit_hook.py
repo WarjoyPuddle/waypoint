@@ -10,8 +10,8 @@ from python_imports import check_license_file
 from python_imports import ensure_hooks_installed
 from python_imports import get_files_staged_for_commit
 
-THIS_SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
-PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.parent.parent.resolve()
+THIS_SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
+PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.resolve().parent.parent
 INFRASTRUCTURE_DIR = PROJECT_ROOT_DIR / "infrastructure"
 
 CLANG_FORMAT_CONFIG = INFRASTRUCTURE_DIR / ".clang-format-20"

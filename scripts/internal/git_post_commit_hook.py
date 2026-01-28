@@ -6,8 +6,8 @@ import pathlib
 
 from python_imports import ensure_hooks_installed
 
-THIS_SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
-PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.parent.parent.resolve()
+THIS_SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
+PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.resolve().parent.parent
 
 
 def main() -> int:

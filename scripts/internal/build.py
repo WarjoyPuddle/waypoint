@@ -33,8 +33,8 @@ from python_imports import run_target
 from python_imports import verify_installation_contents_shared
 from python_imports import verify_installation_contents_static
 
-THIS_SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
-PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.parent.parent.resolve()
+THIS_SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
+PROJECT_ROOT_DIR = THIS_SCRIPT_DIR.resolve().parent.parent
 BUILD_DIR = PROJECT_ROOT_DIR / "build___"
 
 
