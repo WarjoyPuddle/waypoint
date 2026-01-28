@@ -1,9 +1,9 @@
 {
   "buildPresets": [
     {
-      "configurePreset": "example_configure",
+      "configurePreset": "configure",
       "hidden": false,
-      "name": "example_build"
+      "name": "build"
     }
   ],
   "configurePresets": [
@@ -21,12 +21,12 @@
       "inherits": [
         "base_export_compile_commands"
       ],
-      "name": "example_configure"
+      "name": "configure"
     }
   ],
   "testPresets": [
     {
-      "configurePreset": "example_configure",
+      "configurePreset": "configure",
       "execution": {
         "noTestsAction": "error",
         "scheduleRandom": true,
@@ -34,7 +34,7 @@
         "timeout": 3600
       },
       "hidden": false,
-      "name": "example_test",
+      "name": "test",
       "output": {
         "outputOnFailure": true,
         "verbosity": "default"

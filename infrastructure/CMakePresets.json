@@ -23,14 +23,14 @@
       ]
     },
     {
-      "configurePreset": "example_configure",
+      "configurePreset": "configure_static",
       "hidden": false,
-      "name": "example_build"
+      "name": "build_static"
     },
     {
-      "configurePreset": "example_configure_shared",
+      "configurePreset": "configure_shared",
       "hidden": false,
-      "name": "example_build_shared"
+      "name": "build_shared"
     },
     {
       "configurePreset": "configure_linux_valgrind_clang",
@@ -235,7 +235,7 @@
       "generator": "Ninja Multi-Config",
       "hidden": false,
       "installDir": "${sourceDir}/../build___/waypoint_install_static___",
-      "name": "example_configure"
+      "name": "configure_static"
     },
     {
       "binaryDir": "${sourceDir}/../build___/waypoint_build_shared___",
@@ -245,7 +245,7 @@
         "base_build_shared_libs"
       ],
       "installDir": "${sourceDir}/../build___/waypoint_install_shared___",
-      "name": "example_configure_shared"
+      "name": "configure_shared"
     },
     {
       "binaryDir": "${sourceDir}/../build___/build_linux_valgrind_clang_ZP56y3Vf3Yfw20bT___",

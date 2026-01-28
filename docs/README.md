@@ -66,31 +66,38 @@ git clone ssh://git@github.com/WarjoyPuddle/waypoint.git
 cd waypoint
 ```
 
-To build Waypoint and install the artifacts to a specified location,
-execute the following commands.
+To build Waypoint and install the artifacts, it is easiest to use Docker.
+This will produce a shared library usable directly from a CMake project.
+Apart from Docker itself, you will need Python 3.13 or newer.
 
 ```shell
-cd infrastructure
-# Configure step
-# You may use -DBUILD_SHARED_LIBS=TRUE if you wish
-# to produce a dynamic library.
-CC=clang-20 CXX=clang++-20 cmake --preset example_configure -DCMAKE_INSTALL_PREFIX=../build___/waypoint_install___
-
-# Build step
-cmake --build --preset example_build --target all --config Debug
-cmake --build --preset example_build --target all --config RelWithDebInfo
-cmake --build --preset example_build --target all --config Release
-
-# Install step
-cmake --build --preset example_build --target install --config Debug
-cmake --build --preset example_build --target install --config RelWithDebInfo
-cmake --build --preset example_build --target install --config Release
+scripts/basic_shared_build_docker.sh
+mv build___/waypoint_install_shared___ build___/waypoint_install___
 ```
 
-If all went well, the directory `build___/waypoint_install___` now
-exists.
-You are free to rename it if you wish, but for the purposes of this
-example, let us keep the name as it is.
+Note that we do not supply a Docker script to produce static libraries,
+because static libraries generally are not portable between toolchains.
+
+Alternatively, if you don't have access to Docker or wish to use your
+own toolchain to compile Waypoint, you have a choice of two scripts.
+As usual with CMake, you may specify your choice of compiler using
+the `CC` and `CXX` environment variables.
+
+To produce a static library:
+
+```shell
+CC=clang-20 CXX=clang++-20 scripts/basic_static_build.sh
+mv build___/waypoint_install_static___ build___/waypoint_install___
+```
+
+To produce a shared library:
+
+```shell
+CC=clang-20 CXX=clang++-20 scripts/basic_shared_build.sh
+mv build___/waypoint_install_shared___ build___/waypoint_install___
+```
+
+If all went well, the directory `build___/waypoint_install___` now exists.
 
 In the directory `examples/quick_start_build_and_install` of this
 repository, there is a minimal C++ CMake test project which makes use
@@ -106,19 +113,19 @@ cd examples/quick_start_build_and_install
 cp --recursive ../../build___/waypoint_install___ ./
 
 # Configure step
-CC=clang-20 CXX=clang++-20 cmake --preset example_configure
+CC=clang-20 CXX=clang++-20 cmake --preset configure
 
 # Build step
-cmake --build --preset example_build --config Debug
+cmake --build --preset build --config Debug
 
 # Run the tests with CMake
-cmake --build --preset example_build --target test --config Debug
+cmake --build --preset build --target test --config Debug
 
 # Alternatively, run the tests with CTest (a more flexible approach)
-ctest --preset example_test --build-config Debug
+ctest --preset test --build-config Debug
 
 # You may also run the test executable directly
-./build___/Debug/test_program
+build___/Debug/test_program
 ```
 
 #### The add_subdirectory method
@@ -148,19 +155,19 @@ cp --recursive ../../../../src ./
 cd ../../
 
 # Configure step
-CC=clang-20 CXX=clang++-20 cmake --preset example_configure
+CC=clang-20 CXX=clang++-20 cmake --preset configure
 
 # Build step
-cmake --build --preset example_build --config Debug
+cmake --build --preset build --config Debug
 
 # Run the tests with CMake
-cmake --build --preset example_build --target test --config Debug
+cmake --build --preset build --target test --config Debug
 
 # Alternatively, run the tests with CTest (a more flexible approach)
-ctest --preset example_test --build-config Debug
+ctest --preset test --build-config Debug
 
 # You may also run the test executable directly
-./build___/Debug/test_program
+build___/Debug/test_program
 ```
 
 #### Providing your own entry point
@@ -187,19 +194,19 @@ cd examples/quick_start_custom_main
 cp --recursive ../../build___/waypoint_install___ ./
 
 # Configure step
-CC=clang-20 CXX=clang++-20 cmake --preset example_configure
+CC=clang-20 CXX=clang++-20 cmake --preset configure
 
 # Build step
-cmake --build --preset example_build --config Debug
+cmake --build --preset build --config Debug
 
 # Run the tests with CMake
-cmake --build --preset example_build --target test --config Debug
+cmake --build --preset build --target test --config Debug
 
 # Alternatively, run the tests with CTest (a more flexible approach)
-ctest --preset example_test --build-config Debug
+ctest --preset test --build-config Debug
 
 # You may also run the test executable directly
-./build___/Debug/test_program
+build___/Debug/test_program
 ```
 
 If you wish, it is not difficult to adapt the add_subdirectory workflow
