@@ -52,6 +52,33 @@ def check_headers_contain_pragma_once_(root_dir) -> bool:
     return True
 
 
+def check_files_contain_only_allowed_characters(root_dir) -> bool:
+    allowed_chars = set(
+        "\n "
+        "!\"#$%&'()*+,-./"
+        "0123456789"
+        ":;<=>?@"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "[\\]^_`"
+        "abcdefghijklmnopqrstuvwxyz"
+        "{|}~"
+        "ÓóĄąĆćĘęŁłŃńŚśŹźŻż"
+    )
+
+    files = find_all_files(root_dir)
+    for f in files:
+        with open(f, "r") as file:
+            text = file.read()
+
+        for c in text:
+            if c not in allowed_chars:
+                print(f"Error ({f}):\nFile contains disallowed character {c}")
+
+                return False
+
+    return True
+
+
 def misc_checks(root_dir, main_header_path) -> bool:
     success = check_main_header_has_no_includes_(main_header_path)
     if not success:
@@ -68,6 +95,12 @@ def misc_checks(root_dir, main_header_path) -> bool:
     success = check_headers_contain_pragma_once_(root_dir)
     if not success:
         print('Error: not all headers contain a "#pragma once" include guard')
+
+        return False
+
+    success = check_files_contain_only_allowed_characters(root_dir)
+    if not success:
+        print("Error: disallowed characters detected")
 
         return False
 
