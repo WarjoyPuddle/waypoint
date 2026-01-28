@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -21,7 +21,7 @@ void assert(
 {
   if(!condition)
   {
-    std::cerr << "Assertion failed" << std::endl;
+    std::cerr << "Assertion failed (waypoint)" << std::endl;
     std::cerr << "- Message: " << message << std::endl;
     std::cerr << "- File: " << loc.file_name() << " L" << loc.line() << "C"
               << loc.column() << std::endl;
