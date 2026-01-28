@@ -415,6 +415,22 @@ function(new_basic_test name)
   common_macros()
 endfunction()
 
+function(new_crash_test name)
+  set(arg_TARGET ${name})
+  set(arg_DIRECTORY test/functional_tests/${name})
+  set(arg_SOURCES main.cpp)
+  set(arg_PRIVATE_LINKS waypoint test_helpers)
+
+  prepare_paths()
+
+  add_executable(${arg_TARGET})
+  target_compile_features(${arg_TARGET} PRIVATE cxx_std_23)
+
+  add_basic_test()
+  common_test_macros()
+  common_macros()
+endfunction()
+
 function(new_waypoint_main_test)
   set(options EXPECTED_FAILURE)
   set(singleValueKeywords TARGET)
@@ -459,6 +475,29 @@ function(new_impl_test name)
   add_basic_test()
   add_valgrind_memcheck_test()
   add_valgrind_helgrind_test()
+  common_test_macros()
+  common_macros()
+endfunction()
+
+function(new_crash_impl_test name)
+  set(arg_TARGET ${name})
+  set(arg_DIRECTORY test/functional_tests/${name})
+  set(arg_SOURCES main.cpp)
+  set(arg_PRIVATE_LINKS waypoint test_helpers)
+
+  prepare_paths()
+
+  set(PROJECT_ROOT_DIR_xi1Yac16xYL4lMps ${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+  add_executable(${arg_TARGET})
+  target_compile_features(${arg_TARGET} PRIVATE cxx_std_23)
+  target_link_libraries(${name} PRIVATE assert coverage process)
+  target_include_directories(
+    ${name}
+    PRIVATE ${PROJECT_ROOT_DIR_xi1Yac16xYL4lMps}/src/waypoint/internal
+            ${PROJECT_ROOT_DIR_xi1Yac16xYL4lMps}/src/waypoint/include/waypoint)
+
+  add_basic_test()
   common_test_macros()
   common_macros()
 endfunction()
