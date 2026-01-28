@@ -10,7 +10,7 @@ macro(add_to_all_tests)
   endif()
 endmacro()
 
-macro(define_tests)
+macro(add_basic_test)
   add_test(NAME test_${arg_TARGET} COMMAND $<TARGET_FILE:${arg_TARGET}>)
   set_tests_properties(test_${arg_TARGET} PROPERTIES LABELS test)
   set_tests_properties(
@@ -20,7 +20,9 @@ macro(define_tests)
   if(DEFINED arg_EXPECTED_FAILURE AND arg_EXPECTED_FAILURE)
     set_tests_properties(test_${arg_TARGET} PROPERTIES WILL_FAIL TRUE)
   endif()
+endmacro()
 
+macro(add_valgrind_memcheck_test)
   add_test(
     NAME valgrind_memcheck_${arg_TARGET}
     COMMAND
@@ -28,8 +30,10 @@ macro(define_tests)
       --trace-children=yes --leak-check=full --show-leak-kinds=all
       --error-exitcode=1 $<TARGET_FILE:${arg_TARGET}>
     CONFIGURATIONS Debug)
-  set_tests_properties(valgrind_memcheck_${arg_TARGET} PROPERTIES LABELS
-                                                                  valgrind)
+  set(valgrind_memcheck_${arg_TARGET}_labels valgrind valgrind_memcheck)
+  set_tests_properties(
+    valgrind_memcheck_${arg_TARGET}
+    PROPERTIES LABELS "${valgrind_memcheck_${arg_TARGET}_labels}")
   set_tests_properties(
     valgrind_memcheck_${arg_TARGET}
     PROPERTIES ENVIRONMENT WAYPOINT_INTERNAL_RUNNING_TEST_XTSyiOp7QMFW8P2H=123)
@@ -38,14 +42,18 @@ macro(define_tests)
     set_tests_properties(valgrind_memcheck_${arg_TARGET} PROPERTIES WILL_FAIL
                                                                     TRUE)
   endif()
+endmacro()
 
+macro(add_valgrind_helgrind_test)
   add_test(
     NAME valgrind_helgrind_${arg_TARGET}
     COMMAND
       valgrind --tool=helgrind --read-var-info=yes --read-inline-info=yes
       --trace-children=yes --error-exitcode=1 $<TARGET_FILE:${arg_TARGET}>)
-  set_tests_properties(valgrind_helgrind_${arg_TARGET} PROPERTIES LABELS
-                                                                  valgrind)
+  set(valgrind_helgrind_${arg_TARGET}_labels valgrind valgrind_helgrind)
+  set_tests_properties(
+    valgrind_helgrind_${arg_TARGET}
+    PROPERTIES LABELS "${valgrind_helgrind_${arg_TARGET}_labels}")
   set_tests_properties(
     valgrind_helgrind_${arg_TARGET}
     PROPERTIES ENVIRONMENT WAYPOINT_INTERNAL_RUNNING_TEST_XTSyiOp7QMFW8P2H=123)
@@ -287,7 +295,6 @@ endmacro()
 macro(common_test_macros)
   exclude_from_all()
   add_to_all_tests()
-  define_tests()
   disable_exceptions_in_coverage_mode()
 endmacro()
 
@@ -401,6 +408,9 @@ function(new_basic_test name)
   add_executable(${arg_TARGET})
   target_compile_features(${arg_TARGET} PRIVATE cxx_std_23)
 
+  add_basic_test()
+  add_valgrind_memcheck_test()
+  add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
@@ -421,6 +431,9 @@ function(new_waypoint_main_test)
   add_executable(${arg_TARGET})
   target_compile_features(${arg_TARGET} PRIVATE cxx_std_23)
 
+  add_basic_test()
+  add_valgrind_memcheck_test()
+  add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
@@ -443,6 +456,9 @@ function(new_impl_test name)
     PRIVATE ${PROJECT_ROOT_DIR_s2GsE9Ma9zBssF2X}/src/waypoint/internal
             ${PROJECT_ROOT_DIR_s2GsE9Ma9zBssF2X}/src/waypoint/include/waypoint)
 
+  add_basic_test()
+  add_valgrind_memcheck_test()
+  add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
@@ -458,6 +474,9 @@ function(new_cxx_std_11_test name)
   add_executable(${arg_TARGET})
   target_compile_features(${arg_TARGET} PRIVATE cxx_std_11)
 
+  add_basic_test()
+  add_valgrind_memcheck_test()
+  add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
@@ -473,6 +492,9 @@ function(new_multifile_test name)
   add_executable(${arg_TARGET})
   target_compile_features(${arg_TARGET} PRIVATE cxx_std_23)
 
+  add_basic_test()
+  add_valgrind_memcheck_test()
+  add_valgrind_helgrind_test()
   common_test_macros()
   common_macros()
 endfunction()
