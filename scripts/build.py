@@ -439,6 +439,18 @@ class CMakePresets(enum.Enum):
         "build_linux_clang_undefined_behaviour_sanitizer",
         "test_linux_clang_undefined_behaviour_sanitizer",
     )
+    LinuxClangValgrind = (
+        Compiler.Clang,
+        "configure_linux_valgrind_clang",
+        "build_linux_valgrind_clang",
+        "test_linux_valgrind_clang",
+    )
+    LinuxGccValgrind = (
+        Compiler.Gcc,
+        "configure_linux_valgrind_gcc",
+        "build_linux_valgrind_gcc",
+        "test_linux_valgrind_gcc",
+    )
 
     def __init__(
         self,
@@ -891,18 +903,62 @@ def test_clang_release_shared_fn() -> bool:
     )
 
 
-def test_gcc_valgrind_fn() -> bool:
+def configure_cmake_gcc_valgrind_fn() -> bool:
+    return configure_cmake(CMakePresets.LinuxGccValgrind, CMAKE_SOURCE_DIR)
+
+
+def build_gcc_valgrind_debug_all_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.LinuxGccValgrind,
+        CMAKE_SOURCE_DIR,
+        "all",
+    )
+
+
+def build_gcc_valgrind_debug_all_tests_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.LinuxGccValgrind,
+        CMAKE_SOURCE_DIR,
+        "all_tests",
+    )
+
+
+def configure_cmake_clang_valgrind_fn() -> bool:
+    return configure_cmake(CMakePresets.LinuxClangValgrind, CMAKE_SOURCE_DIR)
+
+
+def build_clang_debug_valgrind_all_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.LinuxClangValgrind,
+        CMAKE_SOURCE_DIR,
+        "all",
+    )
+
+
+def build_clang_debug_valgrind_all_tests_fn() -> bool:
+    return build_cmake(
+        CMakeBuildConfig.Debug,
+        CMakePresets.LinuxClangValgrind,
+        CMAKE_SOURCE_DIR,
+        "all_tests",
+    )
+
+
+def test_gcc_debug_valgrind_fn() -> bool:
     return run_ctest(
-        CMakePresets.LinuxGcc,
+        CMakePresets.LinuxGccValgrind,
         CMakeBuildConfig.Debug,
         r"^valgrind$",
         CMAKE_SOURCE_DIR,
     )
 
 
-def test_clang_valgrind_fn() -> bool:
+def test_clang_debug_valgrind_fn() -> bool:
     return run_ctest(
-        CMakePresets.LinuxClang,
+        CMakePresets.LinuxClangValgrind,
         CMakeBuildConfig.Debug,
         r"^valgrind$",
         CMAKE_SOURCE_DIR,
@@ -1350,6 +1406,12 @@ def clean_fn() -> bool:
     clean_build_dir(
         CMakePresets.LinuxGccShared, TEST_INSTALL_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
     )
+
+    clean_build_dir(CMakePresets.LinuxClangValgrind, CMAKE_SOURCE_DIR)
+    clean_build_dir(CMakePresets.LinuxGccValgrind, CMAKE_SOURCE_DIR)
+    clean_install_dir(CMakePresets.LinuxClangValgrind, CMAKE_SOURCE_DIR)
+    clean_install_dir(CMakePresets.LinuxGccValgrind, CMAKE_SOURCE_DIR)
+
     clean_build_dir(CMakePresets.LinuxGccCoverage, CMAKE_SOURCE_DIR)
     clean_install_dir(CMakePresets.LinuxClang, CMAKE_SOURCE_DIR)
     clean_install_dir(CMakePresets.LinuxGcc, CMAKE_SOURCE_DIR)
@@ -3771,23 +3833,38 @@ def main() -> int:
     build_gcc_coverage_all_tests.depends_on([build_gcc_coverage_all])
     build_gcc_coverage_all.depends_on([configure_cmake_gcc_coverage])
 
-    configure_cmake_gcc_valgrind = Task("Configure CMake for GCC with Valgrind")
-    configure_cmake_gcc_valgrind.depends_on([configure_cmake_gcc])
-    build_gcc_valgrind = Task("Build GCC for Valgrind")
-    build_gcc_valgrind.depends_on([build_gcc_debug_all, build_gcc_debug_all_tests])
-    test_gcc_valgrind = Task("Test GCC build with Valgrind", test_gcc_valgrind_fn)
-    test_gcc_valgrind.depends_on([build_gcc_valgrind])
-    build_gcc_valgrind.depends_on([configure_cmake_gcc_valgrind])
-
-    configure_cmake_clang_valgrind = Task("Configure CMake for Clang with Valgrind")
-    configure_cmake_clang_valgrind.depends_on([configure_cmake_clang])
-    build_clang_valgrind = Task("Build Clang for Valgrind")
-    build_clang_valgrind.depends_on(
-        [build_clang_debug_all, build_clang_debug_all_tests]
+    configure_cmake_gcc_valgrind = Task(
+        "Configure CMake for GCC with Valgrind", configure_cmake_gcc_valgrind_fn
     )
-    test_clang_valgrind = Task("Test Clang build with Valgrind", test_clang_valgrind_fn)
-    test_clang_valgrind.depends_on([build_clang_valgrind])
-    build_clang_valgrind.depends_on([configure_cmake_clang_valgrind])
+    build_gcc_valgrind_debug_all = Task(
+        "Build GCC Debug for Valgrind (all)", build_gcc_valgrind_debug_all_fn
+    )
+    build_gcc_valgrind_debug_all.depends_on([configure_cmake_gcc_valgrind])
+    build_gcc_valgrind_debug_all_tests = Task(
+        "Build GCC Debug for Valgrind (all_tests)",
+        build_gcc_valgrind_debug_all_tests_fn,
+    )
+    build_gcc_valgrind_debug_all_tests.depends_on([build_gcc_valgrind_debug_all])
+    test_gcc_debug_valgrind = Task(
+        "Test GCC Debug build with Valgrind", test_gcc_debug_valgrind_fn
+    )
+    test_gcc_debug_valgrind.depends_on([build_gcc_valgrind_debug_all_tests])
+
+    configure_cmake_clang_valgrind = Task(
+        "Configure CMake for Clang with Valgrind", configure_cmake_clang_valgrind_fn
+    )
+    build_clang_debug_valgrind_all = Task(
+        "Build Clang for Valgrind (all)", build_clang_debug_valgrind_all_fn
+    )
+    build_clang_debug_valgrind_all.depends_on([configure_cmake_clang_valgrind])
+    build_clang_debug_valgrind_all_tests = Task(
+        "Build Clang for Valgrind (all_tests)", build_clang_debug_valgrind_all_tests_fn
+    )
+    build_clang_debug_valgrind_all_tests.depends_on([build_clang_debug_valgrind_all])
+    test_clang_debug_valgrind = Task(
+        "Test Clang build with Valgrind", test_clang_debug_valgrind_fn
+    )
+    test_clang_debug_valgrind.depends_on([build_clang_debug_valgrind_all_tests])
 
     configure_cmake_clang_static_analysis = Task("Configure CMake for clang-tidy")
     configure_cmake_clang_static_analysis.depends_on([configure_cmake_clang])
@@ -5291,9 +5368,9 @@ def main() -> int:
 
     if mode.valgrind:
         if mode.gcc:
-            build_dependencies.append(test_gcc_valgrind)
+            build_dependencies.append(test_gcc_debug_valgrind)
         if mode.clang:
-            build_dependencies.append(test_clang_valgrind)
+            build_dependencies.append(test_clang_debug_valgrind)
 
     if mode.test_install:
         if mode.gcc:
