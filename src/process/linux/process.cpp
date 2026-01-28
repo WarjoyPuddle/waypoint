@@ -44,7 +44,7 @@ char const *const WAYPOINT_INTERNAL_RESPONSE_SINK_ENV_NAME =
 
 auto get_env(std::string const &var_name) -> std::optional<std::string>
 {
-  auto const *const var_value = ::getenv(var_name.c_str());
+  auto const *const var_value = std::getenv(var_name.c_str());
   if(var_value == nullptr)
   {
     return std::nullopt;
