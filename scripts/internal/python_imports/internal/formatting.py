@@ -164,69 +164,81 @@ def format_python(file) -> typing.Tuple[bool, str | None]:
     return True, None
 
 
+def fix_lines(lines: list[str]) -> str:
+    lines = [line.rstrip() for line in lines]
+    while lines[0] == "":
+        lines.pop(0)
+    while lines[-1] == "":
+        lines.pop(-1)
+
+    return "\n".join(lines) + "\n"
+
+
+def fix_whitespace(file: str) -> bool:
+    with open(file, "r") as f:
+        lines = f.readlines()
+
+    text = fix_lines(lines)
+
+    with open(file, "w") as f:
+        f.write(text)
+
+    return True
+
+
+def check_whitespace(file: str) -> bool:
+    with open(file, "r") as f:
+        lines = f.readlines()
+
+    original = "".join(lines)
+    text = fix_lines(lines)
+
+    return text == original
+
+
 def check_formatting_in_single_file(data) -> typing.Tuple[bool, str | None, str]:
     file, path_to_clang_format_config = data
 
+    success = True
+    output = None
+
     if is_cmake_file(file):
         success, output = check_formatting_cmake(file)
-
-        return success, output, file
     if is_cpp_file(file):
         success, output = check_formatting_cpp(file, path_to_clang_format_config)
-
-        return success, output, file
     if is_json_file(file):
         success, output = check_formatting_json(file)
-
-        return success, output, file
     if is_python_file(file):
         success, output = check_formatting_python(file)
 
-        return success, output, file
+    success = success and check_whitespace(file)
 
-    return (
-        False,
-        f"Expected to check formatting in unsupported file type ({file})\n",
-        file,
-    )
+    return success, output, file
 
 
 def format_single_file(data) -> typing.Tuple[bool, str | None, str]:
     file, path_to_clang_format_config = data
 
+    success = True
+    output = None
+
     if is_cmake_file(file):
         success, output = format_cmake(file)
-
-        return success, output, file
     if is_cpp_file(file):
         success, output = format_cpp(file, path_to_clang_format_config)
-
-        return success, output, file
     if is_json_file(file):
         success, output = format_json(file)
-
-        return success, output, file
     if is_python_file(file):
         success, output = format_python(file)
 
-        return success, output, file
+    success = success and fix_whitespace(file)
 
-    return False, "Expected to format unsupported file type\n", file
-
-
-def is_file_in_need_of_formatting(file) -> bool:
-    return (
-        is_cmake_file(file)
-        or is_cpp_file(file)
-        or is_json_file(file)
-        or is_python_file(file)
-    )
+    return success, output, file
 
 
 def format_files(files, clang_format_config) -> bool:
-    inputs = [f for f in files if is_file_in_need_of_formatting(f)]
     inputs = [
-        (file, clang_format_config if is_cpp_file(file) else None) for file in inputs
+        (file, clang_format_config if is_cpp_file(file) else None) for file in files
     ]
 
     with multiprocessing.Pool(get_cpu_count()) as pool:
@@ -244,9 +256,8 @@ def format_files(files, clang_format_config) -> bool:
 
 
 def check_formatting(files, clang_format_config) -> bool:
-    inputs = [f for f in files if is_file_in_need_of_formatting(f)]
     inputs = [
-        (file, clang_format_config if is_cpp_file(file) else None) for file in inputs
+        (file, clang_format_config if is_cpp_file(file) else None) for file in files
     ]
 
     with multiprocessing.Pool(get_cpu_count()) as pool:

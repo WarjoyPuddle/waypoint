@@ -73,7 +73,7 @@ cd infrastructure
 # Configure step
 # You may use -DBUILD_SHARED_LIBS=TRUE if you wish
 # to produce a dynamic library.
-CC=clang-20 CXX=clang++-20 cmake --preset example_configure -DCMAKE_INSTALL_PREFIX=../build___/waypoint_install___ 
+CC=clang-20 CXX=clang++-20 cmake --preset example_configure -DCMAKE_INSTALL_PREFIX=../build___/waypoint_install___
 
 # Build step
 cmake --build --preset example_build --target all --config Debug
