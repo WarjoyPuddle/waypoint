@@ -213,14 +213,14 @@ def check_license_file(license_file_path) -> bool:
     sha3_256.update(data)
     sha3_256_digest = sha3_256.hexdigest()
     expected_sha3_256_digest = (
-        "4885e645412f0073f7c5211e3dd1c581e87e67e6ec1ac33dac1221d3fe66101c"
+        "fff75a1e6daba9926790af405ee376c5ff5e949ecf31487f71d7e9121a6fa74a"
     )
 
     if sha3_256_digest != expected_sha3_256_digest:
         print(
             f"Unexpected LICENSE file digest: {sha3_256_digest}\n"
             "Verify the LICENSE file is correct and update the variable "
-            f"expected_sha3_256_digest in {os.path.basename(sys.argv[0])}"
+            f"expected_sha3_256_digest in {os.path.basename(__file__)}"
         )
 
         return False
