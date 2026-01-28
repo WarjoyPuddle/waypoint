@@ -15,6 +15,11 @@
 We welcome contributions from the Community, whether they are defect
 reports, new feature proposals, or code changes.
 
+Before making a contribution, make sure you become familiar with
+the [Code of Conduct](CODE_OF_CONDUCT.md).
+Contributions which fail to adhere to the Code of Conduct will be
+discarded.
+
 To avoid wasted effort, get in touch (e.g. submit an issue) before
 making changes.
 Sometimes a discussion is required to determine what the best approach
