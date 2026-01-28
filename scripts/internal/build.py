@@ -623,33 +623,9 @@ def install_clang_release_fn() -> bool:
     )
 
 
-def install_default_clang_debug_fn() -> bool:
-    return install_cmake(
-        CMakePresets.DefaultStatic, CMakeBuildConfig.Debug, CMAKE_SOURCE_DIR
-    )
-
-
-def install_default_clang_relwithdebinfo_fn() -> bool:
-    return install_cmake(
-        CMakePresets.DefaultStatic, CMakeBuildConfig.RelWithDebInfo, CMAKE_SOURCE_DIR
-    )
-
-
 def install_default_clang_release_fn() -> bool:
     return install_cmake(
         CMakePresets.DefaultStatic, CMakeBuildConfig.Release, CMAKE_SOURCE_DIR
-    )
-
-
-def install_default_clang_debug_shared_fn() -> bool:
-    return install_cmake(
-        CMakePresets.DefaultShared, CMakeBuildConfig.Debug, CMAKE_SOURCE_DIR
-    )
-
-
-def install_default_clang_relwithdebinfo_shared_fn() -> bool:
-    return install_cmake(
-        CMakePresets.DefaultShared, CMakeBuildConfig.RelWithDebInfo, CMAKE_SOURCE_DIR
     )
 
 
@@ -1074,46 +1050,10 @@ def analyze_gcc_coverage_fn() -> bool:
     return analyze_gcc_coverage(COVERAGE_FILE_JSON_GCOVR, COVERAGE_FILE_HTML_GCOVR)
 
 
-def build_default_clang_debug_all_fn() -> bool:
-    return build_cmake(
-        CMakeBuildConfig.Debug,
-        CMakePresets.DefaultStatic,
-        CMAKE_SOURCE_DIR,
-        "all",
-    )
-
-
-def build_default_clang_relwithdebinfo_all_fn() -> bool:
-    return build_cmake(
-        CMakeBuildConfig.RelWithDebInfo,
-        CMakePresets.DefaultStatic,
-        CMAKE_SOURCE_DIR,
-        "all",
-    )
-
-
 def build_default_clang_release_all_fn() -> bool:
     return build_cmake(
         CMakeBuildConfig.Release,
         CMakePresets.DefaultStatic,
-        CMAKE_SOURCE_DIR,
-        "all",
-    )
-
-
-def build_default_clang_debug_all_shared_fn() -> bool:
-    return build_cmake(
-        CMakeBuildConfig.Debug,
-        CMakePresets.DefaultShared,
-        CMAKE_SOURCE_DIR,
-        "all",
-    )
-
-
-def build_default_clang_relwithdebinfo_all_shared_fn() -> bool:
-    return build_cmake(
-        CMakeBuildConfig.RelWithDebInfo,
-        CMakePresets.DefaultShared,
         CMAKE_SOURCE_DIR,
         "all",
     )
@@ -4935,70 +4875,34 @@ def main() -> int:
     configure_default_clang = Task(
         "Configure default Clang (static)", configure_default_clang_fn
     )
-    build_default_clang_debug_all = Task(
-        "Build default Clang Debug (static)", build_default_clang_debug_all_fn
-    )
-    build_default_clang_relwithdebinfo_all = Task(
-        "Build default Clang RelWithDebInfo (static)",
-        build_default_clang_relwithdebinfo_all_fn,
-    )
+
     build_default_clang_release_all = Task(
         "Build default Clang Release (static)", build_default_clang_release_all_fn
     )
-    install_default_clang_debug = Task(
-        "Install default Clang Debug (static)", install_default_clang_debug_fn
-    )
-    install_default_clang_relwithdebinfo = Task(
-        "Install default Clang RelWithDebInfo (static)",
-        install_default_clang_relwithdebinfo_fn,
-    )
+
     install_default_clang_release = Task(
         "Install default Clang Release (static)", install_default_clang_release_fn
     )
     configure_default_clang_shared = Task(
         "Configure default Clang (dynamic)", configure_default_clang_shared_fn
     )
-    build_default_clang_debug_all_shared = Task(
-        "Build default Clang Debug (dynamic)", build_default_clang_debug_all_shared_fn
-    )
-    build_default_clang_relwithdebinfo_all_shared = Task(
-        "Build default Clang RelWithDebInfo (dynamic)",
-        build_default_clang_relwithdebinfo_all_shared_fn,
-    )
+
     build_default_clang_release_all_shared = Task(
         "Build default Clang Release (dynamic)",
         build_default_clang_release_all_shared_fn,
     )
-    install_default_clang_debug_shared = Task(
-        "Install default Clang Debug (dynamic)", install_default_clang_debug_shared_fn
-    )
-    install_default_clang_relwithdebinfo_shared = Task(
-        "Install default Clang RelWithDebInfo (dynamic)",
-        install_default_clang_relwithdebinfo_shared_fn,
-    )
+
     install_default_clang_release_shared = Task(
         "Install default Clang Release (dynamic)",
         install_default_clang_release_shared_fn,
     )
-    build_default_clang_debug_all.depends_on([configure_default_clang])
-    build_default_clang_relwithdebinfo_all.depends_on([configure_default_clang])
+
     build_default_clang_release_all.depends_on([configure_default_clang])
-    build_default_clang_debug_all_shared.depends_on([configure_default_clang_shared])
-    build_default_clang_relwithdebinfo_all_shared.depends_on(
-        [configure_default_clang_shared]
-    )
+
     build_default_clang_release_all_shared.depends_on([configure_default_clang_shared])
-    install_default_clang_debug.depends_on([build_default_clang_debug_all])
-    install_default_clang_relwithdebinfo.depends_on(
-        [build_default_clang_relwithdebinfo_all]
-    )
+
     install_default_clang_release.depends_on([build_default_clang_release_all])
-    install_default_clang_debug_shared.depends_on(
-        [build_default_clang_debug_all_shared]
-    )
-    install_default_clang_relwithdebinfo_shared.depends_on(
-        [build_default_clang_relwithdebinfo_all_shared]
-    )
+
     install_default_clang_release_shared.depends_on(
         [build_default_clang_release_all_shared]
     )
@@ -5008,11 +4912,7 @@ def main() -> int:
     )
     example_quick_start_build_and_install.depends_on(
         [
-            install_default_clang_debug,
-            install_default_clang_relwithdebinfo,
             install_default_clang_release,
-            install_default_clang_debug_shared,
-            install_default_clang_relwithdebinfo_shared,
             install_default_clang_release_shared,
         ]
     )
@@ -5028,11 +4928,7 @@ def main() -> int:
     )
     example_quick_start_custom_main.depends_on(
         [
-            install_default_clang_debug,
-            install_default_clang_relwithdebinfo,
             install_default_clang_release,
-            install_default_clang_debug_shared,
-            install_default_clang_relwithdebinfo_shared,
             install_default_clang_release_shared,
         ]
     )
@@ -5517,22 +5413,10 @@ def main() -> int:
         build_dependencies.append(run_clang_static_analysis_changed_files_task)
 
     if mode.basic_static_build:
-        build_dependencies.extend(
-            [
-                install_default_clang_debug,
-                install_default_clang_relwithdebinfo,
-                install_default_clang_release,
-            ]
-        )
+        build_dependencies.append(install_default_clang_release)
 
     if mode.basic_shared_build:
-        build_dependencies.extend(
-            [
-                install_default_clang_debug_shared,
-                install_default_clang_relwithdebinfo_shared,
-                install_default_clang_release_shared,
-            ]
-        )
+        build_dependencies.append(install_default_clang_release_shared)
 
     prebuild = Task("Pre-build")
     prebuild.depends_on(prebuild_dependencies)
