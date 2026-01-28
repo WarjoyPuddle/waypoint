@@ -27,10 +27,10 @@ def clang():
             pass
 
 
-def configure_cmake(preset, cmake_source_dir) -> bool:
+def configure_cmake(preset, cmake_source_dir: pathlib.Path) -> bool:
     build_dir = build_dir_from_preset(preset, cmake_source_dir)
 
-    if os.path.exists(build_dir):
+    if build_dir.exists():
         return True
 
     pathlib.Path(build_dir).mkdir(parents=True, exist_ok=True)
@@ -47,7 +47,7 @@ def configure_cmake(preset, cmake_source_dir) -> bool:
     return True
 
 
-def build_cmake(config, preset, cmake_source_dir, target) -> bool:
+def build_cmake(config, preset, cmake_source_dir: pathlib.Path, target) -> bool:
     with contextlib.chdir(cmake_source_dir):
         success, output = run(
             [
@@ -72,7 +72,9 @@ def build_cmake(config, preset, cmake_source_dir, target) -> bool:
     return True
 
 
-def run_ctest(preset, build_config, label_include_regex, cmake_source_dir) -> bool:
+def run_ctest(
+    preset, build_config, label_include_regex, cmake_source_dir: pathlib.Path
+) -> bool:
     with contextlib.chdir(cmake_source_dir):
         cmd = [
             "ctest",
@@ -99,7 +101,7 @@ def run_ctest(preset, build_config, label_include_regex, cmake_source_dir) -> bo
     return True
 
 
-def install_cmake(preset, config, working_dir) -> bool:
+def install_cmake(preset, config, working_dir: pathlib.Path) -> bool:
     with contextlib.chdir(working_dir):
         success, output = run(
             [
@@ -122,11 +124,11 @@ def install_cmake(preset, config, working_dir) -> bool:
     return True
 
 
-def dir_from_preset(dir_key, preset, cmake_source_dir) -> str:
+def dir_from_preset(dir_key, preset, cmake_source_dir: pathlib.Path) -> pathlib.Path:
     preset_name = preset if isinstance(preset, str) else preset.configure
 
-    presets_path = os.path.realpath(f"{cmake_source_dir}/CMakePresets.json")
-    with open(presets_path) as f:
+    presets_path = (cmake_source_dir / "CMakePresets.json").resolve()
+    with open(presets_path, "r") as f:
         data = json.load(f)
         configure_presets = [
             p for p in data["configurePresets"] if p["name"] == preset_name
@@ -135,16 +137,16 @@ def dir_from_preset(dir_key, preset, cmake_source_dir) -> str:
         configure_preset = configure_presets[0]
 
         dir_path = configure_preset[dir_key]
-        dir_path = dir_path.replace("${sourceDir}", f"{cmake_source_dir}")
+        dir_path = dir_path.replace("${sourceDir}", str(cmake_source_dir))
 
-        return os.path.realpath(dir_path)
+        return pathlib.Path(dir_path).resolve()
 
 
-def cache_var_from_preset(var_name, preset, cmake_source_dir) -> str:
+def cache_var_from_preset(var_name, preset, cmake_source_dir: pathlib.Path) -> str:
     preset_name = preset if isinstance(preset, str) else preset.configure
 
-    presets_path = os.path.realpath(f"{cmake_source_dir}/CMakePresets.json")
-    with open(presets_path) as f:
+    presets_path = (cmake_source_dir / "CMakePresets.json").resolve()
+    with open(presets_path, "r") as f:
         data = json.load(f)
         configure_presets = [
             p for p in data["configurePresets"] if p["name"] == preset_name
@@ -157,32 +159,32 @@ def cache_var_from_preset(var_name, preset, cmake_source_dir) -> str:
         return cache_vars[var_name]
 
 
-def build_dir_from_preset(preset, cmake_source_dir) -> str:
+def build_dir_from_preset(preset, cmake_source_dir: pathlib.Path) -> pathlib.Path:
     return dir_from_preset("binaryDir", preset, cmake_source_dir)
 
 
-def install_dir_from_preset(preset, cmake_source_dir) -> str:
+def install_dir_from_preset(preset, cmake_source_dir: pathlib.Path) -> pathlib.Path:
     return dir_from_preset("installDir", preset, cmake_source_dir)
 
 
-def clean_build_dir(preset, cmake_source_dir):
+def clean_build_dir(preset, cmake_source_dir: pathlib.Path):
     build_dir = build_dir_from_preset(preset, cmake_source_dir)
     remove_dir(build_dir)
 
 
-def clean_install_dir(preset, cmake_source_dir):
+def clean_install_dir(preset, cmake_source_dir: pathlib.Path):
     install_dir = install_dir_from_preset(preset, cmake_source_dir)
     remove_dir(install_dir)
 
 
-def copy_install_dir(preset, cmake_source_dir, destination):
+def copy_install_dir(preset, cmake_source_dir: pathlib.Path, destination: pathlib.Path):
     remove_dir(destination)
     install_dir = install_dir_from_preset(preset, cmake_source_dir)
     recursively_copy_dir(install_dir, destination)
 
 
 def run_target(
-    preset, cmake_source_dir, build_config, target
+    preset, cmake_source_dir: pathlib.Path, build_config, target
 ) -> tuple[bool, str | None]:
     with contextlib.chdir(cmake_source_dir):
         build_dir = build_dir_from_preset(preset, cmake_source_dir)

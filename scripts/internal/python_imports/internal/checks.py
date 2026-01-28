@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
-import os
+import pathlib
 import re
 
 from .cmake import install_dir_from_preset
@@ -11,14 +11,14 @@ from .files import find_all_files
 from .files import find_files_by_name
 
 
-def check_no_spaces_in_paths_(root_dir) -> bool:
+def check_no_spaces_in_paths_(root_dir: pathlib.Path) -> bool:
     files = find_all_files(root_dir)
 
     for f in files:
-        assert f.startswith(root_dir)
-    files = [f[len(root_dir) + 1 :] for f in files]
+        assert root_dir in f.parents
+    files_strings = [str(f)[len(str(root_dir)) + 1 :] for f in files]
 
-    for f in files:
+    for f in files_strings:
         if " " in f:
             print(f"Error ({f}):\nNo spaces allowed in file paths")
 
@@ -74,67 +74,65 @@ def misc_checks(root_dir, main_header_path) -> bool:
     return True
 
 
-def verify_installation_contents_static(preset, cmake_source_dir) -> bool:
+def verify_installation_contents_static(preset, cmake_source_dir: pathlib.Path) -> bool:
     install_dir = install_dir_from_preset(preset, cmake_source_dir)
 
-    expected_files = [
-        "cmake/waypoint-config.cmake",
-        "cmake/waypoint-config-debug.cmake",
-        "cmake/waypoint-config-relwithdebinfo.cmake",
-        "cmake/waypoint-config-release.cmake",
-        "cmake/waypoint-config-version.cmake",
-        "include/waypoint/waypoint.hpp",
-        "lib/Debug/libassert.a",
-        "lib/Debug/libcoverage.a",
-        "lib/Debug/libprocess.a",
-        "lib/Debug/libwaypoint_no_main_impl.a",
-        "lib/Debug/libwaypoint_main_impl.a",
-        "lib/RelWithDebInfo/libassert.a",
-        "lib/RelWithDebInfo/libcoverage.a",
-        "lib/RelWithDebInfo/libprocess.a",
-        "lib/RelWithDebInfo/libwaypoint_no_main_impl.a",
-        "lib/RelWithDebInfo/libwaypoint_main_impl.a",
-        "lib/Release/libassert.a",
-        "lib/Release/libcoverage.a",
-        "lib/Release/libprocess.a",
-        "lib/Release/libwaypoint_no_main_impl.a",
-        "lib/Release/libwaypoint_main_impl.a",
+    expected_files: list[pathlib.Path] = [
+        install_dir / "cmake/waypoint-config.cmake",
+        install_dir / "cmake/waypoint-config-debug.cmake",
+        install_dir / "cmake/waypoint-config-relwithdebinfo.cmake",
+        install_dir / "cmake/waypoint-config-release.cmake",
+        install_dir / "cmake/waypoint-config-version.cmake",
+        install_dir / "include/waypoint/waypoint.hpp",
+        install_dir / "lib/Debug/libassert.a",
+        install_dir / "lib/Debug/libcoverage.a",
+        install_dir / "lib/Debug/libprocess.a",
+        install_dir / "lib/Debug/libwaypoint_no_main_impl.a",
+        install_dir / "lib/Debug/libwaypoint_main_impl.a",
+        install_dir / "lib/RelWithDebInfo/libassert.a",
+        install_dir / "lib/RelWithDebInfo/libcoverage.a",
+        install_dir / "lib/RelWithDebInfo/libprocess.a",
+        install_dir / "lib/RelWithDebInfo/libwaypoint_no_main_impl.a",
+        install_dir / "lib/RelWithDebInfo/libwaypoint_main_impl.a",
+        install_dir / "lib/Release/libassert.a",
+        install_dir / "lib/Release/libcoverage.a",
+        install_dir / "lib/Release/libprocess.a",
+        install_dir / "lib/Release/libwaypoint_no_main_impl.a",
+        install_dir / "lib/Release/libwaypoint_main_impl.a",
     ]
+    expected_files = [f.resolve() for f in expected_files]
 
     files = find_all_files(install_dir)
     for expected in expected_files:
-        assert (
-            os.path.realpath(f"{install_dir}/{expected}") in files
-        ), f"File not found: {os.path.realpath(f'{install_dir}/{expected}')}"
+        assert expected in files, f"File not found: {expected}"
 
     assert len(files) == len(expected_files), "Unexpected files are present"
 
     return True
 
 
-def verify_installation_contents_shared(preset, cmake_source_dir) -> bool:
+def verify_installation_contents_shared(preset, cmake_source_dir: pathlib.Path) -> bool:
     install_dir = install_dir_from_preset(preset, cmake_source_dir)
 
-    expected_files = [
-        "cmake/waypoint-config.cmake",
-        "cmake/waypoint-config-debug.cmake",
-        "cmake/waypoint-config-relwithdebinfo.cmake",
-        "cmake/waypoint-config-release.cmake",
-        "cmake/waypoint-config-version.cmake",
-        "include/waypoint/waypoint.hpp",
-        "lib/Debug/libwaypoint_no_main_impl.so",
-        "lib/Debug/libwaypoint_main_impl.so",
-        "lib/RelWithDebInfo/libwaypoint_no_main_impl.so",
-        "lib/RelWithDebInfo/libwaypoint_main_impl.so",
-        "lib/Release/libwaypoint_no_main_impl.so",
-        "lib/Release/libwaypoint_main_impl.so",
+    expected_files: list[pathlib.Path] = [
+        install_dir / "cmake/waypoint-config.cmake",
+        install_dir / "cmake/waypoint-config-debug.cmake",
+        install_dir / "cmake/waypoint-config-relwithdebinfo.cmake",
+        install_dir / "cmake/waypoint-config-release.cmake",
+        install_dir / "cmake/waypoint-config-version.cmake",
+        install_dir / "include/waypoint/waypoint.hpp",
+        install_dir / "lib/Debug/libwaypoint_no_main_impl.so",
+        install_dir / "lib/Debug/libwaypoint_main_impl.so",
+        install_dir / "lib/RelWithDebInfo/libwaypoint_no_main_impl.so",
+        install_dir / "lib/RelWithDebInfo/libwaypoint_main_impl.so",
+        install_dir / "lib/Release/libwaypoint_no_main_impl.so",
+        install_dir / "lib/Release/libwaypoint_main_impl.so",
     ]
+    expected_files = [f.resolve() for f in expected_files]
 
     files = find_all_files(install_dir)
     for expected in expected_files:
-        assert (
-            os.path.realpath(f"{install_dir}/{expected}") in files
-        ), f"File not found: {os.path.realpath(f'{install_dir}/{expected}')}"
+        assert expected in files, f"File not found: {expected}"
 
     assert len(files) == len(expected_files), "Unexpected files are present"
 

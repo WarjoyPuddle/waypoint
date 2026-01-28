@@ -2,43 +2,46 @@
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
-import os
+import pathlib
 import re
 
 
-def is_shell_script(f) -> bool:
-    return re.search(r"\.bash$", f) is not None or re.search(r"\.sh$", f) is not None
-
-
-def is_cmake_file(f) -> bool:
+def is_shell_script(f: pathlib.Path) -> bool:
     return (
-        re.search(r"CMakeLists\.txt$", f) is not None
-        or re.search(r"\.cmake$", f) is not None
+        re.search(r"\.bash$", str(f)) is not None
+        or re.search(r"\.sh$", str(f)) is not None
     )
 
 
-def is_cpp_header_file(f) -> bool:
-    return re.search(r"\.hpp$", f) is not None
+def is_cmake_file(f: pathlib.Path) -> bool:
+    return (
+        re.search(r"CMakeLists\.txt$", str(f)) is not None
+        or re.search(r"\.cmake$", str(f)) is not None
+    )
 
 
-def is_cpp_source_file(f) -> bool:
-    return re.search(r"\.cpp$", f) is not None
+def is_cpp_header_file(f: pathlib.Path) -> bool:
+    return re.search(r"\.hpp$", str(f)) is not None
 
 
-def is_cpp_file(f) -> bool:
+def is_cpp_source_file(f: pathlib.Path) -> bool:
+    return re.search(r"\.cpp$", str(f)) is not None
+
+
+def is_cpp_file(f: pathlib.Path) -> bool:
     return is_cpp_source_file(f) or is_cpp_header_file(f)
 
 
-def is_docker_file(f) -> bool:
+def is_docker_file(f: pathlib.Path) -> bool:
     return (
-        re.search(r"\.dockerfile$", f) is not None
-        or re.search(r"^Dockerfile$", os.path.basename(f)) is not None
+        re.search(r"\.dockerfile$", str(f)) is not None
+        or re.search(r"^Dockerfile$", f.name) is not None
     )
 
 
-def is_json_file(f) -> bool:
-    return re.search(r"\.json$", f) is not None
+def is_json_file(f: pathlib.Path) -> bool:
+    return re.search(r"\.json$", str(f)) is not None
 
 
-def is_python_file(f) -> bool:
-    return re.search(r"\.py$", f) is not None
+def is_python_file(f: pathlib.Path) -> bool:
+    return re.search(r"\.py$", str(f)) is not None

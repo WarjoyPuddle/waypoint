@@ -46,17 +46,17 @@ def is_supported_os() -> bool:
     return False
 
 
-def recursively_copy_dir(source, destination):
+def recursively_copy_dir(source: pathlib.Path, destination: pathlib.Path):
     shutil.copytree(source, destination, dirs_exist_ok=True)
 
 
-def remove_dir(path):
-    if os.path.exists(path) and os.path.isdir(path):
+def remove_dir(path: pathlib.Path):
+    if path.exists() and path.is_dir():
         shutil.rmtree(path)
 
 
-def create_dir(path) -> bool:
-    if os.path.exists(path) and not os.path.isdir(path):
+def create_dir(path: pathlib.Path) -> bool:
+    if path.exists() and not path.is_dir():
         return False
 
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)

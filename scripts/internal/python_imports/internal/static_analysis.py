@@ -5,7 +5,7 @@
 import contextlib
 import json
 import multiprocessing
-import os
+import pathlib
 import time
 
 from .cmake import build_dir_from_preset
@@ -13,25 +13,26 @@ from .process import run
 from .system import get_cpu_count
 
 
-def get_files_from_compilation_database(preset, cmake_source_dir) -> list[str]:
+def get_files_from_compilation_database(
+    preset, cmake_source_dir: pathlib.Path
+) -> list[pathlib.Path]:
     build_dir = build_dir_from_preset(preset, cmake_source_dir)
-    compilation_db = os.path.realpath(f"{build_dir}/compile_commands.json")
-    assert os.path.isfile(compilation_db)
+    compilation_db = (build_dir / "compile_commands.json").resolve()
+    assert compilation_db.is_file()
 
     with open(compilation_db, "r") as f:
         data = json.load(f)
 
-    files = set()
+    files: set[pathlib.Path] = set()
     for d in data:
-        files.add(d["file"])
+        files.add(pathlib.Path(d["file"]).resolve())
 
-    files = [os.path.realpath(f) for f in files]
-    files = [f for f in files if "___" not in f]
-    files.sort()
-    for f in files:
-        assert os.path.isfile(f), f"File not found: {f}"
+    files2 = [f for f in files if "___" not in str(f)]
+    files2.sort()
+    for f in files2:
+        assert f.is_file(), f"File not found: {f}"
 
-    return files
+    return files2
 
 
 def clang_tidy_process_single_file(data) -> tuple[bool, str, float, str | None]:
