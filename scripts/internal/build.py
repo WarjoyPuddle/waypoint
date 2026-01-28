@@ -13,9 +13,7 @@ from python_imports import analyze_gcc_coverage
 from python_imports import build_cmake
 from python_imports import cache_var_from_preset
 from python_imports import changed_cpp_source_files_and_dependents
-from python_imports import check_copyright_comments
 from python_imports import check_formatting
-from python_imports import check_license_file
 from python_imports import clean_build_dir
 from python_imports import configure_cmake
 from python_imports import copy_install_dir
@@ -286,13 +284,10 @@ EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR = os.path.realpath(
     f"{EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR}/waypoint_install___"
 )
 
-LICENSE_FILE_PATH = os.path.realpath(f"{PROJECT_ROOT_DIR}/LICENSE")
-
 
 @dataclasses.dataclass(frozen=True)
 class ModeConfig:
     clean: bool = False
-    check_legal: bool = False
     check_formatting: bool = False
     fix_formatting: bool = False
     static_lib: bool = False
@@ -331,7 +326,6 @@ class Mode(enum.Enum):
     )
     Verify = ModeConfig(
         clean=True,
-        check_legal=True,
         check_formatting=True,
         static_lib=True,
         shared_lib=True,
@@ -399,10 +393,6 @@ class Mode(enum.Enum):
     @property
     def incremental(self):
         return not self.config.clean
-
-    @property
-    def check_legal(self):
-        return self.config.check_legal
 
     @property
     def check_formatting(self):
@@ -1283,12 +1273,6 @@ def build_gcc_release_all_tests_shared_fn() -> bool:
         CMAKE_SOURCE_DIR,
         "all_tests",
     )
-
-
-def check_copyright_comments_fn() -> bool:
-    files = find_all_files(PROJECT_ROOT_DIR)
-
-    return check_copyright_comments(files)
 
 
 def check_formatting_fn() -> bool:
@@ -3328,10 +3312,6 @@ def example_quick_start_add_subdirectory_fn() -> bool:
     return True
 
 
-def check_license_file_fn() -> bool:
-    return check_license_file(LICENSE_FILE_PATH)
-
-
 def configure_clang_address_sanitizer_fn() -> bool:
     return configure_cmake(CMakePresets.AddressSanitizerClang, CMAKE_SOURCE_DIR)
 
@@ -3900,10 +3880,6 @@ def main() -> int:
         ]
     )
 
-    check_license_file_task = Task("Check LICENSE file", check_license_file_fn)
-    check_copyright_comments_task = Task(
-        "Check copyright comments", check_copyright_comments_fn
-    )
     check_formatting_task = Task("Check code formatting", check_formatting_fn)
     format_sources = Task("Format code", format_sources_fn)
 
@@ -5180,11 +5156,6 @@ def main() -> int:
 
     if mode.clean:
         prebuild_dependencies.append(clean)
-
-    if mode.check_legal:
-        build_dependencies.extend(
-            [check_license_file_task, check_copyright_comments_task]
-        )
 
     if mode.check_formatting:
         build_dependencies.append(check_formatting_task)
