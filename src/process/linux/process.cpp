@@ -145,12 +145,12 @@ private:
 
 InputPipeEnd::~InputPipeEnd() = default;
 
+InputPipeEnd::InputPipeEnd(InputPipeEnd &&other) noexcept = default;
+
 InputPipeEnd::InputPipeEnd(InputPipeEnd_impl *const impl)
   : impl_{std::unique_ptr<InputPipeEnd_impl>{impl}}
 {
 }
-
-InputPipeEnd::InputPipeEnd(InputPipeEnd &&other) noexcept = default;
 
 void InputPipeEnd::write(
   unsigned char const *const buffer,
@@ -202,6 +202,8 @@ private:
 
 OutputPipeEnd::~OutputPipeEnd() = default;
 
+OutputPipeEnd::OutputPipeEnd(OutputPipeEnd &&other) noexcept = default;
+
 OutputPipeEnd::OutputPipeEnd(OutputPipeEnd_impl *const impl)
   : impl_{std::unique_ptr<OutputPipeEnd_impl>{impl}}
 {
@@ -234,8 +236,6 @@ auto OutputPipeEnd::read_exactly(
 
   return OutputPipeEnd::ReadResult::Success;
 }
-
-OutputPipeEnd::OutputPipeEnd(OutputPipeEnd &&other) noexcept = default;
 
 auto get_pipes_from_env() noexcept -> std::pair<OutputPipeEnd, InputPipeEnd>
 {
@@ -323,10 +323,16 @@ auto get_path_to_current_executable() noexcept -> std::string
   return resolve_path(path);
 }
 
-auto create_child_process(
-  std::array<int, 2> const &pipe_command,
-  std::array<int, 2> const &pipe_response) noexcept -> std::tuple<int, int, int>
+auto create_child_process_with_pipes() noexcept -> std::tuple<int, int, int>
 {
+  std::array<int, 2> pipe_command{};
+  std::array<int, 2> pipe_response{};
+
+  [[maybe_unused]]
+  auto const ret1 = ::pipe(pipe_command.data());
+  [[maybe_unused]]
+  auto const ret2 = ::pipe(pipe_response.data());
+
   auto const fork_ret = ::fork();
   waypoint::internal::assert(fork_ret >= 0, "::fork returned error");
   if(fork_ret > 0)
@@ -384,19 +390,6 @@ auto create_child_process(
   // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
   std::unreachable();
-}
-
-auto create_child_process_with_pipes() noexcept -> std::tuple<int, int, int>
-{
-  std::array<int, 2> pipe_command{};
-  std::array<int, 2> pipe_response{};
-
-  [[maybe_unused]]
-  auto const ret1 = ::pipe(pipe_command.data());
-  [[maybe_unused]]
-  auto const ret2 = ::pipe(pipe_response.data());
-
-  return create_child_process(pipe_command, pipe_response);
 }
 
 auto wait_for_child_process_end(int const child_pid) -> unsigned long long
