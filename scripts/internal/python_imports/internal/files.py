@@ -13,7 +13,7 @@ from .process import run
 
 
 def find_files_by_name(dir_path: pathlib.Path, pred) -> list[pathlib.Path]:
-    output = []
+    output: list[pathlib.Path] = list()
     for root, dirs, files in dir_path.walk():
         indices_to_remove = []
         for i, d in enumerate(dirs):
@@ -26,8 +26,7 @@ def find_files_by_name(dir_path: pathlib.Path, pred) -> list[pathlib.Path]:
             if "___" in d:
                 indices_to_remove.append(i)
                 continue
-        indices_to_remove.sort()
-        indices_to_remove.reverse()
+        indices_to_remove.sort(reverse=True)
         for i in indices_to_remove:
             dirs.pop(i)
 
@@ -36,8 +35,7 @@ def find_files_by_name(dir_path: pathlib.Path, pred) -> list[pathlib.Path]:
             if "___" in f:
                 indices_to_remove.append(i)
                 continue
-        indices_to_remove.sort()
-        indices_to_remove.reverse()
+        indices_to_remove.sort(reverse=True)
         for i in indices_to_remove:
             files.pop(i)
 
