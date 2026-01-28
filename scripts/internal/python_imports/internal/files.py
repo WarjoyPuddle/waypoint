@@ -4,7 +4,6 @@
 
 import contextlib
 import pathlib
-import re
 
 from .cmake import build_dir_from_preset
 from .file_types import is_cpp_file
@@ -169,9 +168,7 @@ def collect_depfiles(preset, cmake_source_dir: pathlib.Path) -> list[pathlib.Pat
         for f in files:
             depfiles.append(root / f)
     depfiles = [
-        f.resolve()
-        for f in depfiles
-        if f.is_file() and re.search(r"\.o\.d$", str(f)) is not None
+        f.resolve() for f in depfiles if f.is_file() and f.suffixes[-2:] == [".o", ".d"]
     ]
     depfiles.sort()
 

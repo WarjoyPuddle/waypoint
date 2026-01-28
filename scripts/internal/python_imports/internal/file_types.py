@@ -3,29 +3,22 @@
 # For license details, see LICENSE file
 
 import pathlib
-import re
 
 
 def is_shell_script(f: pathlib.Path) -> bool:
-    return (
-        re.search(r"\.bash$", str(f)) is not None
-        or re.search(r"\.sh$", str(f)) is not None
-    )
+    return f.suffix == ".bash" or f.suffix == ".sh"
 
 
 def is_cmake_file(f: pathlib.Path) -> bool:
-    return (
-        re.search(r"CMakeLists\.txt$", str(f)) is not None
-        or re.search(r"\.cmake$", str(f)) is not None
-    )
+    return f.name == "CMakeLists.txt" or f.suffix == ".cmake"
 
 
 def is_cpp_header_file(f: pathlib.Path) -> bool:
-    return re.search(r"\.hpp$", str(f)) is not None
+    return f.suffix == ".hpp"
 
 
 def is_cpp_source_file(f: pathlib.Path) -> bool:
-    return re.search(r"\.cpp$", str(f)) is not None
+    return f.suffix == ".cpp"
 
 
 def is_cpp_file(f: pathlib.Path) -> bool:
@@ -33,15 +26,12 @@ def is_cpp_file(f: pathlib.Path) -> bool:
 
 
 def is_docker_file(f: pathlib.Path) -> bool:
-    return (
-        re.search(r"\.dockerfile$", str(f)) is not None
-        or re.search(r"^Dockerfile$", f.name) is not None
-    )
+    return f.name == "Dockerfile" or f.suffix == ".dockerfile"
 
 
 def is_json_file(f: pathlib.Path) -> bool:
-    return re.search(r"\.json$", str(f)) is not None
+    return f.suffix == ".json"
 
 
 def is_python_file(f: pathlib.Path) -> bool:
-    return re.search(r"\.py$", str(f)) is not None
+    return f.suffix == ".py"
