@@ -117,8 +117,9 @@ def get_files_staged_for_commit(root_dir: pathlib.Path) -> list[pathlib.Path]:
     with contextlib.chdir(root_dir):
         run(["git", "update-index", "--really-refresh", "-q"])
         success, output = run(["git", "diff-index", "--cached", "--name-only", "HEAD"])
-        if not success:
-            return find_all_files(root_dir)
+        assert (
+            success
+        ), "Failed to call Git; ensure you are in a Git repository and that Git is installed."
 
     files = output.strip().split("\n")
     out: set[pathlib.Path] = set()
@@ -141,8 +142,9 @@ def get_changed_files(root_dir: pathlib.Path, predicate) -> list[pathlib.Path]:
         # List all changes except untracked+unstaged
         success2, output2 = run(["git", "diff-index", "--name-only", "HEAD"])
         # Fall back to all files if git is not available
-        if not (success1 and success2):
-            return find_files_by_name(root_dir, predicate)
+        assert (
+            success1 and success2
+        ), "Failed to call Git; ensure you are in a Git repository and that Git is installed."
 
         files = output1.strip().split("\n")
         files += output2.strip().split("\n")
