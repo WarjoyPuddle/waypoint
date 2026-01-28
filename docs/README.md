@@ -169,7 +169,7 @@ default `main()` function provided by Waypoint, you are free to write
 your own.
 Apart from compiling it along with your other source files, the only
 difference is that you should link against the CMake target
-`waypoint::waypoint` instead of `waypoint::waypoint_main` (which
+`waypoint::waypoint_no_main` instead of `waypoint::waypoint_main` (which
 includes a default entry point).
 
 You will find that this workflow is essentially identical to the
@@ -204,7 +204,7 @@ ctest --preset example_test --build-config Debug
 If you wish, it is not difficult to adapt the add_subdirectory workflow
 to provide your own program entry point.
 Again, the main difference is that you would link against
-`waypoint::waypoint` and not `waypoint::waypoint_main`.
+`waypoint::waypoint_no_main` and not `waypoint::waypoint_main`.
 
 ### Writing your first tests
 
