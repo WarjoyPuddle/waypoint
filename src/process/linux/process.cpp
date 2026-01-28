@@ -226,7 +226,7 @@ auto OutputPipeEnd::read_exactly(
       ::read(this->impl_->raw_pipe(), buffer + transferred, left_to_transfer);
     waypoint::internal::assert(
       transferred_this_time >= 0,
-      "::read returned error");
+      "Call to ::read() returned an error");
 
     // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
     if(transferred_this_time == 0)
@@ -251,7 +251,7 @@ void OutputPipeEnd::read_at_most(
     ::read(this->impl_->raw_pipe(), buffer, count);
   waypoint::internal::assert(
     transferred_this_time >= 0,
-    "::read returned error");
+    "Call to ::read() returned an error");
 }
 
 auto get_impl(OutputPipeEnd const &pipe) -> OutputPipeEnd_impl &
@@ -512,7 +512,9 @@ auto create_child_process_with_pipes() noexcept
   auto const ret4 = ::pipe(pipe_std_err.data());
 
   auto const fork_ret = ::fork();
-  waypoint::internal::assert(fork_ret >= 0, "::fork returned error");
+  waypoint::internal::assert(
+    fork_ret >= 0,
+    "Call to ::fork() returned an error");
   if(fork_ret > 0)
   {
     auto const child_pid = fork_ret;
