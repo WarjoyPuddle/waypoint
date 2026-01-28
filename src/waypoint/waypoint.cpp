@@ -7,6 +7,7 @@
 #include "impls.hpp"
 #include "types.hpp"
 
+#include "assert/assert.hpp"
 #include "coverage/coverage.hpp"
 #include "process/process.hpp"
 
@@ -427,6 +428,94 @@ void shut_down_sequence(
   auto const maybe_response = receive_response(response_read_pipe);
 }
 
+enum class TestStatus : unsigned char
+{
+  Running,
+  Terminated,
+  TimedOut,
+  Complete
+};
+
+auto process_pipes(
+  waypoint::internal::OutputPipeEnd const &response_read_pipe,
+  waypoint::internal::TestRun_impl &impl) -> TestStatus
+{
+  auto const maybe_response = receive_response(response_read_pipe);
+  if(!maybe_response.has_value())
+  {
+    return TestStatus::Terminated;
+  }
+
+  auto const &response = maybe_response.value();
+
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_START
+  waypoint::internal::assert(
+    response.code == waypoint::internal::Response::Code::Assertion ||
+      response.code == waypoint::internal::Response::Code::Timeout ||
+      response.code == waypoint::internal::Response::Code::TestComplete,
+    "Unexpected response code");
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_STOP
+
+  if(response.code == waypoint::internal::Response::Code::Assertion)
+  {
+    impl.register_assertion(
+      response.assertion_passed,
+      response.test_id,
+      response.assertion_index,
+      response.assertion_message);
+
+    return TestStatus::Running;
+  }
+
+  if(response.code == waypoint::internal::Response::Code::Timeout)
+  {
+    return TestStatus::TimedOut;
+  }
+
+  waypoint::internal::assert(
+    response.code == waypoint::internal::Response::Code::TestComplete,
+    "Unexpected response code");
+
+  return TestStatus::Complete;
+}
+
+enum class SingleTestOutcome : unsigned char
+{
+  Complete,
+  Interrupted
+};
+
+auto single_test_loop(
+  waypoint::internal::TestRecord *const record,
+  waypoint::internal::OutputPipeEnd const &response_read_pipe,
+  waypoint::internal::TestRun_impl &impl) -> SingleTestOutcome
+{
+  while(true)
+  {
+    auto const status = process_pipes(response_read_pipe, impl);
+    if(status == TestStatus::Complete)
+    {
+      break;
+    }
+    if(status == TestStatus::Terminated)
+    {
+      record->mark_as_crashed();
+
+      return SingleTestOutcome::Interrupted;
+    }
+    if(status == TestStatus::TimedOut)
+    {
+      record->mark_as_timed_out();
+
+      return SingleTestOutcome::Interrupted;
+    }
+  }
+
+  record->mark_as_run();
+
+  return SingleTestOutcome::Complete;
+}
+
 auto parent_main(
   waypoint::TestRun const &t,
   waypoint::internal::InputPipeEnd const &command_write_pipe,
@@ -458,45 +547,16 @@ auto parent_main(
       test_index};
     send_command(command_write_pipe, command);
 
-    while(true)
+    auto const test_outcome =
+      single_test_loop(record, response_read_pipe, impl);
+    if(test_outcome == SingleTestOutcome::Interrupted)
     {
-      auto const maybe_response = receive_response(response_read_pipe);
-      if(!maybe_response.has_value())
-      {
-        record->mark_as_crashed();
-
-        return {
-          impl.generate_results(),
-          true,
-          impl.get_test_index(record->test_id())};
-      }
-
-      auto const &response = maybe_response.value();
-      if(response.code == waypoint::internal::Response::Code::Assertion)
-      {
-        impl.register_assertion(
-          response.assertion_passed,
-          response.test_id,
-          response.assertion_index,
-          response.assertion_message);
-      }
-
-      if(response.code == waypoint::internal::Response::Code::Timeout)
-      {
-        record->mark_as_timed_out();
-
-        return {
-          impl.generate_results(),
-          true,
-          impl.get_test_index(record->test_id())};
-      }
-
-      if(response.code == waypoint::internal::Response::Code::TestComplete)
-      {
-        record->mark_as_run();
-        break;
-      }
+      return {impl.generate_results(), true, test_index};
     }
+
+    waypoint::internal::assert(
+      test_outcome == SingleTestOutcome::Complete,
+      "Unexpected value of test_outcome");
   }
 
   shut_down_sequence(command_write_pipe, response_read_pipe);

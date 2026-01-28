@@ -70,6 +70,7 @@ new_implementation_library(
   impls.hpp
   types.hpp
   PRIVATE_LINKS
+  assert
   coverage
   process)
 
