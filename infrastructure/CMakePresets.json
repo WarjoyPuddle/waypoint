@@ -208,10 +208,10 @@
       "name": "base_valgrind"
     },
     {
-      "binaryDir": "${sourceDir}/../waypoint_build_static___",
+      "binaryDir": "${sourceDir}/../build___/waypoint_build___",
       "generator": "Ninja Multi-Config",
       "hidden": false,
-      "installDir": "${sourceDir}/../waypoint_install_static___",
+      "installDir": "${sourceDir}/../build___/waypoint_install___",
       "name": "example_configure"
     },
     {
