@@ -548,6 +548,10 @@ auto process_pipes(
 
       if(response.code == waypoint::internal::Response::Code::Assertion)
       {
+        waypoint::internal::assert(
+          record->test_id() == response.test_id,
+          "Unexpected response.test_id");
+
         impl.register_assertion(
           response.assertion_passed,
           response.test_id,
@@ -556,10 +560,18 @@ auto process_pipes(
       }
       if(response.code == waypoint::internal::Response::Code::Timeout)
       {
+        waypoint::internal::assert(
+          record->test_id() == response.test_id,
+          "Unexpected response.test_id");
+
         status = TestStatus::TimedOut;
       }
       if(response.code == waypoint::internal::Response::Code::TestComplete)
       {
+        waypoint::internal::assert(
+          record->test_id() == response.test_id,
+          "Unexpected response.test_id");
+
         status = TestStatus::Complete;
       }
     } // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_LINE
