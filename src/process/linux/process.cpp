@@ -483,7 +483,6 @@ auto get_path_to_current_executable() noexcept -> std::string
 
   std::memset(dest.data(), 0, dest.size() * sizeof(decltype(dest)::value_type));
 
-  [[maybe_unused]]
   auto const ret = ::readlink("/proc/self/exe", dest.data(), dest.size());
   waypoint::internal::assert(ret > 0, "::readlink returned an error");
   waypoint::internal::assert(
