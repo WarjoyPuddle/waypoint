@@ -202,7 +202,7 @@
     },
     {
       "cacheVariables": {
-        "PRESET_VALGRIND_COMPILER_OPTIONS_vII5N7cLv784aOET": true
+        "PRESET_ENABLE_VALGRIND_9AqzT11ECkNGKR62": true
       },
       "hidden": true,
       "name": "base_valgrind"
