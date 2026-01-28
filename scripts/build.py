@@ -149,7 +149,9 @@ CMAKE_PRESETS_FILE = os.path.realpath(f"{CMAKE_SOURCE_DIR}/CMakePresets.json")
 assert os.path.isfile(CMAKE_LISTS_FILE) and os.path.isfile(CMAKE_PRESETS_FILE)
 
 CLANG_TIDY_CONFIG = os.path.realpath(f"{INFRASTRUCTURE_DIR}/.clang-tidy-20")
+assert os.path.isfile(CLANG_TIDY_CONFIG)
 CLANG_FORMAT_CONFIG = os.path.realpath(f"{INFRASTRUCTURE_DIR}/.clang-format-20")
+assert os.path.isfile(CLANG_FORMAT_CONFIG)
 
 MAIN_HEADER_PATH = f"{PROJECT_ROOT_DIR}/src/waypoint/include/waypoint/waypoint.hpp"
 assert os.path.isfile(MAIN_HEADER_PATH), "waypoint.hpp does not exist"
