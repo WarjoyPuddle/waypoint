@@ -10,7 +10,7 @@ PROJECT_ROOT_DIR="$(realpath "${THIS_SCRIPT_DIR}/..")"
 
 main()
 {
-  python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/build.py" basic_static_build
+  python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/build.py" default_shared_build
 
   echo "Success: $(basename "$0")"
 }

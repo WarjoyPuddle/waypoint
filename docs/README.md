@@ -71,7 +71,7 @@ This will produce a shared library usable directly from a CMake project.
 Apart from Docker itself, you will need Python 3.13 or newer.
 
 ```shell
-scripts/basic_shared_build_docker.sh
+scripts/default_shared_build_docker.sh
 mv build___/waypoint_install_shared___ build___/waypoint_install___
 ```
 
@@ -86,14 +86,14 @@ the `CC` and `CXX` environment variables.
 To produce a static library:
 
 ```shell
-CC=clang-20 CXX=clang++-20 scripts/basic_static_build.sh
+CC=clang-20 CXX=clang++-20 scripts/default_static_build.sh
 mv build___/waypoint_install_static___ build___/waypoint_install___
 ```
 
 To produce a shared library:
 
 ```shell
-CC=clang-20 CXX=clang++-20 scripts/basic_shared_build.sh
+CC=clang-20 CXX=clang++-20 scripts/default_shared_build.sh
 mv build___/waypoint_install_shared___ build___/waypoint_install___
 ```
 

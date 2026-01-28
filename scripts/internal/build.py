@@ -326,8 +326,8 @@ EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR = (
 
 @dataclasses.dataclass(frozen=True)
 class ModeConfig:
-    basic_static_build: bool = False
-    basic_shared_build: bool = False
+    default_static_build: bool = False
+    default_shared_build: bool = False
     clean: bool = False
     check_formatting: bool = False
     fix_formatting: bool = False
@@ -353,8 +353,8 @@ class ModeConfig:
 
 @enum.unique
 class Mode(enum.Enum):
-    BasicStaticBuild = ModeConfig(basic_static_build=True)
-    BasicSharedBuild = ModeConfig(basic_shared_build=True)
+    DefaultStaticBuild = ModeConfig(default_static_build=True)
+    DefaultSharedBuild = ModeConfig(default_shared_build=True)
     Fast = ModeConfig(
         static_lib=True,
         clang=True,
@@ -410,10 +410,10 @@ class Mode(enum.Enum):
         self.config = config
 
     def __str__(self):
-        if self == Mode.BasicStaticBuild:
-            return "basic_static_build"
-        if self == Mode.BasicSharedBuild:
-            return "basic_shared_build"
+        if self == Mode.DefaultStaticBuild:
+            return "default_static_build"
+        if self == Mode.DefaultSharedBuild:
+            return "default_shared_build"
         if self == Mode.Clean:
             return "clean"
         if self == Mode.Coverage:
@@ -434,12 +434,12 @@ class Mode(enum.Enum):
         assert False, "This should not happen"
 
     @property
-    def basic_static_build(self):
-        return self.config.basic_static_build
+    def default_static_build(self):
+        return self.config.default_static_build
 
     @property
-    def basic_shared_build(self):
-        return self.config.basic_shared_build
+    def default_shared_build(self):
+        return self.config.default_shared_build
 
     @property
     def clean(self):
@@ -1300,10 +1300,10 @@ class CliConfig:
     def __init__(self, mode_str):
         self.mode = None
 
-        if mode_str == str(Mode.BasicStaticBuild):
-            self.mode = Mode.BasicStaticBuild
-        if mode_str == str(Mode.BasicSharedBuild):
-            self.mode = Mode.BasicSharedBuild
+        if mode_str == str(Mode.DefaultStaticBuild):
+            self.mode = Mode.DefaultStaticBuild
+        if mode_str == str(Mode.DefaultSharedBuild):
+            self.mode = Mode.DefaultSharedBuild
         if mode_str == str(Mode.Clean):
             self.mode = Mode.Clean
         if mode_str == str(Mode.Coverage):
@@ -1333,8 +1333,8 @@ def preamble() -> tuple[CliConfig | None, bool]:
     parser.add_argument(
         "mode",
         choices=[
-            str(Mode.BasicStaticBuild),
-            str(Mode.BasicSharedBuild),
+            str(Mode.DefaultStaticBuild),
+            str(Mode.DefaultSharedBuild),
             str(Mode.Clean),
             str(Mode.Coverage),
             str(Mode.Fast),
@@ -1346,9 +1346,9 @@ def preamble() -> tuple[CliConfig | None, bool]:
         ],
         metavar="mode",
         help=f"""Selects build mode:
-                 "{Mode.BasicStaticBuild}" builds Waypoint as a static library,
+                 "{Mode.DefaultStaticBuild}" builds Waypoint as a static library,
                  using CC and CXX environment variables for compiler selection;
-                 "{Mode.BasicSharedBuild}" builds Waypoint as a shared library,
+                 "{Mode.DefaultSharedBuild}" builds Waypoint as a shared library,
                  using CC and CXX environment variables for compiler selection;
                  "{Mode.Clean}" deletes the build trees;
                  "{Mode.Coverage}" measures test coverage;
@@ -5192,10 +5192,10 @@ def main() -> int:
     if mode.static_analysis_incremental:
         build_dependencies.append(run_clang_static_analysis_changed_files_task)
 
-    if mode.basic_static_build:
+    if mode.default_static_build:
         build_dependencies.append(install_default_clang_release)
 
-    if mode.basic_shared_build:
+    if mode.default_shared_build:
         build_dependencies.append(install_default_clang_release_shared)
 
     prebuild = Task("Pre-build")

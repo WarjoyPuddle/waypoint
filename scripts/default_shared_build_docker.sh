@@ -12,7 +12,7 @@ CONTAINER_ROOT_DIR="/workspace"
 main()
 {
   python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/run_in_docker.py" \
-    python3 "${CONTAINER_ROOT_DIR}/scripts/internal/build.py" basic_shared_build
+    python3 "${CONTAINER_ROOT_DIR}/scripts/internal/build.py" default_shared_build
 
   echo "Success: $(basename "$0")"
 }
