@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
@@ -15,14 +16,17 @@ LOCAL_USERNAME="$(id -un)"
 LOCAL_UID="$(id -u)"
 LOCAL_GID="$(id -g)"
 
-function current_timezone
+current_timezone()
 {
   local output
 
-  if command -v timedatectl &>/dev/null; then
-    output="$(source <(timedatectl show |
-      grep -E '^Timezone=') &&
-      echo "${Timezone}")"
+  if command -v timedatectl >/dev/null 2>&1; then
+    local tempfile
+    tempfile="$(mktemp)"
+    output=$(timedatectl show |
+      grep -E '^Timezone=' >"${tempfile}" &&
+      . "${tempfile}" &&
+      echo "${Timezone}")
   else
     output="$(cat /etc/timezone)"
   fi
@@ -30,7 +34,7 @@ function current_timezone
   echo "${output}"
 }
 
-function main
+main()
 {
   docker build \
     --progress plain \
