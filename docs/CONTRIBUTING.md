@@ -129,30 +129,30 @@ bash scripts/enter_docker.bash
 ```
 
 While inside the Docker container (or another suitable context), you
-can build Waypoint by running `scripts/build.py` with a single
-argument called a mode.
-Four modes that deserve attention are
-`fast` (builds Waypoint and functional tests in Debug mode, runs
-tests),
-`clean` (removes all traces of build artifacts),
-`format` (formats source files), and
-`verify` (runs in `clean` mode, followed by builds using all
-toolchains, as well as all checks and tests, including coverage,
+can interact with the Waypoint codebase by running the commands in the
+`scripts/` directory.
+
+* `clean.bash` removes all build artifacts
+* `coverage.bash` builds and runs instrumented tests, outputs coverage report
+* `format_code.bash` formats source files
+* `short_build.bash` builds Waypoint and functional tests in Debug mode,
+runs tests
+* `static_analysis.bash` runs static analysis
+* `valgrind.bash` builds and runs Valgrind tests
+* `verify_build.bash` removes all build artifacts, then builds using all
+toolchains, runs all checks and tests, including coverage,
 sanitizers, Valgrind, and static analysis).
 
-We recommend working with `fast` mode during feature development to
+We recommend working with `short_build.bash` during feature development to
 ensure short iterations and quick feedback.
-Once the feature is finished, ensure that the `verify` build still
-succeeds and fix any problems.
-
-To discover the build script's other modes, run it with the `--help`
-option.
+Once the feature is finished, ensure that the `verify_build.bash` build
+succeeds and fix any problems if it does not.
 
 ### The pre-commit hook
 
 Waypoint comes with a helpful pre-commit hook that will keep you from
 falling foul of some of the checks performed during the build.
-It is a Python script in `scripts/git_pre_commit_hook.py`;
+It is a Python script in `scripts/internal/git_pre_commit_hook.py`;
 among other things, it checks if your sources are correctly formatted
 and makes sure that you update the notice of copyright in the files
 you change.
@@ -166,5 +166,5 @@ the `pre-commit` file is executable).
 
 ```shell
 #!/bin/sh
-python3 "$(pwd)/scripts/git_pre_commit_hook.py"
+python3 "$(pwd)/scripts/internal/git_pre_commit_hook.py"
 ```

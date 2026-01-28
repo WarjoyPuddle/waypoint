@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -257,7 +257,7 @@ def check_formatting(files, clang_format_config) -> bool:
                 if output is not None:
                     print(output)
                 print(
-                    f'Error: {file}\nIncorrect formatting; run the build in "format" mode'
+                    f"Error: {file}\nIncorrect formatting; run scripts/format_code.bash"
                 )
 
             return False
