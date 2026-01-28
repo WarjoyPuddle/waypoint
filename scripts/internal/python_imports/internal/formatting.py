@@ -177,6 +177,8 @@ def fix_lines(lines: list[str]) -> str:
     while lines[-1] == "":
         lines.pop(-1)
 
+    lines = [line.replace("\t", "  ") for line in lines]
+
     return "\n".join(lines) + "\n"
 
 
