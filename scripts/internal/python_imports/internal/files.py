@@ -13,6 +13,31 @@ from .process import run
 
 
 def find_files_by_name(dir_path: pathlib.Path, pred) -> list[pathlib.Path]:
+    assert dir_path.is_dir()
+
+    with contextlib.chdir(dir_path):
+        success1, output1 = run(["git", "ls-files", "--exclude-standard", "--cached"])
+        success2, output2 = run(["git", "ls-files", "--exclude-standard", "--other"])
+        if not (success1 and success2):
+            return find_files_by_name_fallback(dir_path, pred)
+
+    lines = output1.split("\n")
+    lines += output2.split("\n")
+    lines = [line.strip() for line in lines]
+    paths = [dir_path / line for line in lines if line != ""]
+    paths = [path for path in paths if path.is_file() and pred(path)]
+
+    paths = list(set(paths))
+
+    paths.sort()
+
+    if len(paths) == 0:
+        return find_files_by_name_fallback(dir_path, pred)
+
+    return paths
+
+
+def find_files_by_name_fallback(dir_path: pathlib.Path, pred) -> list[pathlib.Path]:
     output: list[pathlib.Path] = list()
     for root, dirs, files in dir_path.walk():
         indices_to_remove = []
