@@ -83,7 +83,7 @@ def process_coverage(
     return True
 
 
-def analyze_gcc_coverage(coverage_file_json_gcovr) -> bool:
+def analyze_gcc_coverage(coverage_file_json_gcovr, coverage_file_html_gcovr) -> bool:
     with open(coverage_file_json_gcovr, "r") as f:
         data = json.load(f)
 
@@ -98,7 +98,8 @@ def analyze_gcc_coverage(coverage_file_json_gcovr) -> bool:
         or not all_functions_covered
         or not all_lines_covered
     ):
-        print("Incomplete coverage")
+        print(f"Incomplete coverage. See coverage report in {coverage_file_html_gcovr}")
+
         return False
 
     return True
