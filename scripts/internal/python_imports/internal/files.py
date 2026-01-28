@@ -44,9 +44,6 @@ def find_files_by_name_fallback(dir_path: pathlib.Path, pred) -> list[pathlib.Pa
             if d.startswith("."):
                 indices_to_remove.append(i)
                 continue
-            if d.startswith("_"):
-                indices_to_remove.append(i)
-                continue
             if "___" in d:
                 indices_to_remove.append(i)
                 continue

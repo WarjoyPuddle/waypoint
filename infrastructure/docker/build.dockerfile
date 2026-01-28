@@ -18,6 +18,7 @@ ARG _SETUP_SCRIPT_ROOT="$_TEMP_DIR_ROOT/set_up_image_root.bash"
 ARG _SETUP_SCRIPT_USER="$_TEMP_DIR_USER/set_up_image_user.bash"
 
 ENV PATH=$PATH:$_HOME/.local/bin
+ENV PYTHONDONTWRITEBYTECODE=1
 
 USER root
 COPY "./" $_TEMP_DIR_ROOT/

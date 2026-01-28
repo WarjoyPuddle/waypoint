@@ -12,7 +12,7 @@ main()
 {
   if test -d "${PROJECT_ROOT_DIR}/.git";
   then
-    python3 "${PROJECT_ROOT_DIR}/scripts/internal/install_hooks.py"
+    python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/install_hooks.py"
   fi
 
   echo "Success: $(basename "$0")"
