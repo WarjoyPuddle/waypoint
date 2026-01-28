@@ -251,8 +251,13 @@ void await_handshake_start(
   std::lock_guard const lock{transmission_mutex};
 
   unsigned char data = 0;
-  [[maybe_unused]]
   auto const read_result = pipe.read_exactly(&data, sizeof data);
+  waypoint::internal::assert(
+    read_result == waypoint::internal::OutputPipeEnd::ReadResult::Success,
+    "Failed to read command during handshake, broken pipe");
+  waypoint::internal::assert(
+    data == std::to_underlying(waypoint::internal::Command::Code::Attention),
+    "Invalid command received during handshake");
 }
 
 void complete_handshake(
@@ -270,8 +275,13 @@ void complete_handshake(
 void await_handshake_end(waypoint::internal::OutputPipeEnd const &pipe)
 {
   unsigned char data = 0;
-  [[maybe_unused]]
   auto const read_result = pipe.read_exactly(&data, sizeof data);
+  waypoint::internal::assert(
+    read_result == waypoint::internal::OutputPipeEnd::ReadResult::Success,
+    "Broken pipe during handshake");
+  waypoint::internal::assert(
+    data == std::to_underlying(waypoint::internal::Response::Code::Ready),
+    "Broken pipe during handshake");
 }
 
 auto receive_command(
@@ -419,8 +429,15 @@ void shut_down_sequence(
 
   send_command(command_write_pipe, command);
 
-  [[maybe_unused]]
   auto const maybe_response = receive_response(response_read_pipe);
+  waypoint::internal::assert(
+    maybe_response.has_value(),
+    "Pipe broken during shutdown sequence");
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  auto const &response = maybe_response.value();
+  waypoint::internal::assert(
+    response.code == waypoint::internal::Response::Code::ShuttingDown,
+    "Unexpected response code");
 }
 
 enum class TestStatus : unsigned char
