@@ -292,7 +292,7 @@ observed prior to removal, unless exceptional circumstances arise
 
 ## Contributing to Waypoint
 
-Refer to the [contribution guidelines](CONTRIBUTING.md).
+Refer to the [Contribution Guidelines](CONTRIBUTING.md).
 
 ## Why "Waypoint"?
 

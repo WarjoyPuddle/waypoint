@@ -1,4 +1,4 @@
-# Contribution guidelines
+# Governance
 
 ## Contents
 
