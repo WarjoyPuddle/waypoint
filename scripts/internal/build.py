@@ -302,7 +302,8 @@ class ModeConfig:
     gcc: bool = False
     debug: bool = False
     release: bool = False
-    static_analysis: bool = False
+    static_analysis_full: bool = False
+    static_analysis_incremental: bool = False
     address_sanitizer: bool = False
     undefined_behaviour_sanitizer: bool = False
     test: bool = False
@@ -339,7 +340,7 @@ class Mode(enum.Enum):
         gcc=True,
         debug=True,
         release=True,
-        static_analysis=True,
+        static_analysis_full=True,
         address_sanitizer=True,
         undefined_behaviour_sanitizer=True,
         test=True,
@@ -355,9 +356,13 @@ class Mode(enum.Enum):
         gcc=True,
         coverage=True,
     )
-    StaticAnalysis = ModeConfig(
+    StaticAnalysisFull = ModeConfig(
         clang=True,
-        static_analysis=True,
+        static_analysis_full=True,
+    )
+    StaticAnalysisIncremental = ModeConfig(
+        clang=True,
+        static_analysis_incremental=True,
     )
     Valgrind = ModeConfig(
         clang=True,
@@ -377,8 +382,10 @@ class Mode(enum.Enum):
             return "fast"
         if self == Mode.Format:
             return "format"
-        if self == Mode.StaticAnalysis:
-            return "static"
+        if self == Mode.StaticAnalysisFull:
+            return "static_full"
+        if self == Mode.StaticAnalysisIncremental:
+            return "static_incremental"
         if self == Mode.Valgrind:
             return "valgrind"
         if self == Mode.Verify:
@@ -431,8 +438,12 @@ class Mode(enum.Enum):
         return self.config.release
 
     @property
-    def static_analysis(self):
-        return self.config.static_analysis
+    def static_analysis_full(self):
+        return self.config.static_analysis_full
+
+    @property
+    def static_analysis_incremental(self):
+        return self.config.static_analysis_incremental
 
     @property
     def address_sanitizer(self):
@@ -1305,8 +1316,10 @@ class CliConfig:
             self.mode = Mode.Fast
         if mode_str == f"{Mode.Format}":
             self.mode = Mode.Format
-        if mode_str == f"{Mode.StaticAnalysis}":
-            self.mode = Mode.StaticAnalysis
+        if mode_str == f"{Mode.StaticAnalysisFull}":
+            self.mode = Mode.StaticAnalysisFull
+        if mode_str == f"{Mode.StaticAnalysisIncremental}":
+            self.mode = Mode.StaticAnalysisIncremental
         if mode_str == f"{Mode.Valgrind}":
             self.mode = Mode.Valgrind
         if mode_str == f"{Mode.Verify}":
@@ -1328,7 +1341,8 @@ def preamble() -> tuple[CliConfig | None, bool]:
             f"{Mode.Coverage}",
             f"{Mode.Fast}",
             f"{Mode.Format}",
-            f"{Mode.StaticAnalysis}",
+            f"{Mode.StaticAnalysisFull}",
+            f"{Mode.StaticAnalysisIncremental}",
             f"{Mode.Valgrind}",
             f"{Mode.Verify}",
         ],
@@ -1338,8 +1352,10 @@ def preamble() -> tuple[CliConfig | None, bool]:
                  "{Mode.Coverage}" measures test coverage;
                  "{Mode.Format}" formats source files;
                  "{Mode.Fast}" runs one build and tests for quick iterations;
-                 "{Mode.StaticAnalysis}" performs static analysis;
-                 "{Mode.Valgrind}" runs Valgrind/memcheck;
+                 "{Mode.StaticAnalysisFull}" performs static analysis on all files;
+                 "{Mode.StaticAnalysisIncremental}" (in a Git repository; requires Git)
+                 performs static analysis on all files with uncommited changes;
+                 "{Mode.Valgrind}" runs Valgrind checks (memcheck, helgrind);
                  "{Mode.Verify}" runs "{Mode.Clean}" followed by all builds and checks.""",
     )
 
@@ -5440,12 +5456,11 @@ def main() -> int:
             ]
         )
 
-    if mode.static_analysis:
-        if mode.clang:
-            if mode.incremental:
-                build_dependencies.append(run_clang_static_analysis_changed_files_task)
-            else:
-                build_dependencies.append(run_clang_static_analysis_all_files_task)
+    if mode.static_analysis_full:
+        build_dependencies.append(run_clang_static_analysis_all_files_task)
+
+    if mode.static_analysis_incremental:
+        build_dependencies.append(run_clang_static_analysis_changed_files_task)
 
     prebuild = Task("Pre-build")
     prebuild.depends_on(prebuild_dependencies)
