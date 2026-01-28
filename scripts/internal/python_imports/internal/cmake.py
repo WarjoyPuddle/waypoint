@@ -7,50 +7,42 @@ import json
 import os
 import pathlib
 
-from .compiler import Compiler
 from .process import run
-from .system import NewEnv
 from .system import get_cpu_count
+from .system import new_env
 from .system import recursively_copy_dir
 from .system import remove_dir
 
-CLANG20_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
-GCC15_ENV_PATCH = {"CC": "gcc-15", "CXX": "g++-15"}
-
-EXPORT_COMPILE_COMMANDS_ENV_PATCH = {"CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"}
+CLANG_ENV_PATCH = {"CC": "clang-20", "CXX": "clang++-20"}
 
 
-def env_patch_from_preset(preset):
-    if preset.compiler == Compiler.Clang:
-        return CLANG20_ENV_PATCH
-    if preset.compiler == Compiler.Gcc:
-        return GCC15_ENV_PATCH
-
-    assert False, "Unreachable"
+@contextlib.contextmanager
+def clang():
+    env = os.environ.copy()
+    env.update(CLANG_ENV_PATCH)
+    with new_env(env):
+        try:
+            yield None
+        finally:
+            pass
 
 
 def configure_cmake(preset, cmake_source_dir) -> bool:
-    env_patch = env_patch_from_preset(preset)
+    build_dir = build_dir_from_preset(preset, cmake_source_dir)
 
-    env = os.environ.copy()
-    env.update(env_patch)
-    env.update(EXPORT_COMPILE_COMMANDS_ENV_PATCH)
-    with NewEnv(env):
-        build_dir = build_dir_from_preset(preset, cmake_source_dir)
+    if os.path.exists(build_dir):
+        return True
 
-        if os.path.exists(build_dir):
-            return True
+    pathlib.Path(build_dir).mkdir(parents=True, exist_ok=True)
 
-        pathlib.Path(build_dir).mkdir(parents=True, exist_ok=True)
+    with contextlib.chdir(cmake_source_dir):
+        command = ["cmake", "--preset", f"{preset.configure}"]
+        success, output = run(command)
+        if not success:
+            if output is not None:
+                print(output)
 
-        with contextlib.chdir(cmake_source_dir):
-            command = ["cmake", "--preset", f"{preset.configure}"]
-            success, output = run(command)
-            if not success:
-                if output is not None:
-                    print(output)
-
-                return False
+            return False
 
     return True
 

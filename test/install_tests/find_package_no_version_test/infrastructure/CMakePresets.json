@@ -65,6 +65,29 @@
   ],
   "configurePresets": [
     {
+      "environment": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"
+      },
+      "hidden": true,
+      "name": "base_export_compile_commands"
+    },
+    {
+      "environment": {
+        "CC": "gcc-15",
+        "CXX": "g++-15"
+      },
+      "hidden": true,
+      "name": "base_compiler_gcc"
+    },
+    {
+      "environment": {
+        "CC": "clang-20",
+        "CXX": "clang++-20"
+      },
+      "hidden": true,
+      "name": "base_compiler_clang"
+    },
+    {
       "cacheVariables": {
         "BUILD_SHARED_LIBS": true
       },
@@ -92,6 +115,8 @@
       },
       "hidden": false,
       "inherits": [
+        "base_compiler_clang",
+        "base_export_compile_commands",
         "base_generator_ninja",
         "base_system_linux"
       ],
@@ -104,6 +129,8 @@
       },
       "hidden": false,
       "inherits": [
+        "base_compiler_clang",
+        "base_export_compile_commands",
         "base_generator_ninja",
         "base_system_linux",
         "base_build_shared_libs"
@@ -117,6 +144,8 @@
       },
       "hidden": false,
       "inherits": [
+        "base_compiler_gcc",
+        "base_export_compile_commands",
         "base_generator_ninja",
         "base_system_linux"
       ],
@@ -129,6 +158,8 @@
       },
       "hidden": false,
       "inherits": [
+        "base_compiler_gcc",
+        "base_export_compile_commands",
         "base_generator_ninja",
         "base_system_linux",
         "base_build_shared_libs"

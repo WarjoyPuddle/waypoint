@@ -135,6 +135,29 @@
   ],
   "configurePresets": [
     {
+      "environment": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"
+      },
+      "hidden": true,
+      "name": "base_export_compile_commands"
+    },
+    {
+      "environment": {
+        "CC": "gcc-15",
+        "CXX": "g++-15"
+      },
+      "hidden": true,
+      "name": "base_compiler_gcc"
+    },
+    {
+      "environment": {
+        "CC": "clang-20",
+        "CXX": "clang++-20"
+      },
+      "hidden": true,
+      "name": "base_compiler_clang"
+    },
+    {
       "cacheVariables": {
         "PRESET_PROP_DISABLE_CXX_EXTENSIONS_94168jxR3E9X4QuG": true,
         "PRESET_PROP_ENABLE_COMPILE_WARNING_AS_ERROR_LRbhTBxJt59icONv": true,
@@ -228,6 +251,8 @@
       "binaryDir": "${sourceDir}/../build___/build_linux_valgrind_clang_ZP56y3Vf3Yfw20bT___",
       "hidden": false,
       "inherits": [
+        "base_compiler_clang",
+        "base_export_compile_commands",
         "base_valgrind",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
@@ -242,6 +267,8 @@
       "binaryDir": "${sourceDir}/../build___/build_linux_valgrind_gcc_4XWXlqw1R4YRjvcF___",
       "hidden": false,
       "inherits": [
+        "base_compiler_gcc",
+        "base_export_compile_commands",
         "base_valgrind",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
@@ -256,6 +283,8 @@
       "binaryDir": "${sourceDir}/../build___/build_linux_clang_xgozuT4W2AeFQhlh___",
       "hidden": false,
       "inherits": [
+        "base_compiler_clang",
+        "base_export_compile_commands",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
@@ -269,6 +298,8 @@
       "binaryDir": "${sourceDir}/../build___/build_linux_clang_shared_8JxVsxxvHc6JeAN1___",
       "hidden": false,
       "inherits": [
+        "base_compiler_clang",
+        "base_export_compile_commands",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
@@ -283,6 +314,8 @@
       "binaryDir": "${sourceDir}/../build___/build_linux_gcc_o3AbIaWOHcdcUq2t___",
       "hidden": false,
       "inherits": [
+        "base_compiler_gcc",
+        "base_export_compile_commands",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
@@ -296,6 +329,8 @@
       "binaryDir": "${sourceDir}/../build___/build_linux_gcc_shared_RReTabh9E2qAc4d8___",
       "hidden": false,
       "inherits": [
+        "base_compiler_gcc",
+        "base_export_compile_commands",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
@@ -310,6 +345,8 @@
       "binaryDir": "${sourceDir}/../ide_clion_build_linux_clang_axkXHTfUdKUVQyvv___",
       "hidden": false,
       "inherits": [
+        "base_compiler_clang",
+        "base_export_compile_commands",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
@@ -323,6 +360,8 @@
       "binaryDir": "${sourceDir}/../build___/build_linux_gcc_coverage_TIJMCfKGrO9yjx4W___",
       "hidden": false,
       "inherits": [
+        "base_compiler_gcc",
+        "base_export_compile_commands",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
@@ -337,6 +376,8 @@
       "binaryDir": "${sourceDir}/../build___/build_linux_clang_address_sanitizer_kf8LQtrh4vkzadj4___",
       "hidden": false,
       "inherits": [
+        "base_compiler_clang",
+        "base_export_compile_commands",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",
@@ -351,6 +392,8 @@
       "binaryDir": "${sourceDir}/../build___/build_linux_clang_undefined_behaviour_sanitizer_CM8Xduak4HNVKodc___",
       "hidden": false,
       "inherits": [
+        "base_compiler_clang",
+        "base_export_compile_commands",
         "base_elevated_compiler_warnings",
         "base_generator_ninja",
         "base_system_linux",

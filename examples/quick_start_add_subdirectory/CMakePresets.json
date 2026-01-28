@@ -8,9 +8,19 @@
   ],
   "configurePresets": [
     {
+      "environment": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"
+      },
+      "hidden": true,
+      "name": "base_export_compile_commands"
+    },
+    {
       "binaryDir": "${sourceDir}/build___",
       "generator": "Ninja Multi-Config",
       "hidden": false,
+      "inherits": [
+        "base_export_compile_commands"
+      ],
       "name": "example_configure"
     }
   ],

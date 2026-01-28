@@ -7,13 +7,13 @@ import dataclasses
 import enum
 import os
 
-from python_imports import Compiler
 from python_imports import Task
 from python_imports import analyze_gcc_coverage
 from python_imports import build_cmake
 from python_imports import cache_var_from_preset
 from python_imports import changed_cpp_source_files_and_dependents
 from python_imports import check_formatting
+from python_imports import clang
 from python_imports import clean_build_dir
 from python_imports import configure_cmake
 from python_imports import copy_install_dir
@@ -41,67 +41,56 @@ BUILD_DIR = os.path.realpath(f"{PROJECT_ROOT_DIR}/build___")
 @enum.unique
 class CMakePresets(enum.Enum):
     LinuxClang = (
-        Compiler.Clang,
         "configure_linux_clang",
         "build_linux_clang",
         "test_linux_clang",
     )
     LinuxGcc = (
-        Compiler.Gcc,
         "configure_linux_gcc",
         "build_linux_gcc",
         "test_linux_gcc",
     )
     LinuxClangShared = (
-        Compiler.Clang,
         "configure_linux_clang_shared",
         "build_linux_clang_shared",
         "test_linux_clang_shared",
     )
     LinuxGccShared = (
-        Compiler.Gcc,
         "configure_linux_gcc_shared",
         "build_linux_gcc_shared",
         "test_linux_gcc_shared",
     )
     LinuxGccCoverage = (
-        Compiler.Gcc,
         "configure_linux_gcc_coverage",
         "build_linux_gcc_coverage",
         "test_linux_gcc_coverage",
     )
     Example = (
-        Compiler.Clang,
         "example_configure",
         "example_build",
         "example_test",
     )
     ExampleShared = (
-        Compiler.Clang,
         "example_configure_shared",
         "example_build_shared",
         "example_test_shared",
     )
     AddressSanitizerClang = (
-        Compiler.Clang,
         "configure_linux_clang_address_sanitizer",
         "build_linux_clang_address_sanitizer",
         "test_linux_clang_address_sanitizer",
     )
     UndefinedBehaviourSanitizerClang = (
-        Compiler.Clang,
         "configure_linux_clang_undefined_behaviour_sanitizer",
         "build_linux_clang_undefined_behaviour_sanitizer",
         "test_linux_clang_undefined_behaviour_sanitizer",
     )
     LinuxClangValgrind = (
-        Compiler.Clang,
         "configure_linux_valgrind_clang",
         "build_linux_valgrind_clang",
         "test_linux_valgrind_clang",
     )
     LinuxGccValgrind = (
-        Compiler.Gcc,
         "configure_linux_valgrind_gcc",
         "build_linux_valgrind_gcc",
         "test_linux_valgrind_gcc",
@@ -109,19 +98,13 @@ class CMakePresets(enum.Enum):
 
     def __init__(
         self,
-        compiler: Compiler,
         configure_preset: str,
         build_preset: str,
         test_preset: str,
     ):
-        self._compiler = compiler
         self._configure_preset = configure_preset
         self._build_preset = build_preset
         self._test_preset = test_preset
-
-    @property
-    def compiler(self):
-        return self._compiler
 
     @property
     def configure(self):
@@ -655,11 +638,13 @@ def configure_cmake_gcc_shared_fn() -> bool:
 
 
 def configure_example_clang_fn() -> bool:
-    return configure_cmake(CMakePresets.Example, CMAKE_SOURCE_DIR)
+    with clang():
+        return configure_cmake(CMakePresets.Example, CMAKE_SOURCE_DIR)
 
 
 def configure_example_clang_shared_fn() -> bool:
-    return configure_cmake(CMakePresets.ExampleShared, CMAKE_SOURCE_DIR)
+    with clang():
+        return configure_cmake(CMakePresets.ExampleShared, CMAKE_SOURCE_DIR)
 
 
 def collect_inputs_for_static_analysis(all_files_set):
@@ -2740,9 +2725,10 @@ def example_quick_start_build_and_install_fn() -> bool:
         EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR,
     )
 
-    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-    if not success:
-        return False
+    with clang():
+        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+        if not success:
+            return False
 
     success = build_cmake(
         CMakeBuildConfig.Debug,
@@ -2853,9 +2839,10 @@ def example_quick_start_build_and_install_fn() -> bool:
         EXAMPLE_QUICK_START_BUILD_AND_INSTALL_WAYPOINT_INSTALL_DIR,
     )
 
-    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-    if not success:
-        return False
+    with clang():
+        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+        if not success:
+            return False
 
     success = build_cmake(
         CMakeBuildConfig.Debug,
@@ -2972,9 +2959,10 @@ def example_quick_start_custom_main_fn() -> bool:
         EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR,
     )
 
-    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-    if not success:
-        return False
+    with clang():
+        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+        if not success:
+            return False
 
     success = build_cmake(
         CMakeBuildConfig.Debug,
@@ -3085,9 +3073,10 @@ def example_quick_start_custom_main_fn() -> bool:
         EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR,
     )
 
-    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-    if not success:
-        return False
+    with clang():
+        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+        if not success:
+            return False
 
     success = build_cmake(
         CMakeBuildConfig.Debug,
@@ -3205,9 +3194,10 @@ def example_quick_start_add_subdirectory_fn() -> bool:
 
     example_cmake_source_dir = EXAMPLE_QUICK_START_ADD_SUBDIRECTORY_CMAKE_SOURCE_DIR
 
-    success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
-    if not success:
-        return False
+    with clang():
+        success = configure_cmake(CMakePresets.Example, example_cmake_source_dir)
+        if not success:
+            return False
 
     success = build_cmake(
         CMakeBuildConfig.Debug,

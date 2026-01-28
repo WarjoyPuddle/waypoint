@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
+import contextlib
 import os
 import pathlib
 import platform
@@ -16,22 +17,21 @@ def get_cpu_count() -> int:
     return os.cpu_count()
 
 
-class NewEnv:
-    def __init__(self, env):
-        self.backup = os.environ.copy()
-        self.env = env
+@contextlib.contextmanager
+def new_env(env_):
+    backup = os.environ.copy()
+    env = env_.copy()
 
-    def __enter__(self):
+    try:
         os.environ.clear()
-        os.environ.update(self.env)
+        os.environ.update(env)
 
-        return None
+        yield None
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
         os.environ.clear()
-        os.environ.update(self.backup)
-
-        return False
+        os.environ.update(backup)
+    finally:
+        pass
 
 
 def is_linux():
