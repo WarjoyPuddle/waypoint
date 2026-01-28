@@ -23,15 +23,12 @@ def get_files_from_compilation_database(preset, cmake_source_dir) -> typing.List
         data = json.load(f)
 
     files = set()
-
     for d in data:
         files.add(d["file"])
 
-    files = list(files)
-    files.sort()
-
     files = [os.path.realpath(f) for f in files]
     files = [f for f in files if "___" not in f]
+    files.sort()
     for f in files:
         assert os.path.isfile(f), f"File not found: {f}"
 
