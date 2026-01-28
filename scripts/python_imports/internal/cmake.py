@@ -5,6 +5,7 @@
 import contextlib
 import json
 import os
+import pathlib
 import typing
 
 from .compiler import Compiler
@@ -41,7 +42,7 @@ def configure_cmake(preset, cmake_source_dir) -> bool:
         if os.path.exists(build_dir):
             return True
 
-        os.mkdir(build_dir)
+        pathlib.Path(build_dir).mkdir(parents=True, exist_ok=True)
 
         with contextlib.chdir(cmake_source_dir):
             command = ["cmake", "--preset", f"{preset.configure}"]
