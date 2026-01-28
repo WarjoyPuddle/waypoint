@@ -813,6 +813,10 @@ public:
   auto status() const noexcept -> TestOutcome::Status;
   [[nodiscard]]
   auto exit_code() const noexcept -> unsigned long long const *;
+  [[nodiscard]]
+  auto std_out() const noexcept -> char const *;
+  [[nodiscard]]
+  auto std_err() const noexcept -> char const *;
 
 private:
   explicit TestOutcome(internal::TestOutcome_impl *impl);

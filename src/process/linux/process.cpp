@@ -241,6 +241,17 @@ auto OutputPipeEnd::read_exactly(
   return OutputPipeEnd::ReadResult::Success;
 }
 
+void OutputPipeEnd::read_at_most(
+  unsigned char *const buffer,
+  unsigned long long const count) const
+{
+  auto const transferred_this_time =
+    ::read(this->impl_->raw_pipe(), buffer, count);
+  waypoint::internal::assert(
+    transferred_this_time >= 0,
+    "::read returned error");
+}
+
 auto get_impl(OutputPipeEnd const &pipe) -> OutputPipeEnd_impl &
 {
   return *pipe.impl_;
@@ -261,11 +272,15 @@ public:
   auto operator=(ReadPipePollGuard_impl &&other) noexcept
     -> ReadPipePollGuard_impl & = delete;
 
-  explicit ReadPipePollGuard_impl(
-    waypoint::internal::OutputPipeEnd const &response_read_pipe)
+  ReadPipePollGuard_impl(
+    waypoint::internal::OutputPipeEnd const &response_read_pipe,
+    waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+    waypoint::internal::OutputPipeEnd const &std_err_read_pipe)
     : epoll_descriptor_{::epoll_create1(0)},
       response_raw_{
         waypoint::internal::get_impl(response_read_pipe).raw_pipe()},
+      std_out_raw_{waypoint::internal::get_impl(std_out_read_pipe).raw_pipe()},
+      std_err_raw_{waypoint::internal::get_impl(std_err_read_pipe).raw_pipe()},
       events_{}
   {
     waypoint::internal::assert(
@@ -279,6 +294,8 @@ public:
     constexpr auto event_mask = EPOLLERR | EPOLLHUP | EPOLLIN | EPOLLRDHUP;
 
     this->events_[0].data.fd = this->response_raw_;
+    this->events_[1].data.fd = this->std_out_raw_;
+    this->events_[2].data.fd = this->std_err_raw_;
 
     for(auto &event : this->events_)
     {
@@ -286,6 +303,7 @@ public:
       auto const ret = ::epoll_ctl(
         this->epoll_descriptor_,
         EPOLL_CTL_ADD,
+        // at this point event.data.fd equals the raw pipe descriptor value
         event.data.fd,
         &event);
       waypoint::internal::assert(
@@ -317,18 +335,18 @@ public:
       this->events_,
       [](auto const &event)
       {
-        return (event.events & EPOLLIN) > 0;
+        return (event.events & EPOLLIN) != 0;
       });
     bool const all_hanged_up = std::ranges::all_of(
       this->events_,
       [](auto const &event)
       {
-        return (event.events & EPOLLHUP) > 0;
+        return (event.events & EPOLLHUP) != 0;
       });
 
     if(!data_to_read && all_hanged_up)
     {
-      return {};
+      return std::nullopt;
     }
 
     std::vector<waypoint::internal::PipePollResult> output{};
@@ -336,7 +354,18 @@ public:
     {
       if((event.events & EPOLLIN) != 0)
       {
-        output.push_back(waypoint::internal::PipePollResult::Response);
+        if(event.data.fd == this->response_raw_)
+        {
+          output.push_back(waypoint::internal::PipePollResult::Response);
+        }
+        if(event.data.fd == this->std_out_raw_)
+        {
+          output.push_back(waypoint::internal::PipePollResult::StdOutput);
+        }
+        if(event.data.fd == this->std_err_raw_)
+        {
+          output.push_back(waypoint::internal::PipePollResult::StdError);
+        }
       }
     }
 
@@ -346,15 +375,21 @@ public:
 private:
   int epoll_descriptor_;
   int response_raw_;
-  mutable std::array<::epoll_event, 1> events_;
+  int std_out_raw_;
+  int std_err_raw_;
+  mutable std::array<::epoll_event, 3> events_;
 };
 
 ReadPipePollGuard::~ReadPipePollGuard() = default;
 
 ReadPipePollGuard::ReadPipePollGuard(
-  waypoint::internal::OutputPipeEnd const &response_read_pipe)
+  waypoint::internal::OutputPipeEnd const &response_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_out_read_pipe,
+  waypoint::internal::OutputPipeEnd const &std_err_read_pipe)
   : impl_{std::make_unique<waypoint::internal::ReadPipePollGuard_impl>(
-      response_read_pipe)}
+      response_read_pipe,
+      std_out_read_pipe,
+      std_err_read_pipe)}
 {
 }
 
@@ -362,6 +397,19 @@ auto ReadPipePollGuard::poll() const
   -> std::optional<std::vector<waypoint::internal::PipePollResult>>
 {
   return this->impl_->poll();
+}
+
+auto read_std_pipe(waypoint::internal::OutputPipeEnd const &pipe) -> std::string
+{
+  std::array<unsigned char, PIPE_BUF> buffer{};
+  std::memset(
+    buffer.data(),
+    0,
+    buffer.size() * sizeof(decltype(buffer)::value_type));
+
+  pipe.read_at_most(buffer.data(), buffer.size() - 1);
+
+  return {reinterpret_cast<char *>(buffer.data())};
 }
 
 auto get_pipes_from_env() noexcept -> std::pair<OutputPipeEnd, InputPipeEnd>
@@ -450,15 +498,22 @@ auto get_path_to_current_executable() noexcept -> std::string
   return resolve_path(path);
 }
 
-auto create_child_process_with_pipes() noexcept -> std::tuple<int, int, int>
+auto create_child_process_with_pipes() noexcept
+  -> std::tuple<int, int, int, int, int>
 {
   std::array<int, 2> pipe_command{};
   std::array<int, 2> pipe_response{};
+  std::array<int, 2> pipe_std_out{};
+  std::array<int, 2> pipe_std_err{};
 
   [[maybe_unused]]
   auto const ret1 = ::pipe(pipe_command.data());
   [[maybe_unused]]
   auto const ret2 = ::pipe(pipe_response.data());
+  [[maybe_unused]]
+  auto const ret3 = ::pipe(pipe_std_out.data());
+  [[maybe_unused]]
+  auto const ret4 = ::pipe(pipe_std_err.data());
 
   auto const fork_ret = ::fork();
   waypoint::internal::assert(fork_ret >= 0, "::fork returned error");
@@ -469,11 +524,30 @@ auto create_child_process_with_pipes() noexcept -> std::tuple<int, int, int>
     ::close(pipe_command[0]);
     ::close(pipe_response[1]);
 
-    return {child_pid, pipe_command[1], pipe_response[0]};
+    ::close(pipe_std_out[1]);
+    ::close(pipe_std_err[1]);
+
+    return {
+      child_pid,
+      pipe_command[1],
+      pipe_response[0],
+      pipe_std_out[0],
+      pipe_std_err[0]};
   }
 
   ::close(pipe_command[1]);
   ::close(pipe_response[0]);
+
+  ::close(STDOUT_FILENO);
+  ::close(STDERR_FILENO);
+
+  ::dup3(pipe_std_out[1], STDOUT_FILENO, 0);
+  ::dup3(pipe_std_err[1], STDERR_FILENO, 0);
+
+  ::close(pipe_std_out[0]);
+  ::close(pipe_std_out[1]);
+  ::close(pipe_std_err[0]);
+  ::close(pipe_std_err[1]);
 
   auto const path_to_exe = get_path_to_current_executable();
 
@@ -551,14 +625,22 @@ public:
 
   ChildProcess_impl()
   {
-    auto const [child_pid, raw_command_write_pipe, raw_response_read_pipe] =
-      create_child_process_with_pipes();
+    auto const
+      [child_pid,
+       raw_command_write_pipe,
+       raw_response_read_pipe,
+       raw_std_out_read_pipe,
+       raw_std_err_read_pipe] = create_child_process_with_pipes();
 
     this->child_pid_ = child_pid;
     this->command_write_pipe_ = std::make_unique<InputPipeEnd>(
       new InputPipeEnd_impl{raw_command_write_pipe});
     this->response_read_pipe_ = std::make_unique<OutputPipeEnd>(
       new OutputPipeEnd_impl{raw_response_read_pipe});
+    this->std_out_read_pipe_ = std::make_unique<OutputPipeEnd>(
+      new OutputPipeEnd_impl{raw_std_out_read_pipe});
+    this->std_err_read_pipe_ = std::make_unique<OutputPipeEnd>(
+      new OutputPipeEnd_impl{raw_std_err_read_pipe});
   }
 
   ChildProcess_impl(ChildProcess_impl const &other) = delete;
@@ -581,6 +663,18 @@ public:
   }
 
   [[nodiscard]]
+  auto std_out_read_pipe() const -> OutputPipeEnd const &
+  {
+    return *this->std_out_read_pipe_;
+  }
+
+  [[nodiscard]]
+  auto std_err_read_pipe() const -> OutputPipeEnd const &
+  {
+    return *this->std_err_read_pipe_;
+  }
+
+  [[nodiscard]]
   auto wait() const -> unsigned long long
   {
     return wait_for_child_process_end(this->child_pid_);
@@ -590,6 +684,8 @@ private:
   int child_pid_;
   std::unique_ptr<InputPipeEnd> command_write_pipe_;
   std::unique_ptr<OutputPipeEnd> response_read_pipe_;
+  std::unique_ptr<OutputPipeEnd> std_out_read_pipe_;
+  std::unique_ptr<OutputPipeEnd> std_err_read_pipe_;
 };
 
 ChildProcess::ChildProcess()
@@ -607,6 +703,16 @@ auto ChildProcess::command_write_pipe() const -> InputPipeEnd const &
 auto ChildProcess::response_read_pipe() const -> OutputPipeEnd const &
 {
   return this->impl_->response_read_pipe();
+}
+
+auto ChildProcess::std_out_read_pipe() const -> OutputPipeEnd const &
+{
+  return this->impl_->std_out_read_pipe();
+}
+
+auto ChildProcess::std_err_read_pipe() const -> OutputPipeEnd const &
+{
+  return this->impl_->std_err_read_pipe();
 }
 
 auto ChildProcess::wait() const -> unsigned long long

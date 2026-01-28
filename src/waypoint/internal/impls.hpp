@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -11,6 +11,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -69,7 +70,9 @@ public:
     unsigned long long index,
     bool disabled,
     TestOutcome::Status status,
-    std::optional<unsigned long long> maybe_exit_status);
+    std::optional<unsigned long long> maybe_exit_status,
+    std::string &&std_out,
+    std::string &&std_err);
 
   [[nodiscard]]
   auto get_test_name() const -> std::string const &;
@@ -88,6 +91,10 @@ public:
   auto status() const -> TestOutcome::Status;
   [[nodiscard]]
   auto exit_status() const -> std::optional<unsigned long long> const &;
+  [[nodiscard]]
+  auto std_out() const -> std::string const &;
+  [[nodiscard]]
+  auto std_err() const -> std::string const &;
 
 private:
   std::vector<std::unique_ptr<AssertionOutcome>> assertion_outcomes_;
@@ -97,6 +104,8 @@ private:
   bool disabled_;
   TestOutcome::Status status_;
   std::optional<unsigned long long> exit_status_;
+  std::string std_out_;
+  std::string std_err_;
 };
 
 class TestRecord
@@ -129,6 +138,10 @@ public:
   void mark_as_run();
   void mark_as_crashed();
   void mark_as_timed_out();
+  void append_std_output(std::string const &text);
+  void append_std_error(std::string const &text);
+  auto get_std_out() const -> std::string;
+  auto get_std_err() const -> std::string;
 
 private:
   TestAssembly test_assembly_;
@@ -136,6 +149,8 @@ private:
   bool disabled_;
   TestRecord::Status status_;
   unsigned long long timeout_ms_;
+  std::ostringstream std_out_;
+  std::ostringstream std_err_;
 };
 
 class AssertionRecord

@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -85,7 +85,9 @@ void TestOutcome_impl::initialize(
   unsigned long long const index,
   bool const disabled,
   TestOutcome::Status const status,
-  std::optional<unsigned long long> const maybe_exit_status)
+  std::optional<unsigned long long> const maybe_exit_status,
+  std::string &&std_out,
+  std::string &&std_err)
 {
   this->assertion_outcomes_ = std::move(assertion_outcomes);
   this->group_name_ = std::move(group_name);
@@ -94,6 +96,8 @@ void TestOutcome_impl::initialize(
   this->disabled_ = disabled;
   this->status_ = status;
   this->exit_status_ = maybe_exit_status;
+  this->std_out_ = std::move(std_out);
+  this->std_err_ = std::move(std_err);
 }
 
 auto TestOutcome_impl::get_test_name() const -> std::string const &
@@ -136,6 +140,16 @@ auto TestOutcome_impl::exit_status() const
   -> std::optional<unsigned long long> const &
 {
   return this->exit_status_;
+}
+
+auto TestOutcome_impl::std_out() const -> std::string const &
+{
+  return this->std_out_;
+}
+
+auto TestOutcome_impl::std_err() const -> std::string const &
+{
+  return this->std_err_;
 }
 
 TestRecord::TestRecord(
@@ -189,6 +203,26 @@ void TestRecord::mark_as_crashed()
 void TestRecord::mark_as_timed_out()
 {
   this->status_ = TestRecord::Status::Timeout;
+}
+
+void TestRecord::append_std_output(std::string const &text)
+{
+  this->std_out_ << text;
+}
+
+void TestRecord::append_std_error(std::string const &text)
+{
+  this->std_err_ << text;
+}
+
+auto TestRecord::get_std_out() const -> std::string
+{
+  return this->std_out_.str();
+}
+
+auto TestRecord::get_std_err() const -> std::string
+{
+  return this->std_err_.str();
 }
 
 AssertionRecord::AssertionRecord(
@@ -484,6 +518,9 @@ auto TestRun_impl::make_test_outcome(TestId const test_id) const noexcept
                                             : TestOutcome::Status::Failure;
     });
 
+  auto std_out = test_record.get_std_out();
+  auto std_err = test_record.get_std_err();
+
   impl->initialize(
     std::move(assertion_outcomes),
     this->get_group_name(this->get_group_id(test_id)),
@@ -491,7 +528,9 @@ auto TestRun_impl::make_test_outcome(TestId const test_id) const noexcept
     this->get_test_index(test_id),
     this->is_disabled(test_id),
     status,
-    this->get_crashed_exit_status(test_id));
+    this->get_crashed_exit_status(test_id),
+    std::move(std_out),
+    std::move(std_err));
 
   return test_outcome;
 }
