@@ -10,13 +10,13 @@ import subprocess
 from .system import get_python
 
 PRE_COMMIT_HOOK_DIGEST = (
-    "f8c383806649c4bf8f5f8342b6ea66365d180656c2067bb7c471f72dd76773f2"
+    "a0ea155d8cc69c4328ef797b1fd6c5d00e41d759bdf5cdf745a63b4c2d5bbad0"
 )
 POST_COMMIT_HOOK_DIGEST = (
-    "5144a04dadd4f98c4c93233665bb30646ebd7850a17eb2dcc42b2988474a8328"
+    "fad2aad70624769788b0d54fa73e4d258299d16a60e2442a5ce89b703c4190b6"
 )
 POST_CHECKOUT_HOOK_DIGEST = (
-    "e220e9b10371ad71cacb8b4ff9425294214e63cf40b538f9cb3e61adc2c43781"
+    "07b15489dcce8e6b5a47a08f5abe10ace07261bbf86bdd038f6c9155fbfeba3e"
 )
 
 
@@ -40,7 +40,7 @@ def install_hooks_script_path(project_root_dir: str) -> str:
     return os.path.realpath(f"{project_root_dir}/scripts/internal/install_hooks.py")
 
 
-def digest_equals(path: str, expected_digest: str) -> bool:
+def digest(path: str) -> str:
     with open(path, "br") as f:
         data = f.read()
 
@@ -48,19 +48,22 @@ def digest_equals(path: str, expected_digest: str) -> bool:
     sha3_256.update(data)
     sha3_256_digest = sha3_256.hexdigest()
 
-    return sha3_256_digest == expected_digest
+    return sha3_256_digest
 
 
 def ensure_hooks_installed(project_root_dir: str) -> bool:
     git_dir = git_dir_path(project_root_dir)
 
+    pre_commit_hook_digest = digest(pre_commit_hook_path(git_dir))
+    post_commit_hook_digest = digest(post_commit_hook_path(git_dir))
+    post_checkout_hook_digest = digest(post_checkout_hook_path(git_dir))
     if (
         os.path.isfile(pre_commit_hook_path(git_dir))
         and os.path.isfile(post_commit_hook_path(git_dir))
         and os.path.isfile(post_commit_hook_path(git_dir))
-        and digest_equals(pre_commit_hook_path(git_dir), PRE_COMMIT_HOOK_DIGEST)
-        and digest_equals(post_commit_hook_path(git_dir), POST_COMMIT_HOOK_DIGEST)
-        and digest_equals(post_checkout_hook_path(git_dir), POST_CHECKOUT_HOOK_DIGEST)
+        and pre_commit_hook_digest == PRE_COMMIT_HOOK_DIGEST
+        and post_commit_hook_digest == POST_COMMIT_HOOK_DIGEST
+        and post_checkout_hook_digest == POST_CHECKOUT_HOOK_DIGEST
     ):
         return True
 
@@ -68,15 +71,16 @@ def ensure_hooks_installed(project_root_dir: str) -> bool:
     assert result.returncode == 0
 
     if (
-        not digest_equals(pre_commit_hook_path(git_dir), PRE_COMMIT_HOOK_DIGEST)
-        or not digest_equals(post_commit_hook_path(git_dir), POST_COMMIT_HOOK_DIGEST)
-        or not digest_equals(
-            post_checkout_hook_path(git_dir), POST_CHECKOUT_HOOK_DIGEST
-        )
+        pre_commit_hook_digest != PRE_COMMIT_HOOK_DIGEST
+        or post_commit_hook_digest != POST_COMMIT_HOOK_DIGEST
+        or post_checkout_hook_digest != POST_CHECKOUT_HOOK_DIGEST
     ):
         print(
             f"Error: Unexpected hook digest values: update {os.path.basename(__file__)}"
         )
+        print(f"PRE_COMMIT_HOOK_DIGEST = {pre_commit_hook_digest}")
+        print(f"POST_COMMIT_HOOK_DIGEST = {post_commit_hook_digest}")
+        print(f"POST_CHECKOUT_HOOK_DIGEST = {post_checkout_hook_digest}")
 
         return False
 
