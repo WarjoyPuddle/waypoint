@@ -27,8 +27,9 @@ macro(add_valgrind_memcheck_test)
     NAME valgrind_memcheck_${arg_TARGET}
     COMMAND
       valgrind --tool=memcheck --read-var-info=yes --read-inline-info=yes
-      --trace-children=yes --leak-check=full --show-leak-kinds=all
-      --error-exitcode=1 $<TARGET_FILE:${arg_TARGET}>
+      --log-file=valgrind_memcheck_${arg_TARGET}.%p.log --trace-children=yes
+      --leak-check=full --show-leak-kinds=all --error-exitcode=1
+      $<TARGET_FILE:${arg_TARGET}>
     CONFIGURATIONS Debug)
   set(valgrind_memcheck_${arg_TARGET}_labels valgrind valgrind_memcheck)
   set_tests_properties(
@@ -49,7 +50,8 @@ macro(add_valgrind_helgrind_test)
     NAME valgrind_helgrind_${arg_TARGET}
     COMMAND
       valgrind --tool=helgrind --read-var-info=yes --read-inline-info=yes
-      --trace-children=yes --error-exitcode=1 $<TARGET_FILE:${arg_TARGET}>)
+      --log-file=valgrind_helgrind_${arg_TARGET}.%p.log --trace-children=yes
+      --error-exitcode=1 $<TARGET_FILE:${arg_TARGET}>)
   set(valgrind_helgrind_${arg_TARGET}_labels valgrind valgrind_helgrind)
   set_tests_properties(
     valgrind_helgrind_${arg_TARGET}
