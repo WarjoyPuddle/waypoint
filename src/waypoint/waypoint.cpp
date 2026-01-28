@@ -286,27 +286,40 @@ void await_handshake_end(waypoint::internal::OutputPipeEnd const &pipe)
 
 auto receive_command(
   waypoint::internal::OutputPipeEnd const &command_read_pipe,
-  std::mutex &transmission_mutex) -> waypoint::internal::Command
+  std::mutex &transmission_mutex) -> std::optional<waypoint::internal::Command>
 {
   std::lock_guard const lock{transmission_mutex};
 
   auto code_ = std::to_underlying(waypoint::internal::Command::Code::Invalid);
-  [[maybe_unused]]
-  auto read_result = command_read_pipe.read_exactly(&code_, sizeof code_);
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+  if(
+    command_read_pipe.read_exactly(&code_, sizeof code_) ==
+    waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
+  {
+    return std::nullopt;
+  }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
   auto const code = static_cast<waypoint::internal::Command::Code>(code_);
 
   if(code == waypoint::internal::Command::Code::RunTest)
   {
     unsigned long long test_index = 0;
-    read_result = command_read_pipe.read_exactly(
-      reinterpret_cast<unsigned char *>(&test_index),
-      sizeof test_index);
+    // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+    if(
+      command_read_pipe.read_exactly(
+        reinterpret_cast<unsigned char *>(&test_index),
+        sizeof test_index) ==
+      waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
+    {
+      return std::nullopt;
+    }
+    // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
-    return {code, test_index};
+    return waypoint::internal::Command{code, test_index};
   }
 
-  return {code, {}};
+  return waypoint::internal::Command{code, {}};
 }
 
 auto receive_response(
@@ -314,12 +327,14 @@ auto receive_response(
   -> std::optional<waypoint::internal::Response>
 {
   auto code_ = std::to_underlying(waypoint::internal::Response::Code::Invalid);
-  [[maybe_unused]]
-  auto read_result = response_read_pipe.read_exactly(&code_, sizeof code_);
-  if(read_result == waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+  if(
+    response_read_pipe.read_exactly(&code_, sizeof code_) ==
+    waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
   {
     return std::nullopt;
   }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
   auto const code = static_cast<waypoint::internal::Response::Code>(code_);
 
@@ -332,9 +347,16 @@ auto receive_response(
   }
 
   unsigned long long test_id = 0;
-  read_result = response_read_pipe.read_exactly(
-    reinterpret_cast<unsigned char *>(&test_id),
-    sizeof test_id);
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+  if(
+    response_read_pipe.read_exactly(
+      reinterpret_cast<unsigned char *>(&test_id),
+      sizeof test_id) ==
+    waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
+  {
+    return std::nullopt;
+  }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
   if(
     code == waypoint::internal::Response::Code::TestComplete ||
@@ -344,16 +366,38 @@ auto receive_response(
   }
 
   unsigned char passed = 0;
-  read_result = response_read_pipe.read_exactly(&passed, sizeof passed);
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+  if(
+    response_read_pipe.read_exactly(&passed, sizeof passed) ==
+    waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
+  {
+    return std::nullopt;
+  }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
   unsigned long long assertion_index = 0;
-  read_result = response_read_pipe.read_exactly(
-    reinterpret_cast<unsigned char *>(&assertion_index),
-    sizeof assertion_index);
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+  if(
+    response_read_pipe.read_exactly(
+      reinterpret_cast<unsigned char *>(&assertion_index),
+      sizeof assertion_index) ==
+    waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
+  {
+    return std::nullopt;
+  }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
   unsigned char has_message = 0;
-  read_result =
-    response_read_pipe.read_exactly(&has_message, sizeof has_message);
+
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+  if(
+    response_read_pipe.read_exactly(&has_message, sizeof has_message) ==
+    waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
+  {
+    return std::nullopt;
+  }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
+
   if(has_message == 0)
   {
     return {waypoint::internal::Response{
@@ -365,14 +409,29 @@ auto receive_response(
   }
 
   unsigned long long message_size = 0;
-  read_result = response_read_pipe.read_exactly(
-    reinterpret_cast<unsigned char *>(&message_size),
-    sizeof message_size);
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+  if(
+    response_read_pipe.read_exactly(
+      reinterpret_cast<unsigned char *>(&message_size),
+      sizeof message_size) ==
+    waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
+  {
+    return std::nullopt;
+  }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
   std::string message(message_size, 'X');
-  read_result = response_read_pipe.read_exactly(
-    reinterpret_cast<unsigned char *>(message.data()),
-    message_size);
+
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
+  if(
+    response_read_pipe.read_exactly(
+      reinterpret_cast<unsigned char *>(message.data()),
+      message_size) ==
+    waypoint::internal::OutputPipeEnd::ReadResult::PipeClosed)
+  {
+    return std::nullopt;
+  }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
   return {waypoint::internal::Response{
     code,
@@ -443,20 +502,30 @@ void shut_down_sequence(
 enum class TestStatus : unsigned char
 {
   Running,
-  Terminated,
   TimedOut,
   Complete
 };
 
 auto process_pipes(
+  std::vector<waypoint::internal::PipePollResult> const &ready_for_reading,
   waypoint::internal::OutputPipeEnd const &response_read_pipe,
   waypoint::internal::TestRun_impl &impl) -> TestStatus
 {
+  if(ready_for_reading.empty())
+  {
+    return TestStatus::Running;
+  }
+
   auto const maybe_response = receive_response(response_read_pipe);
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_START
   if(!maybe_response.has_value())
   {
-    return TestStatus::Terminated;
+    // Failed to receive response, most likely due to crash/timeout.
+    // Return TestStatus::Running, poll_guard will sort things out
+    // on the next iteration of the test loop.
+    return TestStatus::Running;
   }
+  // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_STOP
 
   auto const &response = maybe_response.value();
 
@@ -499,21 +568,27 @@ enum class SingleTestOutcome : unsigned char
 
 auto single_test_loop(
   waypoint::internal::TestRecord *const record,
+  waypoint::internal::ReadPipePollGuard const &poll_guard,
   waypoint::internal::OutputPipeEnd const &response_read_pipe,
   waypoint::internal::TestRun_impl &impl) -> SingleTestOutcome
 {
   while(true)
   {
-    auto const status = process_pipes(response_read_pipe, impl);
-    if(status == TestStatus::Complete)
+    auto const maybe_ready_for_reading = poll_guard.poll();
+    if(!maybe_ready_for_reading.has_value())
     {
-      break;
-    }
-    if(status == TestStatus::Terminated)
-    {
+      // poll returned empty optional (all pipes hanged up), meaning test has crashed
       record->mark_as_crashed();
 
       return SingleTestOutcome::Interrupted;
+    }
+
+    auto const &ready_for_reading = maybe_ready_for_reading.value();
+    auto const status =
+      process_pipes(ready_for_reading, response_read_pipe, impl);
+    if(status == TestStatus::Complete)
+    {
+      break;
     }
     if(status == TestStatus::TimedOut)
     {
@@ -545,6 +620,8 @@ auto parent_main(
     all_records.data() + initial_test_index,
     all_records.size() - initial_test_index);
 
+  waypoint::internal::ReadPipePollGuard const poll_guard(response_read_pipe);
+
   for(auto *const record : record_subset)
   {
     if(record->disabled())
@@ -560,7 +637,7 @@ auto parent_main(
     send_command(command_write_pipe, command);
 
     auto const test_outcome =
-      single_test_loop(record, response_read_pipe, impl);
+      single_test_loop(record, poll_guard, response_read_pipe, impl);
     if(test_outcome == SingleTestOutcome::Interrupted)
     {
       return {impl.generate_results(), true, test_index};
@@ -588,7 +665,13 @@ void child_main(
 
   while(true)
   {
-    auto const command = receive_command(command_read_pipe, transmission_mutex);
+    auto const maybe_command =
+      receive_command(command_read_pipe, transmission_mutex);
+    waypoint::internal::assert(
+      maybe_command.has_value(),
+      "Failed to receive command");
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    auto const &command = maybe_command.value();
 
     execute_command(t, command, response_write_pipe, transmission_mutex);
     send_response(
