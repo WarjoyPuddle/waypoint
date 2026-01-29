@@ -34,12 +34,8 @@ target_compile_features(the_answer_lib PRIVATE cxx_std_11)
 add_executable(test_program)
 target_sources(test_program PRIVATE test01.cpp test02.cpp)
 target_compile_features(test_program PRIVATE cxx_std_11)
-target_link_libraries(
-  test_program
-  PRIVATE the_answer_lib
-          # Waypoint is used here;
-          # waypoint::waypoint_main provides its own main function
-          waypoint::waypoint_main)
+# Waypoint is used here
+target_link_libraries(test_program PRIVATE the_answer_lib waypoint::waypoint)
 
 # Register test with ctest
 add_test(NAME run_test_program COMMAND $<TARGET_FILE:test_program>)

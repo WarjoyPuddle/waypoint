@@ -53,12 +53,13 @@ new_platform_specific_internal_library(
 
 new_implementation_library(
   TARGET
-  waypoint_no_main_impl
+  waypoint_impl
   DIRECTORY
   src/waypoint
   INCLUDE_PREFIX
   waypoint
   SOURCES
+  entry_point.cpp
   function.cpp
   impls.cpp
   registrar.cpp
@@ -74,20 +75,7 @@ new_implementation_library(
   coverage
   process)
 
-new_implementation_library(
-  TARGET
-  waypoint_main_impl
-  DIRECTORY
-  src/waypoint
-  SOURCES
-  entry_point.cpp
-  PUBLIC_LINKS
-  waypoint_no_main_impl)
-
-new_exported_library(TARGET waypoint_no_main INTERFACE_LINKS
-                     waypoint_no_main_impl)
-
-new_exported_library(TARGET waypoint_main INTERFACE_LINKS waypoint_main_impl)
+new_exported_library(TARGET waypoint INTERFACE_LINKS waypoint_impl)
 
 if(DEFINED PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr
    AND PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr)
@@ -107,7 +95,7 @@ if(DEFINED PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr
     test_helpers_crash.hpp
     PRIVATE_LINKS
     coverage
-    waypoint_no_main_impl)
+    waypoint_impl)
 
   new_basic_test(000_include_only)
   new_basic_test(001_init_only)

@@ -149,10 +149,6 @@ CC=clang-20 CXX=clang++-20 ./build.sh
 If you have special requirements that cannot be satisfied by the
 default `main()` function provided by Waypoint, you are free to write
 your own.
-Apart from compiling it along with your other source files, the only
-difference is that you should link against the CMake target
-`waypoint::waypoint_no_main` instead of `waypoint::waypoint_main` (which
-includes a default entry point).
 
 You will find that this workflow is essentially identical to the
 build-and-install method described above.
@@ -161,7 +157,7 @@ the `waypoint_install___` directory.
 Once that is done, you may copy it into the
 `examples/quick_start_custom_main` directory, which contains an example
 project.
-The `main` function is in the file `main.cpp`.
+The `main()` function is in the file `main.cpp`.
 
 ```shell
 cd examples/quick_start_custom_main
@@ -172,8 +168,8 @@ CC=clang-20 CXX=clang++-20 ./build.sh
 
 If you wish, it is not difficult to adapt the add_subdirectory workflow
 to provide your own program entry point.
-Again, the main difference is that you would link against
-`waypoint::waypoint_no_main` and not `waypoint::waypoint_main`.
+Again, the main difference is that you provide a `.cpp` file which
+provides your own `main()` function.
 
 ### Writing your first tests
 
@@ -192,7 +188,7 @@ which ensures automated test registration.
 
 An example `.cpp` file containing Waypoint tests looks like this.
 Build it as part of an executable target using CMake and link this target to
-the `waypoint::waypoint_main` library, as described in
+the `waypoint::waypoint` library, as described in
 [Installation methods](#installation-methods).
 
 ```c++

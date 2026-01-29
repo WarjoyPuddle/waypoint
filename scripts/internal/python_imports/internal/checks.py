@@ -120,18 +120,15 @@ def verify_installation_contents_static(preset, cmake_source_dir: pathlib.Path) 
         install_dir / "lib/Debug/libassert.a",
         install_dir / "lib/Debug/libcoverage.a",
         install_dir / "lib/Debug/libprocess.a",
-        install_dir / "lib/Debug/libwaypoint_no_main_impl.a",
-        install_dir / "lib/Debug/libwaypoint_main_impl.a",
+        install_dir / "lib/Debug/libwaypoint_impl.a",
         install_dir / "lib/RelWithDebInfo/libassert.a",
         install_dir / "lib/RelWithDebInfo/libcoverage.a",
         install_dir / "lib/RelWithDebInfo/libprocess.a",
-        install_dir / "lib/RelWithDebInfo/libwaypoint_no_main_impl.a",
-        install_dir / "lib/RelWithDebInfo/libwaypoint_main_impl.a",
+        install_dir / "lib/RelWithDebInfo/libwaypoint_impl.a",
         install_dir / "lib/Release/libassert.a",
         install_dir / "lib/Release/libcoverage.a",
         install_dir / "lib/Release/libprocess.a",
-        install_dir / "lib/Release/libwaypoint_no_main_impl.a",
-        install_dir / "lib/Release/libwaypoint_main_impl.a",
+        install_dir / "lib/Release/libwaypoint_impl.a",
     ]
     expected_files = [f.resolve() for f in expected_files]
 
@@ -154,12 +151,9 @@ def verify_installation_contents_shared(preset, cmake_source_dir: pathlib.Path) 
         install_dir / "cmake/waypoint-config-release.cmake",
         install_dir / "cmake/waypoint-config-version.cmake",
         install_dir / "include/waypoint/waypoint.hpp",
-        install_dir / "lib/Debug/libwaypoint_no_main_impl.so",
-        install_dir / "lib/Debug/libwaypoint_main_impl.so",
-        install_dir / "lib/RelWithDebInfo/libwaypoint_no_main_impl.so",
-        install_dir / "lib/RelWithDebInfo/libwaypoint_main_impl.so",
-        install_dir / "lib/Release/libwaypoint_no_main_impl.so",
-        install_dir / "lib/Release/libwaypoint_main_impl.so",
+        install_dir / "lib/Debug/libwaypoint_impl.so",
+        install_dir / "lib/RelWithDebInfo/libwaypoint_impl.so",
+        install_dir / "lib/Release/libwaypoint_impl.so",
     ]
     expected_files = [f.resolve() for f in expected_files]
 

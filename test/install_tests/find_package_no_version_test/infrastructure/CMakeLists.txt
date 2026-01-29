@@ -69,8 +69,8 @@ target_sources(
   PRIVATE
     ${PROJECT_ROOT_DIR_n6kbMY9gioYgo9jw}/test/find_package_no_version_test/main.cpp
 )
-target_link_libraries(find_package_no_version_test
-                      PRIVATE stub_library waypoint::waypoint_no_main)
+target_link_libraries(find_package_no_version_test PRIVATE stub_library
+                                                           waypoint::waypoint)
 
 add_test(NAME test_find_package_no_version_test
          COMMAND $<TARGET_FILE:find_package_no_version_test>)

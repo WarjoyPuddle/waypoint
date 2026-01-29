@@ -76,7 +76,7 @@ target_sources(
     ${PROJECT_ROOT_DIR_dQPQvh4OGCgl3crM}/test/find_package_exact_version_test/main.cpp
 )
 target_link_libraries(find_package_exact_version_test
-                      PRIVATE stub_library waypoint::waypoint_no_main)
+                      PRIVATE stub_library waypoint::waypoint)
 
 add_test(NAME test_find_package_exact_version_test
          COMMAND $<TARGET_FILE:find_package_exact_version_test>)
