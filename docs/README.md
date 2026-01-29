@@ -112,20 +112,7 @@ In a production scenario, you would probably also add it to your
 cd examples/quick_start_build_and_install
 cp --recursive ../../build___/waypoint_install___ ./
 
-# Configure step
-CC=clang-20 CXX=clang++-20 cmake --preset configure
-
-# Build step
-cmake --build --preset build --config Debug
-
-# Run the tests with CMake
-cmake --build --preset build --target test --config Debug
-
-# Alternatively, run the tests with CTest (a more flexible approach)
-ctest --preset test --build-config Debug
-
-# You may also run the test executable directly
-build___/Debug/test_program
+CC=clang-20 CXX=clang++-20 ./build.sh
 ```
 
 #### The add_subdirectory method
@@ -154,20 +141,7 @@ cp --recursive ../../../../infrastructure ./
 cp --recursive ../../../../src ./
 cd ../../
 
-# Configure step
-CC=clang-20 CXX=clang++-20 cmake --preset configure
-
-# Build step
-cmake --build --preset build --config Debug
-
-# Run the tests with CMake
-cmake --build --preset build --target test --config Debug
-
-# Alternatively, run the tests with CTest (a more flexible approach)
-ctest --preset test --build-config Debug
-
-# You may also run the test executable directly
-build___/Debug/test_program
+CC=clang-20 CXX=clang++-20 ./build.sh
 ```
 
 #### Providing your own entry point
@@ -193,20 +167,7 @@ The `main` function is in the file `main.cpp`.
 cd examples/quick_start_custom_main
 cp --recursive ../../build___/waypoint_install___ ./
 
-# Configure step
-CC=clang-20 CXX=clang++-20 cmake --preset configure
-
-# Build step
-cmake --build --preset build --config Debug
-
-# Run the tests with CMake
-cmake --build --preset build --target test --config Debug
-
-# Alternatively, run the tests with CTest (a more flexible approach)
-ctest --preset test --build-config Debug
-
-# You may also run the test executable directly
-build___/Debug/test_program
+CC=clang-20 CXX=clang++-20 ./build.sh
 ```
 
 If you wish, it is not difficult to adapt the add_subdirectory workflow
