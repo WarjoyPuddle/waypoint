@@ -429,7 +429,7 @@ function(new_basic_test name)
   set(arg_TARGET ${name})
   set(arg_DIRECTORY test/functional_tests/${name})
   set(arg_SOURCES main.cpp)
-  set(arg_PRIVATE_LINKS waypoint test_helpers)
+  set(arg_PRIVATE_LINKS waypoint_iface test_helpers)
 
   prepare_paths()
 
@@ -447,7 +447,7 @@ function(new_crash_test name)
   set(arg_TARGET ${name})
   set(arg_DIRECTORY test/functional_tests/${name})
   set(arg_SOURCES main.cpp)
-  set(arg_PRIVATE_LINKS waypoint test_helpers)
+  set(arg_PRIVATE_LINKS waypoint_iface test_helpers)
 
   prepare_paths()
 
@@ -468,7 +468,7 @@ function(new_waypoint_main_test)
 
   set(arg_DIRECTORY test/functional_tests/${arg_TARGET})
   set(arg_SOURCES main.cpp)
-  set(arg_PRIVATE_LINKS waypoint test_helpers)
+  set(arg_PRIVATE_LINKS waypoint_iface test_helpers)
 
   prepare_paths()
 
@@ -486,7 +486,7 @@ function(new_impl_test name)
   set(arg_TARGET ${name})
   set(arg_DIRECTORY test/functional_tests/${name})
   set(arg_SOURCES main.cpp)
-  set(arg_PRIVATE_LINKS waypoint test_helpers)
+  set(arg_PRIVATE_LINKS waypoint_iface test_helpers)
 
   prepare_paths()
 
@@ -511,7 +511,7 @@ function(new_crash_impl_test name)
   set(arg_TARGET ${name})
   set(arg_DIRECTORY test/functional_tests/${name})
   set(arg_SOURCES main.cpp)
-  set(arg_PRIVATE_LINKS waypoint test_helpers)
+  set(arg_PRIVATE_LINKS waypoint_iface test_helpers)
 
   prepare_paths()
 
@@ -534,7 +534,7 @@ function(new_cxx_std_11_test name)
   set(arg_TARGET ${name})
   set(arg_DIRECTORY test/functional_tests/${name})
   set(arg_SOURCES main.cpp)
-  set(arg_PRIVATE_LINKS waypoint)
+  set(arg_PRIVATE_LINKS waypoint_iface)
 
   prepare_paths()
 
@@ -552,7 +552,7 @@ function(new_multifile_test name)
   set(arg_TARGET ${name})
   set(arg_DIRECTORY test/functional_tests/${name})
   set(arg_SOURCES main.cpp test0.cpp test1.cpp test2.cpp test3.cpp)
-  set(arg_PRIVATE_LINKS waypoint)
+  set(arg_PRIVATE_LINKS waypoint_iface)
 
   prepare_paths()
 
@@ -567,22 +567,22 @@ function(new_multifile_test name)
 endfunction()
 
 function(prepare_installation)
-  add_library(waypoint::waypoint ALIAS waypoint)
+  add_library(waypoint::waypoint ALIAS waypoint_iface)
 
   if(BUILD_SHARED_LIBS)
     install(
-      TARGETS waypoint waypoint_impl library_interface_headers_waypoint_impl
+      TARGETS waypoint_iface waypoint library_interface_headers_waypoint
       EXPORT waypoint-targets
-      FILE_SET interface_headers_waypoint_impl
+      FILE_SET interface_headers_waypoint
       ARCHIVE DESTINATION lib/$<CONFIG>
       LIBRARY DESTINATION lib/$<CONFIG>
       RUNTIME DESTINATION bin/$<CONFIG>)
   else()
     install(
-      TARGETS waypoint waypoint_impl assert coverage process
-              library_interface_headers_waypoint_impl
+      TARGETS waypoint_iface waypoint assert coverage process
+              library_interface_headers_waypoint
       EXPORT waypoint-targets
-      FILE_SET interface_headers_waypoint_impl
+      FILE_SET interface_headers_waypoint
       ARCHIVE DESTINATION lib/$<CONFIG>
       LIBRARY DESTINATION lib/$<CONFIG>
       RUNTIME DESTINATION bin/$<CONFIG>)

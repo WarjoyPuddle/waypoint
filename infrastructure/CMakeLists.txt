@@ -53,7 +53,7 @@ new_platform_specific_internal_library(
 
 new_implementation_library(
   TARGET
-  waypoint_impl
+  waypoint
   DIRECTORY
   src/waypoint
   INCLUDE_PREFIX
@@ -75,7 +75,7 @@ new_implementation_library(
   coverage
   process)
 
-new_exported_library(TARGET waypoint INTERFACE_LINKS waypoint_impl)
+new_exported_library(TARGET waypoint_iface INTERFACE_LINKS waypoint)
 
 if(DEFINED PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr
    AND PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr)
@@ -95,7 +95,7 @@ if(DEFINED PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr
     test_helpers_crash.hpp
     PRIVATE_LINKS
     coverage
-    waypoint_impl)
+    waypoint)
 
   new_basic_test(000_include_only)
   new_basic_test(001_init_only)
