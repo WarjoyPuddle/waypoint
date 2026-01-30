@@ -113,12 +113,29 @@ def verify_installation_contents_(
     install_dir = install_dir_from_preset(preset, cmake_source_dir)
 
     expected_paths = [(install_dir / f).resolve() for f in expected_files]
+    expected_paths.sort()
 
     files = find_all_files(install_dir)
-    for expected in expected_paths:
-        assert expected in files, f"File not found: {expected}"
+    files.sort()
 
-    assert len(files) == len(expected_paths), "Unexpected files are present"
+    missing_files: list[pathlib.Path] = []
+    for expected in expected_paths:
+        if expected not in files:
+            missing_files.append(expected)
+    if len(missing_files) > 0:
+        print("Some expected files are not in the installation directory:")
+        for f in missing_files:
+            print("  -", f)
+
+        return False
+
+    if len(files) != len(expected_paths):
+        print("Unexpected files are present in the installation directory:")
+        for f in files:
+            if f not in expected_paths:
+                print("  -", f)
+
+        return False
 
     return True
 
