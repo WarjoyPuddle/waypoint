@@ -107,60 +107,58 @@ def misc_checks(root_dir, main_header_path) -> bool:
     return True
 
 
-def verify_installation_contents_static(preset, cmake_source_dir: pathlib.Path) -> bool:
+def verify_installation_contents_(
+    preset, cmake_source_dir: pathlib.Path, expected_files: list[str]
+) -> bool:
     install_dir = install_dir_from_preset(preset, cmake_source_dir)
 
-    expected_files: list[pathlib.Path] = [
-        install_dir / "cmake/waypoint-config.cmake",
-        install_dir / "cmake/waypoint-config-debug.cmake",
-        install_dir / "cmake/waypoint-config-relwithdebinfo.cmake",
-        install_dir / "cmake/waypoint-config-release.cmake",
-        install_dir / "cmake/waypoint-config-version.cmake",
-        install_dir / "include/waypoint/waypoint.hpp",
-        install_dir / "lib/Debug/libassert.a",
-        install_dir / "lib/Debug/libcoverage.a",
-        install_dir / "lib/Debug/libprocess.a",
-        install_dir / "lib/Debug/libwaypoint.a",
-        install_dir / "lib/RelWithDebInfo/libassert.a",
-        install_dir / "lib/RelWithDebInfo/libcoverage.a",
-        install_dir / "lib/RelWithDebInfo/libprocess.a",
-        install_dir / "lib/RelWithDebInfo/libwaypoint.a",
-        install_dir / "lib/Release/libassert.a",
-        install_dir / "lib/Release/libcoverage.a",
-        install_dir / "lib/Release/libprocess.a",
-        install_dir / "lib/Release/libwaypoint.a",
-    ]
-    expected_files = [f.resolve() for f in expected_files]
+    expected_paths = [(install_dir / f).resolve() for f in expected_files]
 
     files = find_all_files(install_dir)
-    for expected in expected_files:
+    for expected in expected_paths:
         assert expected in files, f"File not found: {expected}"
 
-    assert len(files) == len(expected_files), "Unexpected files are present"
+    assert len(files) == len(expected_paths), "Unexpected files are present"
 
     return True
+
+
+def verify_installation_contents_static(preset, cmake_source_dir: pathlib.Path) -> bool:
+    expected_files: list[str] = [
+        "cmake/waypoint-config.cmake",
+        "cmake/waypoint-config-debug.cmake",
+        "cmake/waypoint-config-relwithdebinfo.cmake",
+        "cmake/waypoint-config-release.cmake",
+        "cmake/waypoint-config-version.cmake",
+        "include/waypoint/waypoint.hpp",
+        "lib/Debug/libassert.a",
+        "lib/Debug/libcoverage.a",
+        "lib/Debug/libprocess.a",
+        "lib/Debug/libwaypoint.a",
+        "lib/RelWithDebInfo/libassert.a",
+        "lib/RelWithDebInfo/libcoverage.a",
+        "lib/RelWithDebInfo/libprocess.a",
+        "lib/RelWithDebInfo/libwaypoint.a",
+        "lib/Release/libassert.a",
+        "lib/Release/libcoverage.a",
+        "lib/Release/libprocess.a",
+        "lib/Release/libwaypoint.a",
+    ]
+
+    return verify_installation_contents_(preset, cmake_source_dir, expected_files)
 
 
 def verify_installation_contents_shared(preset, cmake_source_dir: pathlib.Path) -> bool:
-    install_dir = install_dir_from_preset(preset, cmake_source_dir)
-
-    expected_files: list[pathlib.Path] = [
-        install_dir / "cmake/waypoint-config.cmake",
-        install_dir / "cmake/waypoint-config-debug.cmake",
-        install_dir / "cmake/waypoint-config-relwithdebinfo.cmake",
-        install_dir / "cmake/waypoint-config-release.cmake",
-        install_dir / "cmake/waypoint-config-version.cmake",
-        install_dir / "include/waypoint/waypoint.hpp",
-        install_dir / "lib/Debug/libwaypoint.so",
-        install_dir / "lib/RelWithDebInfo/libwaypoint.so",
-        install_dir / "lib/Release/libwaypoint.so",
+    expected_files: list[str] = [
+        "cmake/waypoint-config.cmake",
+        "cmake/waypoint-config-debug.cmake",
+        "cmake/waypoint-config-relwithdebinfo.cmake",
+        "cmake/waypoint-config-release.cmake",
+        "cmake/waypoint-config-version.cmake",
+        "include/waypoint/waypoint.hpp",
+        "lib/Debug/libwaypoint.so",
+        "lib/RelWithDebInfo/libwaypoint.so",
+        "lib/Release/libwaypoint.so",
     ]
-    expected_files = [f.resolve() for f in expected_files]
 
-    files = find_all_files(install_dir)
-    for expected in expected_files:
-        assert expected in files, f"File not found: {expected}"
-
-    assert len(files) == len(expected_files), "Unexpected files are present"
-
-    return True
+    return verify_installation_contents_(preset, cmake_source_dir, expected_files)
