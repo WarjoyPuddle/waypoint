@@ -820,14 +820,22 @@ namespace waypoint
 auto run_all_tests_in_process(TestRun const &t) noexcept -> TestRunResult
 {
   initialize(t);
-  if(internal::get_impl(t).has_errors())
+  auto &impl = internal::get_impl(t);
+  if(impl.already_run())
   {
-    // Initialization had errors, skip running tests and emit results
-    return internal::get_impl(t).generate_results();
+    impl.report_already_run_error();
   }
 
+  if(impl.has_errors())
+  {
+    // Initialization had errors, skip running tests and emit results
+    return impl.generate_results();
+  }
+
+  impl.mark_as_run();
+
   std::ranges::for_each(
-    internal::get_impl(t).get_shuffled_test_record_ptrs(),
+    impl.get_shuffled_test_record_ptrs(),
     [&t](auto *const ptr) noexcept
     {
       if(!ptr->disabled())
@@ -841,13 +849,18 @@ auto run_all_tests_in_process(TestRun const &t) noexcept -> TestRunResult
       }
     });
 
-  return internal::get_impl(t).generate_results();
+  return impl.generate_results();
 }
 
 auto run_all_tests(TestRun const &t) noexcept -> TestRunResult
 {
   initialize(t);
   auto &impl = internal::get_impl(t);
+  if(impl.already_run())
+  {
+    impl.report_already_run_error();
+  }
+
   if(impl.has_errors())
   {
     // Initialization had errors, skip running tests and emit results
@@ -867,6 +880,8 @@ auto run_all_tests(TestRun const &t) noexcept -> TestRunResult
 
     std::exit(0);
   }
+
+  impl.mark_as_run();
 
   unsigned long long initial_test_index = 0;
   while(true)

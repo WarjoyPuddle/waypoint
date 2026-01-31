@@ -383,7 +383,8 @@ auto ContextChildProcess_impl::transmission_mutex() const -> std::mutex *
 TestRun_impl::TestRun_impl()
   : test_run_{nullptr},
     group_id_counter_{0},
-    test_id_counter_{0}
+    test_id_counter_{0},
+    already_run_{false}
 {
 }
 
@@ -570,6 +571,13 @@ auto TestRun_impl::register_group(GroupName const &group_name) -> GroupId
 void TestRun_impl::report_error(ErrorType type, std::string const &message)
 {
   this->errors_.emplace_back(type, message);
+}
+
+void TestRun_impl::report_already_run_error()
+{
+  this->report_error(
+    ErrorType::Init_ReusedTestRun,
+    "Instance of waypoint::TestRun cannot be reused");
 }
 
 void TestRun_impl::report_duplicate_test_name(
@@ -815,6 +823,16 @@ auto TestRun_impl::has_errors() const -> bool
 void TestRun_impl::initialize(TestRun const &test_run)
 {
   this->test_run_ = &test_run;
+}
+
+auto TestRun_impl::already_run() const -> bool
+{
+  return this->already_run_;
+}
+
+void TestRun_impl::mark_as_run()
+{
+  this->already_run_ = true;
 }
 
 void TestRun_impl::register_test_assembly(

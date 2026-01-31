@@ -273,7 +273,8 @@ private:
   enum class ErrorType : std::uint8_t
   {
     Init_DuplicateTestInGroup,
-    Init_TestHasNoBody
+    Init_TestHasNoBody,
+    Init_ReusedTestRun
   };
 
   struct Error
@@ -284,6 +285,9 @@ private:
 
 public:
   void initialize(TestRun const &test_run);
+  [[nodiscard]]
+  auto already_run() const -> bool;
+  void mark_as_run();
   void register_test_assembly(
     TestAssembly assembly,
     TestId test_id,
@@ -332,7 +336,7 @@ public:
   [[nodiscard]]
   auto make_test_outcome(TestId test_id) const noexcept
     -> std::unique_ptr<TestOutcome>;
-  void report_error(ErrorType type, std::string const &message);
+  void report_already_run_error();
   void report_duplicate_test_name(
     GroupName const &group_name,
     TestName const &test_name);
@@ -366,9 +370,12 @@ public:
     -> std::optional<unsigned long long>;
 
 private:
+  void report_error(ErrorType type, std::string const &message);
+
   TestRun const *test_run_;
   GroupId group_id_counter_;
   TestId test_id_counter_;
+  bool already_run_;
   std::unordered_map<GroupId, GroupName> group_id2group_name_;
   std::unordered_map<TestId, TestName> test_id2test_name_;
   std::unordered_map<TestId, GroupId> test_id2group_id_;

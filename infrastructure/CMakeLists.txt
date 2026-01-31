@@ -203,6 +203,8 @@ if(DEFINED PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr
   new_waypoint_main_test(EXPECTED_FAILURE TARGET 095_waypoint_main_error)
 
   new_basic_test(096_std_pipes)
+  new_basic_test(097_no_reuse)
+  new_basic_test(098_no_reuse_in_process)
 endif()
 
 prepare_installation()
