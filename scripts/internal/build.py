@@ -2748,7 +2748,9 @@ def test_gcc_release_test_target_shared_fn() -> bool:
 
 
 def installation_example_(
-    example_cmake_source_dir: pathlib.Path, example_waypoint_install_dir: pathlib.Path
+    example_cmake_source_dir: pathlib.Path,
+    example_waypoint_install_dir: pathlib.Path,
+    test_output_tag: str | None = None,
 ) -> bool:
     # use as a static library
     clean_build_dir(CMakePresets.Example, example_cmake_source_dir)
@@ -2847,6 +2849,8 @@ def installation_example_(
     )
     if not success:
         return False
+    if test_output_tag is not None and test_output_tag not in output:
+        return False
     success, output = run_target(
         CMakePresets.Example,
         example_cmake_source_dir,
@@ -2855,6 +2859,8 @@ def installation_example_(
     )
     if not success:
         return False
+    if test_output_tag is not None and test_output_tag not in output:
+        return False
     success, output = run_target(
         CMakePresets.Example,
         example_cmake_source_dir,
@@ -2862,6 +2868,8 @@ def installation_example_(
         "test_program",
     )
     if not success:
+        return False
+    if test_output_tag is not None and test_output_tag not in output:
         return False
 
     # use as a dynamic library
@@ -2961,6 +2969,8 @@ def installation_example_(
     )
     if not success:
         return False
+    if test_output_tag is not None and test_output_tag not in output:
+        return False
     success, output = run_target(
         CMakePresets.Example,
         example_cmake_source_dir,
@@ -2969,6 +2979,8 @@ def installation_example_(
     )
     if not success:
         return False
+    if test_output_tag is not None and test_output_tag not in output:
+        return False
     success, output = run_target(
         CMakePresets.Example,
         example_cmake_source_dir,
@@ -2976,6 +2988,8 @@ def installation_example_(
         "test_program",
     )
     if not success:
+        return False
+    if test_output_tag is not None and test_output_tag not in output:
         return False
 
     return True
@@ -2992,6 +3006,7 @@ def example_quick_start_custom_main_fn() -> bool:
     return installation_example_(
         EXAMPLE_QUICK_START_CUSTOM_MAIN_CMAKE_SOURCE_DIR,
         EXAMPLE_QUICK_START_CUSTOM_MAIN_WAYPOINT_INSTALL_DIR,
+        "oCbUUvaK8qju51I9",
     )
 
 

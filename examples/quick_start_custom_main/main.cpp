@@ -4,8 +4,13 @@
 
 #include "waypoint/waypoint.hpp"
 
+#include <iostream>
+
 auto main() -> int
 {
+  std::cout << "=== Custom Waypoint entry point (oCbUUvaK8qju51I9) ==="
+            << std::endl;
+
   auto const t = waypoint::TestRun::create();
 
   auto const results = waypoint::run_all_tests(t);
