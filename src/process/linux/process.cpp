@@ -66,7 +66,7 @@ auto int2str(int num, unsigned char const base) -> std::string
     "Base must be between 2 and 16, inclusive.");
   // GCOV_COVERAGE_58QuSuUgMN8onvKx_EXCL_BR_STOP
 
-  std::ostringstream ss;
+  std::ostringstream ss{};
 
   while(num > 0)
   {
@@ -75,10 +75,9 @@ auto int2str(int num, unsigned char const base) -> std::string
     num /= base;
   }
 
-  auto output = ss.str();
-  std::ranges::reverse(output);
-
-  return output;
+  return ss.str() |
+    std::ranges::views::reverse |
+    std::ranges::to<std::string>();
 }
 
 auto str2int(std::string_view const str, unsigned char const base) -> int
