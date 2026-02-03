@@ -75,7 +75,7 @@ new_implementation_library(
   coverage
   process)
 
-new_exported_library(TARGET waypoint_iface INTERFACE_LINKS waypoint)
+new_exported_library(TARGET waypoint_interface INTERFACE_LINKS waypoint)
 
 if(DEFINED PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr
    AND PRESET_BUILD_TESTS_jsGLwkD9eVN5hzRr)
