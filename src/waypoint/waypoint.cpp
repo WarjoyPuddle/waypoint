@@ -1133,28 +1133,7 @@ ContextInProcess::ContextInProcess(internal::ContextInProcess_impl *const impl)
 {
 }
 
-void ContextInProcess::assert(bool const condition) const noexcept
-{
-  internal::get_impl(impl_->get_test_run())
-    .register_assertion(
-      condition,
-      this->impl_->test_id(),
-      this->impl_->generate_assertion_index(),
-      std::nullopt);
-}
-
-void ContextInProcess::assert(bool const condition, char const *const message)
-  const noexcept
-{
-  internal::get_impl(impl_->get_test_run())
-    .register_assertion(
-      condition,
-      this->impl_->test_id(),
-      this->impl_->generate_assertion_index(),
-      message);
-}
-
-auto ContextInProcess::assume(bool const condition) const noexcept -> bool
+auto ContextInProcess::assert(bool const condition) const noexcept -> bool
 {
   internal::get_impl(impl_->get_test_run())
     .register_assertion(
@@ -1166,7 +1145,7 @@ auto ContextInProcess::assume(bool const condition) const noexcept -> bool
   return condition;
 }
 
-auto ContextInProcess::assume(bool const condition, char const *const message)
+auto ContextInProcess::assert(bool const condition, char const *const message)
   const noexcept -> bool
 {
   internal::get_impl(impl_->get_test_run())
@@ -1187,45 +1166,7 @@ ContextChildProcess::ContextChildProcess(
 {
 }
 
-void ContextChildProcess::assert(bool const condition) const noexcept
-{
-  std::lock_guard const lock{*this->impl_->transmission_mutex()};
-
-  auto const index = this->impl_->generate_assertion_index();
-
-  internal::get_impl(impl_->get_test_run())
-    .register_assertion(condition, this->impl_->test_id(), index, std::nullopt);
-
-  internal::get_impl(impl_->get_test_run())
-    .transmit_assertion(
-      condition,
-      this->impl_->test_id(),
-      index,
-      std::nullopt,
-      *this->impl_->response_write_pipe());
-}
-
-void ContextChildProcess::assert(
-  bool const condition,
-  char const *const message) const noexcept
-{
-  std::lock_guard const lock{*this->impl_->transmission_mutex()};
-
-  auto const index = this->impl_->generate_assertion_index();
-
-  internal::get_impl(impl_->get_test_run())
-    .register_assertion(condition, this->impl_->test_id(), index, message);
-
-  internal::get_impl(impl_->get_test_run())
-    .transmit_assertion(
-      condition,
-      this->impl_->test_id(),
-      index,
-      message,
-      *this->impl_->response_write_pipe());
-}
-
-auto ContextChildProcess::assume(bool const condition) const noexcept -> bool
+auto ContextChildProcess::assert(bool const condition) const noexcept -> bool
 {
   std::lock_guard const lock{*this->impl_->transmission_mutex()};
 
@@ -1245,7 +1186,7 @@ auto ContextChildProcess::assume(bool const condition) const noexcept -> bool
   return condition;
 }
 
-auto ContextChildProcess::assume(
+auto ContextChildProcess::assert(
   bool const condition,
   char const *const message) const noexcept -> bool
 {

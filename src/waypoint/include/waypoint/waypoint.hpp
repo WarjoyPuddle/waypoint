@@ -521,12 +521,10 @@ public:
   auto operator=(Context const &other) -> Context & = delete;
   auto operator=(Context &&other) noexcept -> Context & = delete;
 
-  virtual void assert(bool condition) const noexcept = 0;
-  virtual void assert(bool condition, char const *message) const noexcept = 0;
-  [[nodiscard]]
-  virtual auto assume(bool condition) const noexcept -> bool = 0;
-  [[nodiscard]]
-  virtual auto assume(bool condition, char const *message) const noexcept
+  // NOLINTNEXTLINE(modernize-use-nodiscard)
+  virtual auto assert(bool condition) const noexcept -> bool = 0;
+  // NOLINTNEXTLINE(modernize-use-nodiscard)
+  virtual auto assert(bool condition, char const *message) const noexcept
     -> bool = 0;
 };
 
@@ -540,12 +538,10 @@ public:
   auto operator=(ContextInProcess &&other) noexcept
     -> ContextInProcess & = delete;
 
-  void assert(bool condition) const noexcept override;
-  void assert(bool condition, char const *message) const noexcept override;
-  [[nodiscard]]
-  auto assume(bool condition) const noexcept -> bool override;
-  [[nodiscard]]
-  auto assume(bool condition, char const *message) const noexcept
+  // NOLINTNEXTLINE(modernize-use-nodiscard)
+  auto assert(bool condition) const noexcept -> bool override;
+  // NOLINTNEXTLINE(modernize-use-nodiscard)
+  auto assert(bool condition, char const *message) const noexcept
     -> bool override;
 
 private:
@@ -567,12 +563,10 @@ public:
   auto operator=(ContextChildProcess &&other) noexcept
     -> ContextChildProcess & = delete;
 
-  void assert(bool condition) const noexcept override;
-  void assert(bool condition, char const *message) const noexcept override;
-  [[nodiscard]]
-  auto assume(bool condition) const noexcept -> bool override;
-  [[nodiscard]]
-  auto assume(bool condition, char const *message) const noexcept
+  // NOLINTNEXTLINE(modernize-use-nodiscard)
+  auto assert(bool condition) const noexcept -> bool override;
+  // NOLINTNEXTLINE(modernize-use-nodiscard)
+  auto assert(bool condition, char const *message) const noexcept
     -> bool override;
 
 private:

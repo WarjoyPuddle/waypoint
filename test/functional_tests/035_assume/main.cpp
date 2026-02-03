@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -16,11 +16,11 @@ WAYPOINT_AUTORUN(waypoint::TestRun const &t)
     .run(
       [](auto const &ctx)
       {
-        if(ctx.assume(true, "message 1"))
+        if(ctx.assert(true, "message 1"))
         {
           ctx.assert(false, "message 2");
 
-          if(!ctx.assume(true, "message 3"))
+          if(!ctx.assert(true, "message 3"))
           {
             ctx.assert(false, "message 4");
 
@@ -30,7 +30,7 @@ WAYPOINT_AUTORUN(waypoint::TestRun const &t)
           ctx.assert(false, "message 5");
           ctx.assert(true, "message 6");
 
-          if(!ctx.assume(false))
+          if(!ctx.assert(false))
           {
             ctx.assert(false, "message 7");
             ctx.assert(true, "message 8");

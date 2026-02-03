@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -16,7 +16,7 @@ WAYPOINT_AUTORUN(waypoint::TestRun const &t)
     .run(
       [](auto const &ctx)
       {
-        if(!ctx.assume(true) || ctx.assume(true, "body assertion message"))
+        if(!ctx.assert(true) || ctx.assert(true, "body assertion message"))
         {
         }
       });

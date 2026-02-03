@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Wojciech Kałuża
+// Copyright (c) 2025-2026 Wojciech Kałuża
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
@@ -17,7 +17,7 @@ WAYPOINT_AUTORUN(waypoint::TestRun const &t)
       {
         auto const maybe_value = waypoint::test::get_env(
           "WAYPOINT_INTERNAL_RUNNING_TEST_XTSyiOp7QMFW8P2H");
-        if(ctx.assume(maybe_value.has_value()))
+        if(ctx.assert(maybe_value.has_value()))
         {
           ctx.assert(maybe_value.value() == "123");
         }
