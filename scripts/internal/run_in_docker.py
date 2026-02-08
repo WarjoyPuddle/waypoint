@@ -32,10 +32,9 @@ def main() -> int:
     dockerfile_path = DOCKER_DIR / "build.dockerfile"
     target = "base"
     docker_tag = f"waypoint_development:{docker_image_source_digest(context_dir, dockerfile_path, args, target)}"
-    if docker_tag_exists(docker_tag):
-        print(f"No need to build Docker image: {docker_tag}", flush=True)
-    else:
-        print("Building Docker image. This may take a long time...", flush=True)
+    if not docker_tag_exists(docker_tag):
+        print(f"Building Docker image {docker_tag}", flush=True)
+        print("This may take a long time...", flush=True)
         success = build_docker(
             docker_tag,
             dockerfile_path,
@@ -48,7 +47,7 @@ def main() -> int:
 
             return 1
 
-        print(f"Docker build success: {docker_tag}", flush=True)
+    print(f"Using Docker image {docker_tag}", flush=True)
 
     args: list[str] = sys.argv[1:]
     success = run_in_docker(docker_tag, PROJECT_ROOT_DIR, args)
