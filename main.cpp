@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: MIT
 // For license details, see LICENSE file
 
-#pragma once
+import std;
+import plums;
 
-namespace deep_thought
+int main(int, char **)
 {
-
-auto the_answer() noexcept -> int;
-
-} // namespace deep_thought
+  plms::say_hi();
+  std::cout << "Hello from main!" << std::endl;
+}
