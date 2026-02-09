@@ -155,6 +155,13 @@ macro(conditionally_enable_coverage)
   endif()
 endmacro()
 
+macro(conditionally_configure_compiler_for_valgrind)
+  if(DEFINED PRESET_VALGRIND_COMPILER_OPTIONS_vII5N7cLv784aOET
+     AND PRESET_VALGRIND_COMPILER_OPTIONS_vII5N7cLv784aOET)
+    target_compile_options(${arg_TARGET} PRIVATE -g -fno-inline)
+  endif()
+endmacro()
+
 macro(disable_exceptions_in_coverage_mode)
   if(DEFINED PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW
      AND PRESET_ENABLE_COVERAGE_vQpoCDvq3X259YyW)
@@ -286,6 +293,7 @@ endmacro()
 
 macro(common_macros)
   links_and_sources()
+  conditionally_configure_compiler_for_valgrind()
   conditionally_enable_coverage()
   conditionally_enable_address_sanitizer()
   conditionally_enable_undefined_behaviour_sanitizer()
