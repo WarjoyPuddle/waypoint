@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
-set -euo pipefail
-
 main()
 {
   # Configure step
