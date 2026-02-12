@@ -15,7 +15,7 @@ POST_CHECKOUT_HOOK_PATH = GIT_DIR / "hooks/post-checkout"
 
 
 def hook(script: str) -> str:
-    return f"""#!/bin/bash
+    return f"""#!/usr/bin/env bash
 set -euo pipefail
 
 THIS_SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
