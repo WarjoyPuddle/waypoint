@@ -5,9 +5,7 @@
 
 import hashlib
 import pathlib
-import subprocess
-
-from .system import get_python
+import stat
 
 PRE_COMMIT_HOOK_DIGEST = (
     "909443fab9eb8d83f6b262181a1960108cad63fe2358c8c2106e370bd38639e1"
@@ -34,14 +32,6 @@ def post_commit_hook_path(git_dir: pathlib.Path) -> pathlib.Path:
 
 def post_checkout_hook_path(git_dir: pathlib.Path) -> pathlib.Path:
     return git_dir / "hooks/post-checkout"
-
-
-def install_hooks_script_path(project_root_dir: pathlib.Path) -> pathlib.Path:
-    path = project_root_dir / "scripts/internal/install_hooks.py"
-
-    assert path.is_file()
-
-    return path
 
 
 def digest(path: pathlib.Path) -> str:
@@ -75,10 +65,7 @@ def ensure_hooks_installed(project_root_dir: pathlib.Path) -> bool:
     ):
         return True
 
-    result = subprocess.run(
-        [get_python(), str(install_hooks_script_path(project_root_dir))]
-    )
-    assert result.returncode == 0
+    install_git_hooks(project_root_dir)
 
     if (
         pre_commit_hook_digest != PRE_COMMIT_HOOK_DIGEST
@@ -95,6 +82,35 @@ def ensure_hooks_installed(project_root_dir: pathlib.Path) -> bool:
         return False
 
     return True
+
+
+def hook(script: str) -> str:
+    return f"""#!/usr/bin/env bash
+
+THIS_SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
+PROJECT_ROOT_DIR="$(realpath "${{THIS_SCRIPT_DIR}}/../..")"
+
+cd "${{PROJECT_ROOT_DIR}}"
+
+if test -f "${{PROJECT_ROOT_DIR}}/infrastructure/hooks/git/{script}";
+then
+  "${{PROJECT_ROOT_DIR}}/infrastructure/hooks/git/{script}"
+fi
+"""
+
+
+def create_hook(path: pathlib.Path, content: str) -> None:
+    with open(path, "w") as f:
+        f.write(content)
+    path.chmod(stat.S_IRWXU)
+
+
+def install_git_hooks(project_root_dir: pathlib.Path) -> None:
+    git_dir = git_dir_path(project_root_dir)
+
+    create_hook(pre_commit_hook_path(git_dir), hook("git_pre_commit_hook"))
+    create_hook(post_commit_hook_path(git_dir), hook("git_post_commit_hook"))
+    create_hook(post_checkout_hook_path(git_dir), hook("git_post_checkout_hook"))
 
 
 def download_dependencies() -> None:
