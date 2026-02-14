@@ -70,6 +70,7 @@ function install_apps
     gcovr \
     gdb \
     git \
+    golang \
     make \
     ninja-build \
     python3.13 \
