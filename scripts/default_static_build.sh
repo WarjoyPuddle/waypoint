@@ -8,7 +8,10 @@ PROJECT_ROOT_DIR="$(realpath "${THIS_SCRIPT_DIR}/..")"
 
 main()
 {
-  python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/build.py" default_static_build
+  if ! python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/build.py" default_static_build;
+  then
+    exit 1
+  fi
 
   echo "Success: $(basename "$0")"
 }
