@@ -108,9 +108,9 @@ def create_hook(path: pathlib.Path, content: str) -> None:
 def install_git_hooks(project_root_dir: pathlib.Path) -> None:
     git_dir = git_dir_path(project_root_dir)
 
-    create_hook(pre_commit_hook_path(git_dir), hook("git_pre_commit_hook"))
-    create_hook(post_commit_hook_path(git_dir), hook("git_post_commit_hook"))
-    create_hook(post_checkout_hook_path(git_dir), hook("git_post_checkout_hook"))
+    create_hook(pre_commit_hook_path(git_dir), hook("git_pre_commit_hook.sh"))
+    create_hook(post_commit_hook_path(git_dir), hook("git_post_commit_hook.sh"))
+    create_hook(post_checkout_hook_path(git_dir), hook("git_post_checkout_hook.sh"))
 
 
 def download_dependencies() -> None:
