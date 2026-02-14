@@ -10,8 +10,7 @@ CONTAINER_ROOT_DIR="/workspace"
 main()
 {
   if ! python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/run_in_docker.py" \
-    python3 "${CONTAINER_ROOT_DIR}/scripts/internal/build.py" fast;
-  then
+    python3 "${CONTAINER_ROOT_DIR}/scripts/internal/build.py" fast; then
     exit 1
   fi
 

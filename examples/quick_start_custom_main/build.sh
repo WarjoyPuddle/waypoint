@@ -21,8 +21,7 @@ main()
   build___/Debug/test_program
 
   # Demonstrate that custom main function is actually in use
-  if build___/Debug/test_program | grep "oCbUUvaK8qju51I9" >/dev/null 2>&1;
-  then
+  if build___/Debug/test_program | grep "oCbUUvaK8qju51I9" >/dev/null 2>&1; then
     echo "Correct entry point found"
   else
     echo "Error: Incorrect entry point"

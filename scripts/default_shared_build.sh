@@ -8,8 +8,7 @@ PROJECT_ROOT_DIR="$(realpath "${THIS_SCRIPT_DIR}/..")"
 
 main()
 {
-  if ! python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/build.py" default_shared_build;
-  then
+  if ! python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/build.py" default_shared_build; then
     exit 1
   fi
 

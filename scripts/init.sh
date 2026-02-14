@@ -8,10 +8,8 @@ PROJECT_ROOT_DIR="$(realpath "${THIS_SCRIPT_DIR}/..")"
 
 main()
 {
-  if test -d "${PROJECT_ROOT_DIR}/.git";
-  then
-    if ! python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/install_hooks.py";
-    then
+  if test -d "${PROJECT_ROOT_DIR}/.git"; then
+    if ! python3 -B "${PROJECT_ROOT_DIR}/scripts/internal/install_hooks.py"; then
       exit 1
     fi
   fi

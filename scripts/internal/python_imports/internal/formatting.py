@@ -10,6 +10,7 @@ from .file_types import is_cmake_file
 from .file_types import is_cpp_file
 from .file_types import is_json_file
 from .file_types import is_python_file
+from .file_types import is_shell_script
 from .process import run
 from .system import get_cpu_count
 from .system import get_python
@@ -95,6 +96,23 @@ def check_formatting_python(file: pathlib.Path) -> tuple[bool, str | None]:
     return True, None
 
 
+def check_formatting_shell(file: pathlib.Path) -> tuple[bool, str | None]:
+    success, output = run(
+        [
+            "shfmt",
+            "--func-next-line",
+            "--indent",
+            "2",
+            "--diff",
+            str(file),
+        ]
+    )
+    if not success:
+        return False, f"Incorrect file formatting ({file})"
+
+    return True, None
+
+
 def format_cmake(file: pathlib.Path) -> tuple[bool, str | None]:
     success, output = run(
         [
@@ -170,6 +188,23 @@ def format_python(file: pathlib.Path) -> tuple[bool, str | None]:
     return True, None
 
 
+def format_shell(file: pathlib.Path) -> tuple[bool, str | None]:
+    success, output = run(
+        [
+            "shfmt",
+            "--func-next-line",
+            "--indent",
+            "2",
+            "--write",
+            str(file),
+        ]
+    )
+    if not success:
+        return False, output
+
+    return True, None
+
+
 def fix_lines(lines: list[str]) -> str:
     lines = [line.rstrip() for line in lines]
     while lines[0] == "":
@@ -218,6 +253,8 @@ def check_formatting_in_single_file(data) -> tuple[bool, str | None, pathlib.Pat
         success, output = check_formatting_json(file)
     if is_python_file(file):
         success, output = check_formatting_python(file)
+    if is_shell_script(file):
+        success, output = check_formatting_shell(file)
 
     success = success and check_whitespace(file)
 
@@ -238,6 +275,8 @@ def format_single_file(data) -> tuple[bool, str | None, pathlib.Path]:
         success, output = format_json(file)
     if is_python_file(file):
         success, output = format_python(file)
+    if is_shell_script(file):
+        success, output = format_shell(file)
 
     success = success and fix_whitespace(file)
 

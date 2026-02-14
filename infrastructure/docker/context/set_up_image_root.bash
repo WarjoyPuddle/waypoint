@@ -87,7 +87,7 @@ function add_kitware_apt_repo
   test -f /usr/share/doc/kitware-archive-keyring/copyright ||
     wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null |
     gpg --dearmor - |
-    tee "${keyring_path}" >/dev/null
+      tee "${keyring_path}" >/dev/null
   echo "deb [signed-by=${keyring_path}]" \
     "https://apt.kitware.com/ubuntu/ noble main" |
     tee /etc/apt/sources.list.d/kitware.list >/dev/null
