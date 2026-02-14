@@ -75,9 +75,9 @@ def ensure_hooks_installed(project_root_dir: pathlib.Path) -> bool:
         print(
             f"Error: Unexpected hook digest values: update {pathlib.Path(__file__).name}"
         )
-        print(f"PRE_COMMIT_HOOK_DIGEST = {pre_commit_hook_digest}")
-        print(f"POST_COMMIT_HOOK_DIGEST = {post_commit_hook_digest}")
-        print(f"POST_CHECKOUT_HOOK_DIGEST = {post_checkout_hook_digest}")
+        print(f"PRE_COMMIT_HOOK_DIGEST = '{pre_commit_hook_digest}'")
+        print(f"POST_COMMIT_HOOK_DIGEST = '{post_commit_hook_digest}'")
+        print(f"POST_CHECKOUT_HOOK_DIGEST = '{post_checkout_hook_digest}'")
 
         return False
 
