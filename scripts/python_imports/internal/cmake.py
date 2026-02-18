@@ -139,9 +139,9 @@ def dir_from_preset(dir_key, preset, cmake_source_dir) -> str:
             p for p in data["configurePresets"] if p["name"] == preset.configure
         ]
         assert len(configure_presets) == 1
-        configure_presets = configure_presets[0]
+        configure_preset = configure_presets[0]
 
-        dir_path = configure_presets[dir_key]
+        dir_path = configure_preset[dir_key]
         dir_path = dir_path.replace("${sourceDir}", f"{cmake_source_dir}")
 
         return os.path.realpath(dir_path)
