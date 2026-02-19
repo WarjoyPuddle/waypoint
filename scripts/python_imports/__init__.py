@@ -6,6 +6,7 @@ from .internal.checks import misc_checks
 from .internal.checks import verify_installation_contents_shared
 from .internal.checks import verify_installation_contents_static
 from .internal.cmake import build_cmake
+from .internal.cmake import cache_var_from_preset
 from .internal.cmake import clean_build_dir
 from .internal.cmake import clean_install_dir
 from .internal.cmake import configure_cmake
