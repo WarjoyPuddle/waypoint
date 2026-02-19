@@ -327,7 +327,7 @@ macro(common_test_macros)
 endmacro()
 
 function(new_implementation_library)
-  set(options PLACEHOLDER_OPTION)
+  set(options)
   set(singleValueKeywords DIRECTORY TARGET INCLUDE_PREFIX)
   set(multiValueKeywords PRIVATE_LINKS PUBLIC_LINKS PRIVATE_HEADERS
                          PUBLIC_HEADERS SOURCES)
@@ -349,7 +349,7 @@ function(new_implementation_library)
 endfunction()
 
 function(new_exported_library)
-  set(options PLACEHOLDER_OPTION)
+  set(options)
   set(singleValueKeywords TARGET)
   set(multiValueKeywords INTERFACE_LINKS)
   cmake_parse_arguments(PARSE_ARGV 0 "arg" "${options}"
@@ -364,7 +364,7 @@ function(new_exported_library)
 endfunction()
 
 function(new_internal_library)
-  set(options PLACEHOLDER_OPTION)
+  set(options)
   set(singleValueKeywords DIRECTORY TARGET)
   set(multiValueKeywords PRIVATE_LINKS PRIVATE_HEADERS PUBLIC_HEADERS SOURCES)
   cmake_parse_arguments(PARSE_ARGV 0 "arg" "${options}"
@@ -385,7 +385,7 @@ function(new_internal_library)
 endfunction()
 
 function(new_platform_specific_internal_library)
-  set(options PLACEHOLDER_OPTION)
+  set(options)
   set(singleValueKeywords DIRECTORY TARGET)
   set(multiValueKeywords PRIVATE_LINKS PRIVATE_HEADERS PUBLIC_HEADERS SOURCES)
   cmake_parse_arguments(PARSE_ARGV 0 "arg" "${options}"
@@ -406,7 +406,7 @@ function(new_platform_specific_internal_library)
 endfunction()
 
 function(new_test_library)
-  set(options PLACEHOLDER_OPTION)
+  set(options)
   set(singleValueKeywords DIRECTORY TARGET)
   set(multiValueKeywords PRIVATE_LINKS PRIVATE_HEADERS PUBLIC_HEADERS SOURCES)
   cmake_parse_arguments(PARSE_ARGV 0 "arg" "${options}"
@@ -462,7 +462,7 @@ endfunction()
 function(new_waypoint_main_test)
   set(options EXPECTED_FAILURE)
   set(singleValueKeywords TARGET)
-  set(multiValueKeywords PLACEHOLDER_MULTI_VALUE)
+  set(multiValueKeywords)
   cmake_parse_arguments(PARSE_ARGV 0 "arg" "${options}"
                         "${singleValueKeywords}" "${multiValueKeywords}")
 
