@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -15,7 +15,7 @@ enable_testing()
 set(PROJECT_ROOT_DIR_W1Fe4INAzomRGHgi ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 add_subdirectory(
-  ${PROJECT_ROOT_DIR_W1Fe4INAzomRGHgi}/waypoint_sources_4XF31O1T1ff3B3Tq___/infrastructure
+  ${PROJECT_ROOT_DIR_W1Fe4INAzomRGHgi}/${PRESET_WAYPOINT_SOURCES_PATH}/infrastructure
   ${PROJECT_ROOT_DIR_W1Fe4INAzomRGHgi}/${PRESET_WAYPOINT_BUILD_PATH}
   EXCLUDE_FROM_ALL)
 

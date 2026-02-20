@@ -132,11 +132,13 @@ def install_cmake(preset, config, working_dir) -> bool:
 
 
 def dir_from_preset(dir_key, preset, cmake_source_dir) -> str:
+    preset_name = preset if isinstance(preset, str) else preset.configure
+
     presets_path = os.path.realpath(f"{cmake_source_dir}/CMakePresets.json")
     with open(presets_path) as f:
         data = json.load(f)
         configure_presets = [
-            p for p in data["configurePresets"] if p["name"] == preset.configure
+            p for p in data["configurePresets"] if p["name"] == preset_name
         ]
         assert len(configure_presets) == 1
         configure_preset = configure_presets[0]
@@ -148,11 +150,13 @@ def dir_from_preset(dir_key, preset, cmake_source_dir) -> str:
 
 
 def cache_var_from_preset(var_name, preset, cmake_source_dir) -> str:
+    preset_name = preset if isinstance(preset, str) else preset.configure
+
     presets_path = os.path.realpath(f"{cmake_source_dir}/CMakePresets.json")
     with open(presets_path) as f:
         data = json.load(f)
         configure_presets = [
-            p for p in data["configurePresets"] if p["name"] == preset.configure
+            p for p in data["configurePresets"] if p["name"] == preset_name
         ]
         assert len(configure_presets) == 1
         configure_preset = configure_presets[0]
