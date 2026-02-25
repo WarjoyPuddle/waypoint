@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Wojciech Kałuża
+# Copyright (c) 2025-2026 Wojciech Kałuża
 # SPDX-License-Identifier: MIT
 # For license details, see LICENSE file
 
@@ -16,6 +16,8 @@ ARG _TEMP_DIR_ROOT="/docker_root_build_temp"
 ARG _TEMP_DIR_USER="$_HOME/docker_user_build_temp"
 ARG _SETUP_SCRIPT_ROOT="$_TEMP_DIR_ROOT/set_up_image_root.bash"
 ARG _SETUP_SCRIPT_USER="$_TEMP_DIR_USER/set_up_image_user.bash"
+
+ENV PATH=$PATH:$_HOME/.local/bin
 
 USER root
 COPY "./" $_TEMP_DIR_ROOT/
